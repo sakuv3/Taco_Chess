@@ -1,35 +1,39 @@
 package Taco_Chess;
+import Taco_Chess.Figures.*;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import Taco_Chess.Figures.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import java.io.FileInputStream;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
+import javafx.fxml.FXMLLoader;
+import java.io.IOException;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Board extends GridPane
+public class Board extends Stage
 {
     static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
-    public static Label feld[][];   // das Schachfeld
+    static Button feld[][];   // das Schachfeld
     public Abstract_Figure figures[][];
 
     private King king[];
     private ArrayList <Queen>    queens;
     private ArrayList <Bishop>   bishops;
-    private ArrayList <Horse>    horses;
+    private ArrayList<Horse> horses;
     private ArrayList <Rook>     rooks;
     private ArrayList <Pawn>     pawns;
 
     public Board() throws FileNotFoundException
     {
-        feld    = new Label[8][8];
         figures = new Abstract_Figure[8][8];
+        feld    = new Button[8][8];
 
         createTable();
         initFigures();
-        drawFigures();
     };
 
     public Abstract_Figure[] getAllFigures()
@@ -46,7 +50,7 @@ public class Board extends GridPane
         }
 
         Abstract_Figure[] figs = new Abstract_Figure[retFigures.size()];
-        return (Abstract_Figure[])retFigures.toArray(figs);
+        return retFigures.toArray(figs);
     }
 
     public Abstract_Figure getFigure( int xCoord, int yCoord )
@@ -68,12 +72,20 @@ public class Board extends GridPane
 
         if( x >=0 && y >=0 && figures[x][y] != null )
         {
-            feld[x][y].setGraphic( null );
             figures[x][y].setCoordinates( -1, -1 );
             figures[x][y] = null;
         }
     }
 
+    public void moveFigure( Abstract_Figure figure, int xNew, int yNew )
+    {
+        int xOld = figure.getXCoord();
+        int yOld = figure.getyCoord();
+
+        figures[xOld][yOld] = null;
+        figures[xNew][yNew] = figure;
+
+    }
     public boolean setFigure( Abstract_Figure figure, int x, int y, boolean isBlack )
     {
         figure.isBlack  = isBlack;
@@ -93,7 +105,6 @@ public class Board extends GridPane
         pawns   = new ArrayList();
         boolean isBlack =false;
 
-        Abstract_Figure[][] FIGUREZ = figures;
         // rooks, horses & pawns - jeweils 2 für jedes Team
 
 
@@ -120,8 +131,8 @@ public class Board extends GridPane
         setFigure( rook[0], 0, 0, false);
         setFigure( horse[0], 1, 0, false );
         setFigure( bishop[0], 2, 0, false );
-        setFigure( queen, 3, 0, false );
-        setFigure( king[0], 4, 0, false);
+        setFigure( king[0], 3, 0, false);
+        setFigure( queen, 4, 0, false );
         setFigure( bishop[1], 5, 0,false );
         setFigure( horse[1], 6, 0, false );
         setFigure( rook[1], 7, 0, false );
@@ -134,8 +145,8 @@ public class Board extends GridPane
         setFigure( rook[2], 0, 7, true );
         setFigure( horse[2], 1, 7, true );
         setFigure( bishop[2], 2, 7, true );
-        setFigure( queen, 3, 7, true);
-        setFigure( king[1], 4, 7, true);
+        setFigure( king[1], 3, 7, true);
+        setFigure( queen, 4, 7, true);
         setFigure( bishop[3], 5, 7, true );
         setFigure( horse[3], 6, 7, true );
         setFigure( rook[3], 7, 7, true );
@@ -167,26 +178,24 @@ public class Board extends GridPane
     private void createTable()
     {
         // erzeuge schwarz/weiße Felder
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++)
-            {
-                feld[i][j] = new Label();
-                feld[i][j].setMinSize(50, 50);
-
-                if ((i % 2 == 0 && j % 2 == 0) || (i % 2 != 0 && j % 2 != 0))
-                    feld[i][j].setStyle("-fx-background-color: sienna");
-                else
-                    feld[i][j].setStyle("-fx-background-color: blanchedalmond");
-
-                this.add(feld[i][j], i, j);
-            }
+        GridPane root;
+        try {
+            root = FXMLLoader.load(getClass().getResource("Board.fxml"));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
+            setScene(scene);
         }
+        catch( IOException ex )
+        {
+            System.out.println("could load Board.fxml ");
+        }
+
     }
 
-    private void drawFigures(  ) throws FileNotFoundException
+    public void drawFigures( ) throws FileNotFoundException
     {
         int x,y;
-        String blackOrWhite         = "white";
+        String blackOrWhite         = "";
         String figureType           = "";
         Abstract_Figure[] activeFigs   = getAllFigures();
 
@@ -213,131 +222,11 @@ public class Board extends GridPane
             else if( activeFigs[i] instanceof Pawn )
                 figureType = "pawn.png";
 
-            /* DRAWS here */
+            /* lets D R A W */
             String PATH = linuxURL + blackOrWhite + figureType;
-            feld[x][y].setGraphic((new ImageView(new Image(new FileInputStream( PATH )))));
 
-            /* AB HIER WERDEN EVENTS GEHANDLED !!! BEWARE DANGEROUS ZONE xD */
+            Button btn = new Button();
 
-            /* Lambda-Expression zum einfärben der Feld-Position */
-            feld[x][y].setOnMouseEntered(event ->
-            {
-                String color ="";
-                int xCoord,yCoord;
-                xCoord = (int)((Label)event.getSource()).getLayoutX() / 50;
-                yCoord = (int)((Label)event.getSource()).getLayoutY() / 50;
-
-                if( (xCoord + yCoord) % 2 == 0 )// schwarzes Feld
-                    color = "sienna";
-
-
-                else // weißes Feld
-                    color = "blanchedalmond";
-
-                ((Label) event.getSource()).setStyle(
-                        "-fx-border-color: #FF33CC;"
-                                + "-fx-background-color: " +color );
-
-                //System.out.printf("X: %.0f Y: %.0f\n", xCoord, yCoord);
-            });
-
-            /* Lambda-Expression zum ausfärben der Feld-Position */
-            feld[x][y].setOnMouseExited( event ->
-            {
-                String color ="";
-                int xCoord,yCoord;
-                xCoord = (int)((Label)event.getSource()).getLayoutX() / 50;
-                yCoord = (int)((Label)event.getSource()).getLayoutY() / 50;
-
-                if( (xCoord + yCoord) % 2 == 0 )// schwarzes Feld
-                   color = "sienna";
-
-
-                else // weißes Feld
-                    color = "blanchedalmond";
-
-                ((Label) event.getSource()).setStyle(
-                        "-fx-border-color: " +color +";"
-                                + "-fx-background-color: " +color);
-
-            });
-
-            /* Spieler klickt auf den Spieler mit dem er sich Fortbewegen will */
-            feld[x][y].setOnMouseClicked( event ->
-            {
-                int xCoord,yCoord;
-                xCoord = (int)((Label)event.getSource()).getLayoutX() / 50;
-                yCoord = (int)((Label)event.getSource()).getLayoutY() / 50;
-
-                show_possibilisites_white( activeFigs, xCoord, yCoord );
-            });
-        }
-    }
-
-    public void show_possibilisites_white( Abstract_Figure [] activeFigs, int x, int y )
-    {
-        clear_possibilities( activeFigs );
-
-        Abstract_Figure clickedFigure = check_field( activeFigs, x, y );
-        if( clickedFigure != null )
-        {
-            try
-            {
-                if (clickedFigure instanceof Pawn)
-                {
-                    System.out.println("PAWN");
-
-                    if ( y>0 && y<8 )
-                    {
-                        // white pawn can move 1 field straight
-                        if( check_field(activeFigs, x, y+1) == null ) {
-                            feld[x][y+1].setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
-
-                            feld[x][y+1].setOnMouseClicked( event ->
-                            {
-                                clear_possibilities ( activeFigs );
-                                removeFigure( clickedFigure );
-
-                                setFigure( clickedFigure, x, y+1, false );
-                                try
-                                {
-                                    drawFigures();
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-
-                            });
-                        }
-                        if( y == 1 )
-                        {   // white pawn is in start-position -> can move 2 field straight
-                            if (check_field(activeFigs, x, y+2) == null)
-                                feld[x][y+2].setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
-                        }
-
-                        if( x > 0 && x < 8 )
-                        {   // white pawn can kill black enemy down-LEFT
-                            Abstract_Figure enemy = check_field(activeFigs, x-1, y+1);
-                            if( enemy != null )
-                            {
-                                if( enemy.isBlack )
-                                {
-                                    feld[x-1][y+1].setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
-                                }
-                            }
-                        }
-
-                        // white pawn can kill black enemy down-RIGHT
-                    }
-                    else
-                    {
-
-                    }
-                }
-            }
-            catch( FileNotFoundException ex )
-            {
-                System.out.println("FileNotFoundException in move_figure");
-            }
         }
     }
 
@@ -364,6 +253,7 @@ public class Board extends GridPane
             }
         }
     }
+
     public void clear_possibilities( Abstract_Figure[] activeFigs )
     {
         for( int y=0; y<8; y++ )
@@ -375,6 +265,7 @@ public class Board extends GridPane
             }
         }
     }
+
     // returns the figure, on the field clicked or null if no figure is in the field
     public Abstract_Figure check_field( Abstract_Figure []figures, int x, int y )
     {

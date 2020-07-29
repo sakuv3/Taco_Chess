@@ -1,0 +1,83 @@
+.button /* ALL Squares */
+{
+    -fx-background-position: center center;
+    -fx-background-repeat: stretch;
+    -fx-background-size: 45,45;
+    -fx-border-color: #A39300;
+}
+
+/* WHITE-FIELDS -GLOBAL */
+#00, #20, #40, #60, #11, #31, #51, #71, #02, #22, #42, #62, #13, #33, #53, #73,
+#04, #24, #44, #64, #15, #35, #55, #75, #06, #26, #46, #66, #17, #37, #57, #77
+{
+    -fx-background-color: linear-gradient( #cbe3a8,#bdd49b);
+}
+
+/* BLACK-FIELDS - GLOBAL */
+#10, #30, #50, #70, #01, #21, #41, #61, #12, #32, #52, #72, #03, #23, #43, #63,
+#14, #34, #54, #74, #05, #25, #45, #65, #16, #36, #56, #76, #07, #27, #47, #67
+{
+    -fx-background-color: linear-gradient(#94b26a, #92ab6f);
+}
+
+/* BLACK FIGURES */
+#30
+{
+    -fx-background-image: url('images/black/king.png');
+}
+
+#40
+{
+    -fx-background-image: url('images/black/queen.png');
+}
+
+#00, #70
+{
+    -fx-background-image: url('images/black/rook.png');
+}
+
+#10, #60
+{
+    -fx-background-image: url('images/black/horse.png');
+}
+
+#20, #50
+{
+    -fx-background-image: url('images/black/bishop.png');
+}
+
+#01, #11, #21, #31, #41, #51, #61, #71
+{
+    -fx-background-image: url('images/black/pawn.png');
+}
+
+/* WHITE FIGURES */
+#37
+{
+    -fx-background-image: url('images/white/king.png');
+}
+
+#47
+{
+    -fx-background-image: url('images/white/queen.png');
+}
+
+#07, #77
+{
+    -fx-background-image: url('images/white/rook.png');
+}
+
+#17, #67
+{
+    -fx-background-image: url('images/white/horse.png');
+}
+
+#27, #57
+{
+    -fx-background-image: url('images/white/bishop.png');
+}
+
+#06, #16, #26, #36, #46, #56, #66, #76
+{
+    -fx-background-image: url('images/white/pawn.png');
+}

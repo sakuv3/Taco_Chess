@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane fx:controller="Taco_Chess.BoardController" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="75.0" prefWidth="75.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="75.0" prefWidth="75.0" />
@@ -29,77 +30,77 @@
       <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-       <Label fx:id="00" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-       <Label fx:id="01" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-       <Label fx:id="02"  GridPane.columnIndex="2" GridPane.rowIndex="0" />
-       <Label fx:id="03"  GridPane.columnIndex="3" GridPane.rowIndex="0" />
-       <Label fx:id="04"  GridPane.columnIndex="4" GridPane.rowIndex="0" />
-       <Label fx:id="05"  GridPane.columnIndex="5" GridPane.rowIndex="0" />
-       <Label fx:id="06"  GridPane.columnIndex="6" GridPane.rowIndex="0" />
-       <Label fx:id="07"  GridPane.columnIndex="7" GridPane.rowIndex="0" />
+       <Button fx:id="00" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+       <Button fx:id="10" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+       <Button fx:id="20" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+       <Button fx:id="30" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+       <Button fx:id="40" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="0" />
+       <Button fx:id="50" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+       <Button fx:id="60" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="0" />
+       <Button fx:id="70" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="0" />
 
-       <Label fx:id="10"  GridPane.rowIndex="1" GridPane.columnIndex="0" />
-       <Label fx:id="11"  GridPane.rowIndex="1" GridPane.columnIndex="1" />
-       <Label fx:id="12"  GridPane.rowIndex="1" GridPane.columnIndex="2" />
-       <Label fx:id="13"  GridPane.rowIndex="1" GridPane.columnIndex="3" />
-       <Label fx:id="14"  GridPane.rowIndex="1" GridPane.columnIndex="4" />
-       <Label fx:id="15"  GridPane.rowIndex="1" GridPane.columnIndex="5" />
-       <Label fx:id="16"  GridPane.rowIndex="1" GridPane.columnIndex="6" />
-       <Label fx:id="17"  GridPane.rowIndex="1" GridPane.columnIndex="7" />
+       <Button fx:id="01" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+       <Button fx:id="11" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+       <Button fx:id="21" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+       <Button fx:id="31" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+       <Button fx:id="41" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+       <Button fx:id="51" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+       <Button fx:id="61" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+       <Button fx:id="71" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
 
-       <Label fx:id="20"  GridPane.rowIndex="2" GridPane.columnIndex="0" />
-       <Label fx:id="21"  GridPane.rowIndex="2" GridPane.columnIndex="1" />
-       <Label fx:id="22"  GridPane.rowIndex="2" GridPane.columnIndex="2" />
-       <Label fx:id="23"  GridPane.rowIndex="2" GridPane.columnIndex="3" />
-       <Label fx:id="24"  GridPane.rowIndex="2" GridPane.columnIndex="4" />
-       <Label fx:id="25"  GridPane.rowIndex="2" GridPane.columnIndex="5" />
-       <Label fx:id="26"  GridPane.rowIndex="2" GridPane.columnIndex="6" />
-       <Label fx:id="27"  GridPane.rowIndex="2" GridPane.columnIndex="7" />
+       <Button fx:id="02" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+       <Button fx:id="12" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+       <Button fx:id="22" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+       <Button fx:id="32" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+       <Button fx:id="42" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+       <Button fx:id="52" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+       <Button fx:id="62" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="2" />
+       <Button fx:id="72" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="2" />
 
-       <Label fx:id="30"  GridPane.rowIndex="3" GridPane.columnIndex="0" />
-       <Label fx:id="31"  GridPane.rowIndex="3" GridPane.columnIndex="1" />
-       <Label fx:id="32"  GridPane.rowIndex="3" GridPane.columnIndex="2" />
-       <Label fx:id="33"  GridPane.rowIndex="3" GridPane.columnIndex="3" />
-       <Label fx:id="34"  GridPane.rowIndex="3" GridPane.columnIndex="4" />
-       <Label fx:id="35"  GridPane.rowIndex="3" GridPane.columnIndex="5" />
-       <Label fx:id="36"  GridPane.rowIndex="3" GridPane.columnIndex="6" />
-       <Label fx:id="37"  GridPane.rowIndex="3" GridPane.columnIndex="7" />
+       <Button fx:id="03" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+       <Button fx:id="13" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+       <Button fx:id="23" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+       <Button fx:id="33" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+       <Button fx:id="43" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+       <Button fx:id="53" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="3" />
+       <Button fx:id="63" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="3" />
+       <Button fx:id="73" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="3" />
 
-       <Label fx:id="40"  GridPane.rowIndex="4" GridPane.columnIndex="0" />
-       <Label fx:id="41"  GridPane.rowIndex="4" GridPane.columnIndex="1" />
-       <Label fx:id="42"  GridPane.rowIndex="4" GridPane.columnIndex="2" />
-       <Label fx:id="43"  GridPane.rowIndex="4" GridPane.columnIndex="3" />
-       <Label fx:id="44"  GridPane.rowIndex="4" GridPane.columnIndex="4" />
-       <Label fx:id="45"  GridPane.rowIndex="4" GridPane.columnIndex="5" />
-       <Label fx:id="46"  GridPane.rowIndex="4" GridPane.columnIndex="6" />
-       <Label fx:id="47"  GridPane.rowIndex="4" GridPane.columnIndex="7" />
+       <Button fx:id="04" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+       <Button fx:id="14" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+       <Button fx:id="24" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+       <Button fx:id="34" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+       <Button fx:id="44" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+       <Button fx:id="54" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="4" />
+       <Button fx:id="64" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="4" />
+       <Button fx:id="74" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="4" />
 
-       <Label fx:id="50"  GridPane.rowIndex="5" GridPane.columnIndex="0" />
-       <Label fx:id="51"  GridPane.rowIndex="5" GridPane.columnIndex="1" />
-       <Label fx:id="52"  GridPane.rowIndex="5" GridPane.columnIndex="2" />
-       <Label fx:id="53"  GridPane.rowIndex="5" GridPane.columnIndex="3" />
-       <Label fx:id="54"  GridPane.rowIndex="5" GridPane.columnIndex="4" />
-       <Label fx:id="55"  GridPane.rowIndex="5" GridPane.columnIndex="5" />
-       <Label fx:id="56"  GridPane.rowIndex="5" GridPane.columnIndex="6" />
-       <Label fx:id="57"  GridPane.rowIndex="5" GridPane.columnIndex="7" />
+       <Button fx:id="05" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+       <Button fx:id="15" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+       <Button fx:id="25" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+       <Button fx:id="35" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+       <Button fx:id="45" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+       <Button fx:id="55" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="5" />
+       <Button fx:id="65" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="5" />
+       <Button fx:id="75" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="5" />
 
-       <Label fx:id="60"  GridPane.rowIndex="6" GridPane.columnIndex="0" />
-       <Label fx:id="61"  GridPane.rowIndex="6" GridPane.columnIndex="1" />
-       <Label fx:id="62"  GridPane.rowIndex="6" GridPane.columnIndex="2" />
-       <Label fx:id="63"  GridPane.rowIndex="6" GridPane.columnIndex="3" />
-       <Label fx:id="64"  GridPane.rowIndex="6" GridPane.columnIndex="4" />
-       <Label fx:id="65"  GridPane.rowIndex="6" GridPane.columnIndex="5" />
-       <Label fx:id="66"  GridPane.rowIndex="6" GridPane.columnIndex="6" />
-       <Label fx:id="67" GridPane.rowIndex="6" GridPane.columnIndex="7" />
+       <Button fx:id="06" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+       <Button fx:id="16" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+       <Button fx:id="26" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+       <Button fx:id="36" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+       <Button fx:id="46" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+       <Button fx:id="56" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="6" />
+       <Button fx:id="66" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="6" />
+       <Button fx:id="76" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="6" />
 
-       <Label fx:id="70"  GridPane.rowIndex="7" GridPane.columnIndex="0" />
-       <Label fx:id="71"  GridPane.rowIndex="7" GridPane.columnIndex="1" />
-       <Label fx:id="72"  GridPane.rowIndex="7" GridPane.columnIndex="2" />
-       <Label fx:id="73"  GridPane.rowIndex="7" GridPane.columnIndex="3" />
-       <Label fx:id="74"  GridPane.rowIndex="7" GridPane.columnIndex="4" />
-       <Label fx:id="75"  GridPane.rowIndex="7" GridPane.columnIndex="5" />
-       <Label fx:id="76"  GridPane.rowIndex="7" GridPane.columnIndex="6" />
-       <Label fx:id="77"  GridPane.rowIndex="7" GridPane.columnIndex="7" />
+       <Button fx:id="07" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+       <Button fx:id="17" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+       <Button fx:id="27" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+       <Button fx:id="37" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+       <Button fx:id="47" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+       <Button fx:id="57" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="5" GridPane.rowIndex="7" />
+       <Button fx:id="67" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="6" GridPane.rowIndex="7" />
+       <Button fx:id="77" onMouseClicked="#handleButtonMove" onMouseEntered="#buttonHovered" onMouseExited="#buttonUnhovered" prefHeight="75.0" prefWidth="75.0" GridPane.columnIndex="7" GridPane.rowIndex="7" />
 
    </children>
 </GridPane>

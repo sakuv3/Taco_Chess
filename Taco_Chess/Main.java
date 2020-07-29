@@ -6,20 +6,21 @@ import javafx.stage.Stage;
 public class Main extends Application
 {
 
+    static BoardController controller;
+    static Board board;
     @Override
     public void start(Stage primaryStage) throws Exception
     {
-        Board brett = new Board();
+        board       = new Board();
+        controller  = new BoardController();
+        controller.init( board );
 
-        Scene brettScene = new Scene( brett );
-
-        primaryStage.setTitle("Taco_Chess");
-        primaryStage.centerOnScreen();
-        primaryStage.setResizable(false);
-        primaryStage.setFullScreen(false);
-        primaryStage.setAlwaysOnTop(false);
-        primaryStage.setScene( brettScene );
-        primaryStage.show();
+        board.setTitle("Taco_Chess");
+        board.centerOnScreen();
+        board.setResizable(false);
+        board.setFullScreen(false);
+        board.setAlwaysOnTop(false);
+        board.show();
     }
 
 
