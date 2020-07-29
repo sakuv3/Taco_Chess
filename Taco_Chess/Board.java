@@ -1,12 +1,9 @@
 package Taco_Chess;
 import Taco_Chess.Figures.*;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 import javafx.fxml.FXMLLoader;
@@ -17,84 +14,44 @@ import javafx.stage.Stage;
 public class Board extends Stage
 {
     static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
-    static Button feld[][];   // das Schachfeld
+    static BoardController controller;
     public Abstract_Figure figures[][];
+    static Button fields[][];
 
     private King king[];
-    private ArrayList <Queen>    queens;
-    private ArrayList <Bishop>   bishops;
-    private ArrayList<Horse> horses;
-    private ArrayList <Rook>     rooks;
-    private ArrayList <Pawn>     pawns;
+    private ArrayList <Queen>   queens;
+    private ArrayList <Bishop>  bishops;
+    private ArrayList<Horse>    horses;
+    private ArrayList <Rook>    rooks;
+    private ArrayList <Pawn>    pawns;
 
-    public Board() throws FileNotFoundException
+    public Board(  ) throws FileNotFoundException, IOException
     {
-        figures = new Abstract_Figure[8][8];
-        feld    = new Button[8][8];
+        super();
+        figures     = new Abstract_Figure[8][8];
+        controller  = new BoardController();
 
         createTable();
-        initFigures();
+        define_start_positions();
     };
 
-    public Abstract_Figure[] getAllFigures()
+    public void init( Button fields[][] )
     {
-        ArrayList<Abstract_Figure> retFigures = new ArrayList();
+        this.fields = fields;
+    }
+    private void createTable() throws IOException
+    {
 
-        for( int y=0; y<8; y++ )
-        {
-            for( int x=0; x<8; x++ )
-            {
-                if( figures[x][y] != null )
-                    retFigures.add( figures[x][y] );
-            }
-        }
-
-        Abstract_Figure[] figs = new Abstract_Figure[retFigures.size()];
-        return retFigures.toArray(figs);
     }
 
-    public Abstract_Figure getFigure( int xCoord, int yCoord )
-    {
-        for(int y=0; y<8; y++ )
-        {
-            for(int x=0; x<8; x++ )
-            {
-                if( figures[x][y].getXCoord() == xCoord && figures[x][y].getyCoord() == yCoord )
-                    return figures[x][y];
-            }
-        }
-        return null;
-    }
-    public void removeFigure( Abstract_Figure figure )
-    {
-        int x = figure.getXCoord();
-        int y = figure.getyCoord();
-
-        if( x >=0 && y >=0 && figures[x][y] != null )
-        {
-            figures[x][y].setCoordinates( -1, -1 );
-            figures[x][y] = null;
-        }
-    }
-
-    public void moveFigure( Abstract_Figure figure, int xNew, int yNew )
-    {
-        int xOld = figure.getXCoord();
-        int yOld = figure.getyCoord();
-
-        figures[xOld][yOld] = null;
-        figures[xNew][yNew] = figure;
-
-    }
-    public boolean setFigure( Abstract_Figure figure, int x, int y, boolean isBlack )
+    public void setFigure( Abstract_Figure figure, int x, int y, boolean isBlack )
     {
         figure.isBlack  = isBlack;
         figures[x][y]   = figure;
         figure.setCoordinates( x, y );
-        return true;
     }
 
-    private void initFigures() throws FileNotFoundException
+    private void define_start_positions() throws FileNotFoundException
     {
         Queen queen;
         king    = new King[2];
@@ -175,20 +132,54 @@ public class Board extends Stage
         }
     }
 
-    private void createTable()
+    public Abstract_Figure[] getAllFigures()
     {
-        // erzeuge schwarz/weiße Felder
-        GridPane root;
-        try {
-            root = FXMLLoader.load(getClass().getResource("Board.fxml"));
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
-            setScene(scene);
-        }
-        catch( IOException ex )
+        ArrayList<Abstract_Figure> retFigures = new ArrayList();
+
+        for( int y=0; y<8; y++ )
         {
-            System.out.println("could load Board.fxml ");
+            for( int x=0; x<8; x++ )
+            {
+                if( figures[x][y] != null )
+                    retFigures.add( figures[x][y] );
+            }
         }
+
+        Abstract_Figure[] figs = new Abstract_Figure[retFigures.size()];
+        return retFigures.toArray(figs);
+    }
+
+    public Abstract_Figure getFigure( int xCoord, int yCoord )
+    {
+        for(int y=0; y<8; y++ )
+        {
+            for(int x=0; x<8; x++ )
+            {
+                if( figures[x][y].getXCoord() == xCoord && figures[x][y].getyCoord() == yCoord )
+                    return figures[x][y];
+            }
+        }
+        return null;
+    }
+    public void removeFigure( Abstract_Figure figure )
+    {
+        int x = figure.getXCoord();
+        int y = figure.getyCoord();
+
+        if( x >=0 && y >=0 && figures[x][y] != null )
+        {
+            figures[x][y].setCoordinates( -1, -1 );
+            figures[x][y] = null;
+        }
+    }
+
+    public void moveFigure( Abstract_Figure figure, int xNew, int yNew )
+    {
+        int xOld = figure.getXCoord();
+        int yOld = figure.getyCoord();
+
+        figures[xOld][yOld] = null;
+        figures[xNew][yNew] = figure;
 
     }
 
@@ -256,14 +247,7 @@ public class Board extends Stage
 
     public void clear_possibilities( Abstract_Figure[] activeFigs )
     {
-        for( int y=0; y<8; y++ )
-        {
-            for(int x=0; x<8; x++ )
-            {
-                if( check_field(activeFigs, x, y) == null )
-                    feld[x][y].setGraphic( null );
-            }
-        }
+
     }
 
     // returns the figure, on the field clicked or null if no figure is in the field
@@ -276,9 +260,7 @@ public class Board extends Stage
         }
         return null;
     }
-    public static void setFeld(Label[][] feld) {
-        Board.feld = feld;
-    }
+
 
     public void setBishops(ArrayList<Bishop> bishops) {
         this.bishops = bishops;
@@ -306,6 +288,14 @@ public class Board extends Stage
 
     public void setRooks(ArrayList<Rook> rooks) {
         this.rooks = rooks;
+    }
+
+    public static BoardController getController() {
+        return controller;
+    }
+
+    public static Button[][] getFields() {
+        return fields;
     }
 
     public ArrayList<Bishop> getBishops() {
