@@ -30,21 +30,38 @@ public class BoardController implements Initializable
         this.board = board;
         this.field = board.getFields();
     }
+
     public void handleButtonMove( Button btn )
     {
         int x =  (int)btn.getLayoutX() /75;
         int y =  (int)btn.getLayoutY() /75;
 
-        Abstract_Figure [] figures = board.getAllFigures();
-        Abstract_Figure clickedFigure = board.check_field( figures, x, y );
+        Abstract_Figure clickedFigure = board.check_figure( x, y );
 
-        //board.clear_possibilities( figures );
+        if(clickedFigure != null )
+        {
+            try {
+                if( clickedFigure.isBlack() )
+                    board.show_possible_moves_black(clickedFigure, x, y);
+                else
+                    board.show_possible_moves_white( clickedFigure, x, y);
+            }
+            catch( FileNotFoundException fex )
+            {
+                System.out.println("file not found in handleBtnMove");
+            }
+        }
+        else
+        {
+            System.out.println("NULL");
+        }
 
 
     }
     // makes it look just awesome *________*
     public void buttonEnter(  Button btn )
     {
+       // btn.setStyle();
         btn.setStyle("-fx-border-color: #FF33CC; -fx-background-size: 52,52;");
     }
     public void buttonExit( Button btn )

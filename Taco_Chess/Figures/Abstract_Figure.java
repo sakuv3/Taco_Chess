@@ -2,8 +2,8 @@ package Taco_Chess.Figures;
 
 public abstract class Abstract_Figure
 {
-    public boolean isBlack = false;
-
+    private boolean isBlack = false;
+    private boolean isValid = false;
     protected int xCoord = -1;
     protected int yCoord = -1;
 
@@ -25,5 +25,21 @@ public abstract class Abstract_Figure
     {
         this.xCoord = x;
         this.yCoord = y;
+    }
+
+    public boolean isBlack() {
+        return isBlack;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setBlack(boolean black) {
+        isBlack = black;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 }

@@ -6,4 +6,9 @@ public class Rook extends Abstract_Figure
     boolean move() {
         return false;
     }
+
+    public void draw()
+    {
+
+    }
 }
