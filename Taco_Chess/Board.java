@@ -20,7 +20,7 @@ public class Board extends Stage
     static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
     static BoardController controller;
     public Abstract_Figure figures[][];
-    static Button fields[][];
+    static Button chessBoard[][];
 
     private King king[];
     private ArrayList <Queen>   queens;
@@ -32,14 +32,14 @@ public class Board extends Stage
     public Board( ) throws FileNotFoundException, IOException
     {
         super();
-        fields        = new Button[8][8];
+        chessBoard    = new Button[8][8];
         figures       = new Abstract_Figure[8][8];
         controller    = new BoardController();
 
         createFields();
         define_start_positions();
         drawFigures();
-        controller.init( this, fields );
+        controller.init( this );
     };
 
     public void createFields () throws IOException
@@ -51,14 +51,14 @@ public class Board extends Stage
             {
                 final int xVal = x;
                 final int yVal = y;
-                fields[x][y] = new Button();
-                fields[x][y].setPrefWidth(75);
-                fields[x][y].setPrefHeight(75);
-                fields[x][y].setId( Integer.toString(x) + Integer.toString(y) );
-                fields[x][y].setOnMouseEntered( enter -> controller.buttonEnter( fields[xVal][yVal]) );
-                fields[x][y].setOnMouseExited(  exit -> controller.buttonExit( fields[xVal][yVal]) );
-                fields[x][y].setOnMouseClicked( clicked -> controller.handleButtonMove( fields[xVal][yVal]) );
-                root.add(fields[x][y], x, y);
+                chessBoard[x][y] = new Button();
+                chessBoard[x][y].setPrefWidth(75);
+                chessBoard[x][y].setPrefHeight(75);
+                chessBoard[x][y].setId( Integer.toString(x) + Integer.toString(y) );
+                chessBoard[x][y].setOnMouseEntered( enter -> controller.buttonEnter( chessBoard[xVal][yVal]) );
+                chessBoard[x][y].setOnMouseExited(  exit -> controller.buttonExit( chessBoard[xVal][yVal]) );
+                chessBoard[x][y].setOnMouseClicked( clicked -> controller.handleButtonMove( chessBoard[xVal][yVal]) );
+                root.add(chessBoard[x][y], x, y);
             }
         }
         Scene scene = new Scene(root);
@@ -69,43 +69,55 @@ public class Board extends Stage
     public void drawFigures( ) throws FileNotFoundException
     {
         int x,y;
-        String blackOrWhite         = "";
-        String figureType           = "";
-        Abstract_Figure[] activeFigs   = getAllFigures();
+        String PATH;
+        Abstract_Figure[] activeFigs = get_all_figures();
 
         for( int i=0; i<activeFigs.length; i++ )
         {
             x = activeFigs[i].getXCoord();
-            y = activeFigs[i].getyCoord();
-
-            if( activeFigs[i].isBlack() )
-                blackOrWhite = "black/";
-            else
-                blackOrWhite = "white/";
-
-            if( activeFigs[i] instanceof King )
-                figureType = "king.png";
-            else if( activeFigs[i] instanceof Queen )
-                figureType = "queen.png";
-            else if( activeFigs[i] instanceof Rook )
-                figureType = "rook.png";
-            else if( activeFigs[i] instanceof Horse )
-                figureType = "horse.png";
-            else if( activeFigs[i] instanceof Bishop )
-                figureType = "bishop.png";
-            else if( activeFigs[i] instanceof Pawn )
-                figureType = "pawn.png";
+            y = activeFigs[i].getYCoord();
 
             /* lets D R A W */
-            String PATH = linuxURL + blackOrWhite + figureType;
-            fields[x][y].setGraphic( new ImageView(new Image(new FileInputStream( PATH ))) );
+            PATH = get_figure_type(activeFigs[i] );
+            chessBoard[x][y].setGraphic( new ImageView(new Image(new FileInputStream( PATH ))) );
         }
+    }
+
+    public void move_player( Abstract_Figure activePlayer, Button dest ) throws FileNotFoundException
+    {
+        String PATH = get_figure_type( activePlayer );
+
+        int xOld = activePlayer.getXCoord();
+        int yOld = activePlayer.getYCoord();
+        int xNew = (int)(dest.getLayoutX() /75);
+        int yNew = (int)(dest.getLayoutY() /75);
+
+        figures[xOld][yOld] = null;
+        figures[xNew][yNew] = activePlayer;
+        figures[xNew][yNew].setCoordinates(xNew, yNew);
+
+        chessBoard[xOld][yOld].setGraphic( null );
+        chessBoard[xNew][yNew].setGraphic( new ImageView(new Image(new FileInputStream( PATH ))) );
+    }
+
+    public Button get_button( int xCoord, int yCoord )
+    {
+        for(int y=0; y<8; y++ )
+        {
+            for( int x=0; x<8; x++ )
+            {
+                if( (int)(chessBoard[x][y].getLayoutX() /75) == xCoord )
+                    if( (int)(chessBoard[x][y].getLayoutY() /75) == yCoord )
+                        return chessBoard[x][y];
+            }
+        }
+        return null;
     }
 
     public void removeFigure( Abstract_Figure figure )
     {
         int x = figure.getXCoord();
-        int y = figure.getyCoord();
+        int y = figure.getYCoord();
 
         if( x >=0 && y >=0 && figures[x][y] != null )
         {
@@ -114,160 +126,64 @@ public class Board extends Stage
         }
     }
 
-    public void move_white( Abstract_Figure clickedFigure, Button dest, String PATH ) throws FileNotFoundException {
-        int xOld = clickedFigure.getXCoord();
-        int yOld = clickedFigure.getyCoord();
-        int xNew = (int)dest.getLayoutX() /75;
-        int yNew = (int)dest.getLayoutY() /75;
-
-        clickedFigure.setCoordinates(xNew, yNew);
-
-        figures[xOld][yOld] = null;
-        figures[xNew][yNew] = clickedFigure;
-
-        fields[xOld][yOld].setGraphic( null );
-        fields[xNew][yNew].setGraphic( null );
-        fields[xNew][yNew].setGraphic( new ImageView(new Image(new FileInputStream( PATH ))) );
-        fields[xNew][yNew].setOnMouseClicked( clicked -> controller.handleButtonMove( fields[xNew][yNew]) );
-
-    }
-
-    public void display_pawn_move( Abstract_Figure clickedFigure, int newX, int newY, final String PATH ) throws FileNotFoundException
-    {
-        Button newBtn;
-        clickedFigure.setValid( true );
-        if ((newBtn = get_field(newX, newY)) != null)
-        {
-            final Button tmp = newBtn;
-
-            Abstract_Figure player = check_figure(newX, newY);
-            if( player == null )
-                tmp.setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
-
-            else if( player.isBlack() && clickedFigure.isBlack() ||  !player.isBlack() && !clickedFigure.isBlack() ) {
-                return; // keine Teamkills hier, ja??!!!!
-            }
-
-            tmp.addEventHandler();
-            tmp.setOnMouseClicked( click ->
-            {
-                try {
-
-                    if( clickedFigure.isValid() )
-                    {
-                        clickedFigure.setValid(false);
-                        clear_possible_moves();
-                        move_white(clickedFigure, tmp, PATH);
-                    }
-                }
-                catch( FileNotFoundException fex ) {
-                    System.out.println("fnfe");
-                }
-            });
-        }
-    }
-    public void show_possible_moves_black( Abstract_Figure clickedFigure, int x, int y ) throws FileNotFoundException
-    {
-        clear_possible_moves( );
-        final String PATH = linuxURL + "/black/pawn.png";
-
-        if( clickedFigure instanceof Pawn )
-        {
-            if( y<6 )
-            {
-                if( check_figure( x, y+1) == null )          // 1up
-                    display_pawn_move( clickedFigure, x, y+1, PATH );
-                if( y == 1 && check_figure(x, y+2) == null ) // 2up
-                    display_pawn_move ( clickedFigure, x, y+2, PATH );
-
-                if( x>0 && check_figure(x-1, y+1) != null)// down-left
-                        display_pawn_move( clickedFigure, x-1, y+1, PATH );
-                if( x<7 && check_figure(x+1, y+1) != null )   // down-right
-                    display_pawn_move( clickedFigure, x+1, y+1, PATH );
-            }
-        }
-    }
-
-    public void show_possible_moves_white( Abstract_Figure clickedFigure, int x, int y ) throws FileNotFoundException
-    {
-        clear_possible_moves( );
-        final String PATH = linuxURL + "/white/pawn.png";
-
-        if (clickedFigure instanceof Pawn)
-        {
-            if( y>1 )
-            {
-                if( check_figure( x, y-1) == null ) {
-                    display_pawn_move(clickedFigure, x, y - 1, PATH);
-                    if (y == 6 && check_figure(x, y - 2) == null)
-                        display_pawn_move(clickedFigure, x, y - 2, PATH);
-                }
-
-                if( x>0 && check_figure(x-1, y-1) != null )// down-left
-                    display_pawn_move( clickedFigure, x-1, y-1, PATH );
-
-                if( x<7 && check_figure(x+1, y-1) != null )   // down-right
-                    display_pawn_move( clickedFigure, x+1, y-1, PATH );
-            }
-        }
-    }
-    public void clear_possible_moves(  )
-    {
-        for( int y=0; y<8; y++ )
-        {
-            for(int x=0; x<8; x++ )
-            {
-                if( check_figure( x, y) == null )
-                    fields[x][y].setGraphic( null );
-            }
-        }
-    }
-
     // returns the figure, on the field clicked or null if no figure is in the field
-    public Abstract_Figure check_figure( int x, int y )
+    public Abstract_Figure get_figure( int x, int y )
     {
-        Abstract_Figure [] figures = getAllFigures();
-        for( int i=0; i<figures.length; i++ )
+        Abstract_Figure [] figs = get_all_figures();
+        for( int i=0; i<figs.length; i++ )
         {
-            if( figures[i].getXCoord() == x && figures[i].getyCoord() == y )
-                return figures[i];
+            if( figs[i].getXCoord() == x && figs[i].getYCoord() == y )
+                return figs[i];
         }
         return null;
     }
 
-    public Abstract_Figure getFigure( int xCoord, int yCoord )
+    public Abstract_Figure[] get_all_figures()
     {
-        for(int y=0; y<8; y++ )
-        {
-            for(int x=0; x<8; x++ )
-            {
-                if( figures[x][y].getXCoord() == xCoord && figures[x][y].getyCoord() == yCoord )
-                    return figures[x][y];
-            }
-        }
-        return null;
-    }
+        ArrayList<Abstract_Figure> retFigures = new ArrayList();
 
-    public Button get_field( int xCoord, int yCoord )
-    {
-        for(int y=0; y<8; y++ )
+        for( int y=0; y<8; y++ )
         {
             for( int x=0; x<8; x++ )
             {
-                if( (int)(fields[x][y].getLayoutX() /75) == xCoord )
-                    if( (int)(fields[x][y].getLayoutY() /75) == yCoord )
-                        return fields[x][y];
+                if( figures[x][y] != null )
+                    retFigures.add( figures[x][y] );
             }
         }
-        return null;
+
+        Abstract_Figure[] figs = new Abstract_Figure[retFigures.size()];
+        return retFigures.toArray(figs);
     }
+
+    public String get_figure_type( Abstract_Figure figure )
+    {
+        String PATH;
+        if( figure.isBlack() )
+            PATH = linuxURL + "black/";
+        else
+            PATH = linuxURL +"white/";
+
+        if( figure instanceof King)
+            PATH = PATH + "king.png";
+        else if( figure instanceof Queen)
+            PATH = PATH +"queen.png";
+        else if( figure instanceof Rook)
+            PATH = PATH + "rook.png";
+        else if( figure instanceof Horse )
+            PATH = PATH + "horse.png";
+        else if( figure instanceof Bishop )
+            PATH = PATH + "bishop.png";
+        else if( figure instanceof Pawn )
+            PATH = PATH + "pawn.png";
+        return PATH;
+    }
+
     public void setFigure( Abstract_Figure figure, int x, int y, boolean isBlack )
     {
         figure.setBlack( isBlack );
         figures[x][y]   = figure;
         figure.setCoordinates( x, y );
     }
-
     private void define_start_positions() throws FileNotFoundException
     {
         Queen queen;
@@ -349,23 +265,6 @@ public class Board extends Stage
         }
     }
 
-    public Abstract_Figure[] getAllFigures()
-    {
-        ArrayList<Abstract_Figure> retFigures = new ArrayList();
-
-        for( int y=0; y<8; y++ )
-        {
-            for( int x=0; x<8; x++ )
-            {
-                if( figures[x][y] != null )
-                    retFigures.add( figures[x][y] );
-            }
-        }
-
-        Abstract_Figure[] figs = new Abstract_Figure[retFigures.size()];
-        return retFigures.toArray(figs);
-    }
-
     public void setBishops(ArrayList<Bishop> bishops) {
         this.bishops = bishops;
     }
@@ -399,7 +298,7 @@ public class Board extends Stage
     }
 
     public static Button[][] getFields() {
-        return fields;
+        return chessBoard;
     }
 
     public ArrayList<Bishop> getBishops() {
