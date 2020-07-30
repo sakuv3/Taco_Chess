@@ -3,11 +3,9 @@ import Taco_Chess.Figures.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +19,7 @@ public class Board extends Stage
     static BoardController controller;
     public Abstract_Figure figures[][];
     static Button chessBoard[][];
+    static GridPane root;
 
     private King king[];
     private ArrayList <Queen>   queens;
@@ -36,37 +35,39 @@ public class Board extends Stage
         figures       = new Abstract_Figure[8][8];
         controller    = new BoardController();
 
-        createFields();
+        create_fields();
         define_start_positions();
-        drawFigures();
-        controller.init( this );
+        draw_figures();
+        controller.init( this, root );
     };
 
-    public void createFields () throws IOException
+    public void create_fields () throws IOException
     {// create 64 fields, each equipping with sensors
-        GridPane root = FXMLLoader.load(getClass().getResource("Board.fxml"));
+        root   = FXMLLoader.load(getClass().getResource("Board.fxml"));
+        Scene scene     = new Scene(root);
         for( int y=0;y<8;y++)
         {
             for(int x=0;x<8;x++)
             {
                 final int xVal = x;
                 final int yVal = y;
+                final GridPane grid = root;
+
                 chessBoard[x][y] = new Button();
-                chessBoard[x][y].setPrefWidth(75);
-                chessBoard[x][y].setPrefHeight(75);
+                chessBoard[x][y].setPrefWidth(100);
+                chessBoard[x][y].setPrefHeight(100);
                 chessBoard[x][y].setId( Integer.toString(x) + Integer.toString(y) );
-                chessBoard[x][y].setOnMouseEntered( enter -> controller.buttonEnter( chessBoard[xVal][yVal]) );
-                chessBoard[x][y].setOnMouseExited(  exit -> controller.buttonExit( chessBoard[xVal][yVal]) );
-                chessBoard[x][y].setOnMouseClicked( clicked -> controller.handleButtonMove( chessBoard[xVal][yVal]) );
+                chessBoard[x][y].setOnMouseEntered( enter -> controller.buttonEnter(chessBoard[xVal][yVal]) );
+                chessBoard[x][y].setOnMouseExited(  exit -> controller.buttonExit(chessBoard[xVal][yVal]) );
+                chessBoard[x][y].setOnMouseClicked( clicked -> controller.handleButtonMove(chessBoard[xVal][yVal]) );
                 root.add(chessBoard[x][y], x, y);
             }
         }
-        Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
         setScene(scene);
     }
 
-    public void drawFigures( ) throws FileNotFoundException
+    public void draw_figures( ) throws FileNotFoundException
     {
         int x,y;
         String PATH;
@@ -89,8 +90,8 @@ public class Board extends Stage
 
         int xOld = activePlayer.getXCoord();
         int yOld = activePlayer.getYCoord();
-        int xNew = (int)(dest.getLayoutX() /75);
-        int yNew = (int)(dest.getLayoutY() /75);
+        int xNew = (int)(dest.getLayoutX() /100);
+        int yNew = (int)(dest.getLayoutY() /100);
 
         figures[xOld][yOld] = null;
         figures[xNew][yNew] = activePlayer;
@@ -106,15 +107,15 @@ public class Board extends Stage
         {
             for( int x=0; x<8; x++ )
             {
-                if( (int)(chessBoard[x][y].getLayoutX() /75) == xCoord )
-                    if( (int)(chessBoard[x][y].getLayoutY() /75) == yCoord )
+                if( (int)(chessBoard[x][y].getLayoutX() /100) == xCoord )
+                    if( (int)(chessBoard[x][y].getLayoutY() /100) == yCoord )
                         return chessBoard[x][y];
             }
         }
         return null;
     }
 
-    public void removeFigure( Abstract_Figure figure )
+    public void remove_figure( Abstract_Figure figure )
     {
         int x = figure.getXCoord();
         int y = figure.getYCoord();

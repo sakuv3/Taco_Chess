@@ -24,6 +24,11 @@ public class MoveInfo
         int x1, x2;
         int y1, y2;
 
+        if( y == 6 && isBlack )
+            System.out.println("7");
+        else if( y == 1 && !isBlack )
+            System.out.println(1);
+
         if( isBlack )
         {
             x1 = x -1;
@@ -38,22 +43,19 @@ public class MoveInfo
             y1 = y -1;
             y2 = y -2;
         }
-        if (board.get_figure(x, y1) == null)   // 1down
+        if (board.get_figure(x, y1) == null)   // 1down - 1up
             controller.add_valid_move(board.get_button(x, y1));
 
-        if ( (y == 1 && board.get_figure(x, y2) ==null) || (y ==6 && board.get_figure(x, y2) ==null) ) // 2down
+        if ( (y == 1 && board.get_figure(x, y2) ==null && isBlack) || (y ==6 && board.get_figure(x, y2) ==null && !isBlack) ) // 2down -2up
             controller.add_valid_move(board.get_button(x, y2));
 
         enemy = board.get_figure(x1, y1);
-        if (x > 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill white down-left
+        if (x > 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill
             controller.add_valid_move(board.get_button(x1, y1));
 
         enemy = board.get_figure(x2, y1);
-        if (x < 7 && enemy != null && (enemy.isBlack() != isBlack) )   // kill white down-right
+        if (x < 7 && enemy != null && (enemy.isBlack() != isBlack) )   // kill
             controller.add_valid_move(board.get_button(x2, y1));
-
-
-        controller.display_possible_moves();
     }
 
     // returns true if move is valid ( for rook and bishop  only )
@@ -73,22 +75,35 @@ public class MoveInfo
 
     public void king( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
     {
+        int x1 = x+1;
+        int x2 = x-1;
+        int y1 = y+1;
+        int y2 = y-1;
+
         //UP
-        move_is_valid(x, y+1, playerIsBlack);
+        if( y1 >=0 && y1 <8 )
+            move_is_valid(x, y1, playerIsBlack);
         //DOWN
-        move_is_valid(x, y-1, playerIsBlack);
+        if( y2 >=0 && y2 <8 )
+            move_is_valid(x, y2, playerIsBlack);
         //RIGHT
-        move_is_valid(x+1, y, playerIsBlack);
+        if( x1 >=0 && x1 <8 )
+            move_is_valid(x1, y, playerIsBlack);
         //LEFT
-        move_is_valid(x-1, y, playerIsBlack);
+        if( x2 >=0 && x2 <8 )
+            move_is_valid(x2, y, playerIsBlack);
         //UP-LEFT
-        move_is_valid(x-1, y+1, playerIsBlack);
+        if( x2 >=0 && x2 <8 && y1 >=0 && y1 <8)
+            move_is_valid(x2, y1, playerIsBlack);
         //DOWN-LEFT
-        move_is_valid(x-1, y-1, playerIsBlack);
+        if( x2 >=0 && x2 <8 && y2 >=0 && y2 <8)
+            move_is_valid(x2, y2, playerIsBlack);
         //UP-RIGHT
-        move_is_valid(x+1, y+1, playerIsBlack);
+        if( x1 >=0 && x1 <8 && y1 >=0 && y1 <8)
+            move_is_valid(x1, y1, playerIsBlack);
         //DOWN-RIGHT
-        move_is_valid(x+1, y-1, playerIsBlack);
+        if( x1 >=0 && x1 <8 && y2 >=0 && y2 <8)
+            move_is_valid(x1, y2, playerIsBlack);
     }
 
     public void queen( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
