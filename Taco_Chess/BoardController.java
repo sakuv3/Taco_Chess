@@ -19,7 +19,8 @@ public class BoardController implements Initializable
 {
     static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
     static Board board;
-
+    static MoveInfo moveInfo;
+    static Abstract_Figure enemy;
     static Abstract_Figure activePlayer;
     static Button possibleMovesBlack[];
 
@@ -31,6 +32,7 @@ public class BoardController implements Initializable
         possibleMovesBlack  = null;
         activePlayer        = null;
         this.board          = board;
+        moveInfo                = new MoveInfo( this.board, this);
     }
 
     // return true if clicked button is a move
@@ -64,7 +66,7 @@ public class BoardController implements Initializable
             {
                 if( possibleMovesBlack[i] != null )
                 {
-                    possibleMovesBlack[i].setGraphic(null);
+                    possibleMovesBlack[i].setStyle("-fx-border-color: #A39300; ");
                     possibleMovesBlack[i] = null;
                 }
                 else
@@ -79,14 +81,15 @@ public class BoardController implements Initializable
             for(int i=0;i<64; i++)
             {
                 if( possibleMovesBlack[i] != null )
-                    possibleMovesBlack[i].setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
+                    possibleMovesBlack[i].setStyle(" -fx-border-color: #fee11a; ");
+                   // possibleMovesBlack[i].setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
                 else
                     break;
             }
         }
     }
 
-    public void add_possible_move( Button btn, boolean isKill )
+    public void add_valid_move( Button btn )
     {
         if ( possibleMovesBlack == null )
             possibleMovesBlack = new Button[64];
@@ -100,30 +103,27 @@ public class BoardController implements Initializable
         }
     }
 
-    public void set_possible_moves_black() throws FileNotFoundException {
-        Abstract_Figure enemy = null;
+    public void set_possible_moves() throws FileNotFoundException
+    {
+        enemy = null;
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
+        boolean isBlack = activePlayer.isBlack();
 
-        if( activePlayer instanceof Pawn ) {
+        if( activePlayer instanceof Pawn )
+            moveInfo.pawn(x, y, isBlack );
+        else if( activePlayer instanceof Horse )
+            moveInfo.horse(x, y, isBlack );
+        else if( activePlayer instanceof Rook )
+            moveInfo.rook(x, y, isBlack );
+        else if( activePlayer instanceof Bishop )
+            moveInfo.bishop(x, y, isBlack );
+        else if( activePlayer instanceof  King )
+            moveInfo.king(x, y, isBlack);
+        else if( activePlayer instanceof Queen )
+            moveInfo.queen(x, y, isBlack);
 
-            if (board.get_figure(x, y + 1) == null)   // 1down
-                add_possible_move(board.get_button(x, y + 1), false);
-
-            if (y == 1 && board.get_figure(x, y + 2) == null) // 2down
-                add_possible_move(board.get_button(x, y + 2), false);
-
-            enemy = board.get_figure(x - 1, y + 1);
-            if (x > 0 && enemy != null && !enemy.isBlack() )// kill white down-left
-                add_possible_move(board.get_button(x - 1, y + 1), true);
-
-            enemy = board.get_figure(x + 1, y + 1);
-            if (x < 7 && enemy != null && !enemy.isBlack() )   // kill white down-right
-                add_possible_move(board.get_button(x + 1, y + 1), true);
-
-            display_possible_moves();
-        }
-
+        display_possible_moves();
     }
 
     public void handleButtonMove( Button btn ) {
@@ -136,7 +136,7 @@ public class BoardController implements Initializable
                 activePlayer = board.get_figure(x, y);
 
                 if (activePlayer != null)
-                        set_possible_moves_black();
+                        set_possible_moves();
             }
 
             // MOVE is possible
@@ -167,6 +167,9 @@ public class BoardController implements Initializable
     }
     public void buttonExit( Button btn )
     {
-        btn.setStyle("-fx-border-color: #A39300; -fx-background-size: 45,45;");
+        if( buttonIsMove(btn) )
+            btn.setStyle("-fx-border-color: #fee11a; -fx-background-size: 45,45;");
+        else
+            btn.setStyle("-fx-border-color: #A39300; -fx-background-size: 45,45;");
     }
 }
