@@ -1,11 +1,13 @@
 package Taco_Chess.Figures;
 
+import javafx.scene.control.Button;
+
 public abstract class Abstract_Figure
 {
-    private boolean isBlack     = false;
-    private boolean isValid     = false;
-    protected int xCoord = -1;
-    protected int yCoord = -1;
+    private boolean isBlack = false;
+    protected int xCoord    = -1;
+    protected int yCoord    = -1;
+    private Button btn      = null;
 
     abstract boolean move();
 
@@ -27,19 +29,20 @@ public abstract class Abstract_Figure
         this.yCoord = y;
     }
 
-    public boolean isBlack() {
-        return isBlack;
+    public Button getBtn() {
+        return btn;
     }
 
-    public boolean isValid() {
-        return isValid;
+    public void setBtn(Button btn) {
+        this.btn = btn;
+    }
+
+    public boolean isBlack() {
+        return isBlack;
     }
 
     public void setBlack(boolean black) {
         isBlack = black;
     }
 
-    public void setValid(boolean valid) {
-        isValid = valid;
-    }
 }

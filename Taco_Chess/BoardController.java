@@ -1,33 +1,23 @@
 package Taco_Chess;
-
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
-
 import Taco_Chess.Figures.*;
-import javafx.beans.Observable;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import static javafx.scene.paint.Color.DARKGOLDENROD;
+import javafx.scene.shape.Rectangle;
 
 public class BoardController implements Initializable
 {
     static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
     static Board board;
     static GridPane grid;
+    static Dialog dialog;
     static Circle circles[];
+    static Rectangle rect[];
     static MoveInfo moveInfo;
     static Abstract_Figure enemy;
     static Button possibleMoves [];
@@ -42,11 +32,12 @@ public class BoardController implements Initializable
         activePlayer    = null;
         this.board      = board;
         this.grid       = grid;
+        dialog          = new Dialog( this.board );
         moveInfo        = new MoveInfo( this.board, this);
     }
 
     // return true if clicked button is a move
-    public boolean button_is_move( Button btn )
+    public boolean button_is_valid_move( Button btn )
     {
         int xB = (int)(btn.getLayoutX() /100);
         int yB = (int)(btn.getLayoutY() /100);
@@ -68,6 +59,15 @@ public class BoardController implements Initializable
         return false;
     }
 
+    public void clear_active_fields()
+    {
+        if( rect != null )
+        {
+            grid.getChildren().remove( rect[0]);
+            grid.getChildren().remove( rect[1]);
+        }
+        rect = null;
+    }
     public void clear_possible_moves()
     {
         if( possibleMoves != null )
@@ -89,6 +89,15 @@ public class BoardController implements Initializable
     }
     public void display_possible_moves() throws FileNotFoundException {
         int x,y;
+
+        // mark active player with colored field
+        rect = new Rectangle[2];
+        rect[0] = new Rectangle(100, 100);
+        rect[0].setOpacity(0.2);
+        rect[0].setFill( Color.SKYBLUE);
+        rect[0].setDisable(true);
+        grid.add(rect[0], activePlayer.getXCoord(), activePlayer.getYCoord());
+
         if( possibleMoves != null )
         {
             for(int i=0;i<64; i++)
@@ -98,9 +107,6 @@ public class BoardController implements Initializable
                     x = (int)(possibleMoves[i].getLayoutX() /100);
                     y = (int)(possibleMoves[i].getLayoutY() /100);
                     grid.add( circles[i],x,y);
-                    // possibleMoves[i].setStyle(" -fx-border-color: #fee11a; ");
-                    // possibleMovesBlack[i].setGraphic((new ImageView(new Image(new FileInputStream(linuxURL + "circle.png")))));
-
                 }
                 else
                     break;
@@ -161,24 +167,47 @@ public class BoardController implements Initializable
                 activePlayer = board.get_figure(x, y);
 
                 if (activePlayer != null)
-                        set_possible_moves();
+                {
+                    clear_active_fields();
+                    clear_possible_moves();
+                    activePlayer.setBtn(btn);
+                    set_possible_moves();
+                }
             }
 
             // MOVE is possible
             else if (activePlayer != null)
             {
-                if ( button_is_move(btn) )
-                {// LETS MOVE
-                    clear_possible_moves();
+                if ( button_is_valid_move(btn) )
+                {   // LETS MOVE
+                    // CHECK IF PAWN HAS ARRIVED AT THE OTHER SIDE TO FETCH A NEW FIGURE
+                    if( y == 7 && activePlayer.isBlack() && activePlayer instanceof Pawn )
+                        Dialog.spawn_new_figure( activePlayer, btn, true );
+                    else if( y == 0 && !activePlayer.isBlack() && activePlayer instanceof Pawn )
+                        Dialog.spawn_new_figure( activePlayer, btn, false );
+
+                    // mark active player with colored field
+                    rect[1] = new Rectangle(100, 100);
+                    rect[1].setOpacity(0.2);
+                    rect[1].setFill( Color.LIGHTSKYBLUE);
+                    rect[1].setDisable(true);
+                    grid.add(rect[1], x, y);
+
                     board.move_player(activePlayer, btn);
+                    clear_possible_moves();
+                    activePlayer = null;
                 }
                 else {
                     // SHOW NEW MOVES
-                    clear_possible_moves();
                     activePlayer = board.get_figure(x, y);
 
-                    if( activePlayer != null )
+                    if (activePlayer != null)
+                    {
+                        clear_active_fields();
+                        clear_possible_moves();
+                        activePlayer.setBtn(btn);
                         set_possible_moves();
+                    }
                 }
             }
         }

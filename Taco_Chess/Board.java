@@ -37,12 +37,12 @@ public class Board extends Stage
 
         create_fields();
         define_start_positions();
-        draw_figures();
         controller.init( this, root );
+        draw_figures();
     };
 
     public void create_fields () throws IOException
-    {// create 64 fields, each equipping with sensors
+    {// create 64 fields, each getting equipped with sensors
         root   = FXMLLoader.load(getClass().getResource("Board.fxml"));
         Scene scene     = new Scene(root);
         for( int y=0;y<8;y++)
@@ -51,7 +51,6 @@ public class Board extends Stage
             {
                 final int xVal = x;
                 final int yVal = y;
-                final GridPane grid = root;
 
                 chessBoard[x][y] = new Button();
                 chessBoard[x][y].setPrefWidth(100);
@@ -113,18 +112,6 @@ public class Board extends Stage
             }
         }
         return null;
-    }
-
-    public void remove_figure( Abstract_Figure figure )
-    {
-        int x = figure.getXCoord();
-        int y = figure.getYCoord();
-
-        if( x >=0 && y >=0 && figures[x][y] != null )
-        {
-            figures[x][y].setCoordinates( -1, -1 );
-            figures[x][y] = null;
-        }
     }
 
     // returns the figure, on the field clicked or null if no figure is in the field
@@ -218,7 +205,6 @@ public class Board extends Stage
         king[0] = new King();
         queen   = new Queen();
         queens.add( queen );
-
         setFigure( rook[0], 0, 0, true);
         setFigure( horse[0], 1, 0, true );
         setFigure( bishop[0], 2, 0, true );
@@ -232,7 +218,6 @@ public class Board extends Stage
         king[1] = new King();
         queen   = new Queen();
         queens.add( queen );
-
         setFigure( rook[2], 0, 7, false );
         setFigure( horse[2], 1, 7, false );
         setFigure( bishop[2], 2, 7, false );

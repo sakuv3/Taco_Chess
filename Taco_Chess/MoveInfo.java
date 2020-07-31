@@ -19,8 +19,6 @@ public class MoveInfo
 
     public void pawn( int x, int y, boolean isBlack) throws FileNotFoundException
     {
-        // TODO: PAWN CAN FETCH A QUEEN
-
         int x1, x2;
         int y1, y2;
 
@@ -43,18 +41,27 @@ public class MoveInfo
             y1 = y -1;
             y2 = y -2;
         }
-        if (board.get_figure(x, y1) == null)   // 1down - 1up
+        if (board.get_figure(x, y1) == null)
+        {   // 1down - 1up
             controller.add_valid_move(board.get_button(x, y1));
 
-        if ( (y == 1 && board.get_figure(x, y2) ==null && isBlack) || (y ==6 && board.get_figure(x, y2) ==null && !isBlack) ) // 2down -2up
-            controller.add_valid_move(board.get_button(x, y2));
+            // black can go 2down
+            if ( y == 1 && board.get_figure(x, y2) ==null && isBlack )
+                controller.add_valid_move(board.get_button(x, y2));
 
+            // white can go 2 up
+            else if ( y ==6 && board.get_figure(x, y2) ==null && !isBlack )
+                controller.add_valid_move(board.get_button(x, y2));
+        }
+
+        if( x == 0  && y == 1 )
+            System.out.println( "ok");
         enemy = board.get_figure(x1, y1);
-        if (x > 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill
+        if (x1 > 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill-left
             controller.add_valid_move(board.get_button(x1, y1));
 
         enemy = board.get_figure(x2, y1);
-        if (x < 7 && enemy != null && (enemy.isBlack() != isBlack) )   // kill
+        if (x2 < 7 && enemy != null && (enemy.isBlack() != isBlack) )   // kill-right
             controller.add_valid_move(board.get_button(x2, y1));
     }
 
