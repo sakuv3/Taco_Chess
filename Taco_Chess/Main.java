@@ -1,24 +1,29 @@
 package Taco_Chess;
-import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.application.Application;
 
 public class Main extends Application
 {
-    static Board board;
+    static private View view;
+    static private Board model;
+    static private BoardController controller;
 
     @Override
     public void start(Stage mainStage) throws Exception
     {
-        board       = new Board( );
+        model           = new Board( );
+        view            = new View( mainStage, model );
+        controller      = new BoardController();
+        view.init(1000, 1000);
+        controller.init( model, view );
 
-        board.setTitle("Taco_Chess");
-        board.centerOnScreen();
-        board.setResizable(false);
-        board.setFullScreen(false);
-        board.setAlwaysOnTop(false);
-        board.show();
+        mainStage.setTitle("Taco_Chess");
+        mainStage.setAlwaysOnTop(false);
+        mainStage.setFullScreen(false);
+        mainStage.setResizable(true);
+        mainStage.centerOnScreen();
+        mainStage.show();
     }
-
 
     public static void main(String[] args) {
         launch(args);

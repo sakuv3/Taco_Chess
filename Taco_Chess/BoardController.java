@@ -12,35 +12,41 @@ import javafx.scene.shape.Rectangle;
 
 public class BoardController implements Initializable
 {
-    static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
-    static Board board;
-    static GridPane grid;
-    static Dialog dialog;
-    static Circle circles[];
-    static Rectangle rect[];
-    static MoveInfo moveInfo;
-    static Abstract_Figure enemy;
-    static Button possibleMoves [];
-    static Abstract_Figure activePlayer;
+    static private  View view;
+    static private  Board board;
+    static private  Dialog dialog;
+    static private  String BEFORE;
+    static private  MoveInfo moveInfo;
+    static private  Button possibleMoves [];
+    static private Circle circles[];
+    static private  Abstract_Figure activePlayer;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) { }
 
-    public void init( Board board, GridPane grid )
+    public void init( Board board, View view )
     {
         possibleMoves   = null;
         activePlayer    = null;
         this.board      = board;
-        this.grid       = grid;
-        dialog          = new Dialog( this.board );
+        this.view       = view;
+
+        dialog          = new Dialog( this.board, this.view );
         moveInfo        = new MoveInfo( this.board, this);
+
+        circles         = new Circle[64];
+        for(int i=0; i<64; i++) {
+            circles[i] = new Circle(15, Color.YELLOW);
+            circles[i].setOpacity(0.3);
+            circles[i].setDisable(true);
+        }
     }
 
     // return true if clicked button is a move
     public boolean button_is_valid_move( Button btn )
     {
-        int xB = (int)(btn.getLayoutX() /100);
-        int yB = (int)(btn.getLayoutY() /100);
+        int xB = board.get_xCoord_btn( btn );
+        int yB = board.get_yCoord_btn( btn );
         int xF, yF;
         if( possibleMoves != null )
         {
@@ -49,8 +55,8 @@ public class BoardController implements Initializable
                 if( possibleMoves[i] == null )
                     return false;
 
-                xF = (int)(possibleMoves[i].getLayoutX() /100);
-                yF = (int)(possibleMoves[i].getLayoutY() /100);
+                xF = board.get_xCoord_btn( possibleMoves[i] );
+                yF = board.get_yCoord_btn( possibleMoves[i] );
 
                 if( xF == xB && yF == yB )
                     return true;
@@ -59,75 +65,15 @@ public class BoardController implements Initializable
         return false;
     }
 
-    public void clear_active_fields()
-    {
-        if( rect != null )
-        {
-            grid.getChildren().remove( rect[0]);
-            grid.getChildren().remove( rect[1]);
-        }
-        rect = null;
-    }
-    public void clear_possible_moves()
-    {
-        if( possibleMoves != null )
-        {
-            for(int i=0; i<64; i++)
-            {
-                if( possibleMoves[i] != null )
-                {
-                    grid.getChildren().remove(circles[i]);
-                    //possibleMoves[i].setStyle("-fx-border-color: #A39300; ");
-                    possibleMoves[i] = null;
-                }
-                else
-                    break;
-            }
-        }
-        circles = null;
-        possibleMoves = null;
-    }
-    public void display_possible_moves() throws FileNotFoundException {
-        int x,y;
-
-        // mark active player with colored field
-        rect = new Rectangle[2];
-        rect[0] = new Rectangle(100, 100);
-        rect[0].setOpacity(0.2);
-        rect[0].setFill( Color.SKYBLUE);
-        rect[0].setDisable(true);
-        grid.add(rect[0], activePlayer.getXCoord(), activePlayer.getYCoord());
-
-        if( possibleMoves != null )
-        {
-            for(int i=0;i<64; i++)
-            {
-                if( possibleMoves[i] != null && circles [i] != null )
-                {
-                    x = (int)(possibleMoves[i].getLayoutX() /100);
-                    y = (int)(possibleMoves[i].getLayoutY() /100);
-                    grid.add( circles[i],x,y);
-                }
-                else
-                    break;
-            }
-        }
-    }
-
     public void add_valid_move( Button btn )
     {
-        if ( possibleMoves == null ) {
+        if ( possibleMoves == null )
             possibleMoves = new Button[64];
-            circles       = new Circle[64];
-        }
 
         for(int i=0; i<64; i++)
         {
-            if( possibleMoves[i] == null && circles[i] == null)
+            if( possibleMoves[i] == null  )
             {
-                circles[i] = new Circle(15, Color.GOLDENROD );
-                circles[i].setOpacity( 0.3);
-                circles[i].setDisable(true);
                 possibleMoves[i] = btn;
                 break;
             }
@@ -136,7 +82,6 @@ public class BoardController implements Initializable
 
     public void set_possible_moves() throws FileNotFoundException
     {
-        enemy = null;
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
         boolean isBlack = activePlayer.isBlack();
@@ -154,77 +99,95 @@ public class BoardController implements Initializable
         else if( activePlayer instanceof Queen )
             moveInfo.queen(x, y, isBlack);
 
-        display_possible_moves();
+        if( possibleMoves != null )
+            view.draw_possible_circles(x,y);
     }
 
-    public void handleButtonMove(Button btn ) {
-        int x =  (int)btn.getLayoutX() /100;
-        int y =  (int)btn.getLayoutY() /100;
-
+    private void init_moves( Button btn ) throws FileNotFoundException
+    {
+        activePlayer = board.get_figure( btn );
+        view.clear_active_fields();
+        if (activePlayer != null)
+        {
+            possibleMoves = null;
+            activePlayer.setBtn(btn);
+            set_possible_moves();
+        }
+    }
+    public void handleButtonMove( Button btn )
+    {
+        int x ,y;
         try {
-            if( activePlayer == null ) {
-                // a player has to be clicked first
-                activePlayer = board.get_figure(x, y);
+            if( activePlayer == null )
+                init_moves( btn );
 
-                if (activePlayer != null)
-                {
-                    clear_active_fields();
-                    clear_possible_moves();
-                    activePlayer.setBtn(btn);
-                    set_possible_moves();
-                }
-            }
+            else
+            {   // MOVE is possible
+                x = activePlayer.getXCoord();
+                y = activePlayer.getYCoord();
 
-            // MOVE is possible
-            else if (activePlayer != null)
-            {
                 if ( button_is_valid_move(btn) )
                 {   // LETS MOVE
-                    // CHECK IF PAWN HAS ARRIVED AT THE OTHER SIDE TO FETCH A NEW FIGURE
-                    if( y == 7 && activePlayer.isBlack() && activePlayer instanceof Pawn )
-                        Dialog.spawn_new_figure( activePlayer, btn, true );
-                    else if( y == 0 && !activePlayer.isBlack() && activePlayer instanceof Pawn )
-                        Dialog.spawn_new_figure( activePlayer, btn, false );
 
-                    // mark active player with colored field
-                    rect[1] = new Rectangle(100, 100);
-                    rect[1].setOpacity(0.2);
-                    rect[1].setFill( Color.LIGHTSKYBLUE);
-                    rect[1].setDisable(true);
-                    grid.add(rect[1], x, y);
+                    // if a pawn has crosses enemy lines
+                    if( pawn_can_choose_a_queen( y ) )
+                       Dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
 
-                    board.move_player(activePlayer, btn);
-                    clear_possible_moves();
-                    activePlayer = null;
+                    // mark players destination field with color
+                    x = board.get_xCoord_btn(btn);
+                    y = board.get_yCoord_btn(btn);
+                    view.set_active_field( 1, x, y );
+
+                    view.update( activePlayer, btn );
+                    activePlayer = board.move_player(activePlayer, btn);
+                    possibleMoves = null;
                 }
-                else {
-                    // SHOW NEW MOVES
-                    activePlayer = board.get_figure(x, y);
-
-                    if (activePlayer != null)
-                    {
-                        clear_active_fields();
-                        clear_possible_moves();
-                        activePlayer.setBtn(btn);
-                        set_possible_moves();
-                    }
+                else  // DIFFERENT FIGURE HAS BEEN CLICKED
+                {
+                    view.clear_possible_circles();
+                    init_moves(btn);
                 }
             }
         }
         catch( FileNotFoundException fex )
         {
-            System.out.println("fnfe");
+            System.out.println("file not found ");
         }
+    }
+
+    public boolean pawn_can_choose_a_queen( int y ) throws FileNotFoundException
+    {
+        if( activePlayer instanceof Pawn )
+        {
+            if (y == 6 && activePlayer.isBlack() )
+                return true;
+            else if( y == 1 && !activePlayer.isBlack() )
+                return true;
+            else
+                return false;
+        }
+
+        return false;
+    }
+
+    public static Circle[] getCircles( )
+    {
+        return circles;
+    }
+
+    public static Button[] getPossibleMoves()
+    {
+        return possibleMoves;
     }
 
     // makes it look just awesome *________*
     public void buttonEnter(  Button btn )
     {
-       // btn.setStyle();
-        btn.setStyle("-fx-border-color: #FF33CC; -fx-background-size: 52,52;");
+        BEFORE = btn.getStyle();
+        btn.setStyle("-fx-border-color: #000000;");
     }
     public void buttonExit( Button btn )
     {
-        btn.setStyle("-fx-border-color: #A39300; -fx-background-size: 45,45;");
+        btn.setStyle( BEFORE );
     }
 }

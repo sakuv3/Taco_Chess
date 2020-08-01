@@ -1,15 +1,16 @@
 package Taco_Chess.Figures;
 
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+
 
 public abstract class Abstract_Figure
 {
-    private boolean isBlack = false;
-    protected int xCoord    = -1;
-    protected int yCoord    = -1;
-    private Button btn      = null;
-
-    abstract boolean move();
+    protected Button btn;
+    protected int xCoord;
+    protected int yCoord;
+    protected boolean isBlack;
+    protected ImageView imageView;
 
     public int getXCoord() {
         return this.xCoord; }
@@ -17,17 +18,26 @@ public abstract class Abstract_Figure
     public int getYCoord() {
         return this.yCoord; }
 
-    public void setxCoord(int val) {
-        this.xCoord = val; }
-
-    public void setyCoord(int val) {
-        this.yCoord = val; }
-
     public void setCoordinates( int x, int y )
     {
         this.xCoord = x;
         this.yCoord = y;
     }
+
+    abstract boolean move();
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    public void setImageView(ImageView imageView) {
+        this.imageView = imageView;
+    }
+
+    public void setxCoord(int val) {
+        this.xCoord = val; }
+
+    public void setyCoord(int val) {
+        this.yCoord = val; }
 
     public Button getBtn() {
         return btn;
@@ -44,5 +54,4 @@ public abstract class Abstract_Figure
     public void setBlack(boolean black) {
         isBlack = black;
     }
-
 }

@@ -1,31 +1,29 @@
 package Taco_Chess;
 
 import Taco_Chess.Figures.Abstract_Figure;
+import javafx.scene.control.Button;
 
 import java.io.FileNotFoundException;
 
 public class MoveInfo
 {
+    static Button btn;
     static Board board;
     static Abstract_Figure enemy;
     static BoardController controller;
 
     public MoveInfo( Board board, BoardController controller )
     {
-        enemy = null;
-        this.board = board;
-        this.controller = controller;
+        btn                 = null;
+        enemy               = null;
+        this.board          = board;
+        this.controller     = controller;
     }
 
     public void pawn( int x, int y, boolean isBlack) throws FileNotFoundException
     {
         int x1, x2;
         int y1, y2;
-
-        if( y == 6 && isBlack )
-            System.out.println("7");
-        else if( y == 1 && !isBlack )
-            System.out.println(1);
 
         if( isBlack )
         {
@@ -41,34 +39,33 @@ public class MoveInfo
             y1 = y -1;
             y2 = y -2;
         }
-        if (board.get_figure(x, y1) == null)
+
+        if (board.get_figure( board.get_button(x, y1 ) ) == null)
         {   // 1down - 1up
             controller.add_valid_move(board.get_button(x, y1));
 
             // black can go 2down
-            if ( y == 1 && board.get_figure(x, y2) ==null && isBlack )
+            if ( y == 1 && board.get_figure( board.get_button(x, y2) ) ==null && isBlack )
                 controller.add_valid_move(board.get_button(x, y2));
 
             // white can go 2 up
-            else if ( y ==6 && board.get_figure(x, y2) ==null && !isBlack )
+            else if ( y ==6 && board.get_figure( board.get_button(x, y2) ) ==null && !isBlack )
                 controller.add_valid_move(board.get_button(x, y2));
         }
 
-        if( x == 0  && y == 1 )
-            System.out.println( "ok");
-        enemy = board.get_figure(x1, y1);
-        if (x1 > 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill-left
+        enemy = board.get_figure( board.get_button(x1, y1) );
+        if (x1 >= 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill-left
             controller.add_valid_move(board.get_button(x1, y1));
 
-        enemy = board.get_figure(x2, y1);
-        if (x2 < 7 && enemy != null && (enemy.isBlack() != isBlack) )   // kill-right
+        enemy = board.get_figure( board.get_button(x2, y1) );
+        if (x2 < 8 && enemy != null && (enemy.isBlack() != isBlack) )   // kill-right
             controller.add_valid_move(board.get_button(x2, y1));
     }
 
     // returns true if move is valid ( for rook and bishop  only )
     public boolean move_is_valid(int x, int y, boolean playerIsBlack )
     {
-        enemy = board.get_figure(x, y);
+        enemy = board.get_figure( board.get_button(x, y) );
         if( enemy != null )
         {
             if( enemy.isBlack() != playerIsBlack )  // no further than enemy
@@ -224,10 +221,9 @@ public class MoveInfo
             int xCord = horseMovesX[i];
             int yCord = horseMovesY[i];
 
-            if( xCord <0 || xCord > 7 || yCord<0 || yCord>7 )
-                continue;   // outside of board
-
-            enemy = board.get_figure(xCord, yCord );
+            if( xCord <0 || xCord >7 || yCord <0 || yCord >7 )
+                continue;
+            enemy = board.get_figure( board.get_button(xCord, yCord) );
             if( enemy != null )
                 if ( enemy.isBlack() == playerIsBlack )
                     continue;   // no team-kill
