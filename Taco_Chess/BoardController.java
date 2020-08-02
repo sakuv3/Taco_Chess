@@ -129,6 +129,9 @@ public class BoardController implements Initializable
                 if ( button_is_valid_move(btn) )
                 {   // LETS MOVE
 
+                    Abstract_Figure killed = board.get_figure( btn );
+                    if( killed != null )
+                        view.add_killed_figure( killed );
                     // if a pawn has crosses enemy lines
                     if( pawn_can_choose_a_queen( y ) )
                        Dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );

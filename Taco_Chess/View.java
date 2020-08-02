@@ -5,12 +5,16 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,6 +22,8 @@ import java.io.IOException;
 
 public class View
 {
+    static int blackCNT=0, whiteCNT=0;
+    static Label blackLabelCNT, whiteLabelCNT;
     static Stage mainStage;
     static private Board board;
     static private StackPane stackPane;
@@ -85,6 +91,63 @@ public class View
         Scene scene = new Scene( stackPane );
         scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
         mainStage.setScene( scene );
+    }
+
+    public void update_credit_cnt( int val, boolean blackIsDead )
+    {
+        top.getChildren().remove( blackLabelCNT );
+        bottom.getChildren().remove( whiteLabelCNT );
+
+        if( blackIsDead )
+            whiteCNT += val;
+        else
+            blackCNT +=val;
+
+        int tmp = blackCNT - whiteCNT;
+        if( tmp > 0 )
+        {
+            blackLabelCNT = new Label( "+" +Integer.toString( tmp ) );
+            blackLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+            top.getChildren().add( blackLabelCNT );
+        }
+        else if( tmp < 0 )
+        {
+            tmp = tmp * (-1);
+            whiteLabelCNT = new Label( "+" +Integer.toString( tmp ) );
+            whiteLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+            bottom.getChildren().add( whiteLabelCNT );
+        }
+        else
+            whiteCNT = blackCNT = 0;
+    }
+    public int get_credits( Abstract_Figure figure )
+    {
+        if( figure instanceof Queen)
+            return 9;
+        else if( figure instanceof Rook)
+            return 4;
+        else if( figure instanceof Horse)
+            return 3;
+        else if( figure instanceof Bishop )
+           return 2;
+        else if( figure instanceof Pawn )
+            return 1;
+        return -1;
+    }
+    public void add_killed_figure( Abstract_Figure killed ) throws FileNotFoundException {
+        String PATH     = get_figure_path( killed );
+        FIS             = new FileInputStream( PATH );
+        IMAGE           = new Image(FIS);
+        ImageView dead  = new ImageView(IMAGE);
+        dead.setFitWidth(25);
+        dead.setFitHeight(25);
+
+        if( killed.isBlack() )   // white killed someone
+            bottom.getChildren().add(dead );
+        else  // black killed someone
+            top.getChildren().add(dead );
+
+        update_credit_cnt( get_credits(killed), killed.isBlack() );
     }
 
     private void init_borderPane( double width, double height ) throws FileNotFoundException {
@@ -156,52 +219,7 @@ public class View
         oldPlayer.getBtn().setGraphic( null );
         dest.setGraphic( oldPlayer.getImageView() );
     }
-    public void add_killed_figure( String type, boolean isBlack ) throws FileNotFoundException {
 
-        FileInputStream FIS = new FileInputStream(linuxURL +"black/pawn.png");
-        FileInputStream FOS = new FileInputStream(linuxURL +"white/pawn.png");
-        Image image1 = new Image(FIS);
-        Image image2 = new Image(FOS);
-        ImageView black[] = new ImageView[16];
-        ImageView white[] = new ImageView[16];
-
-
-        HBox top = new HBox();
-        top.setOpacity(0.75);
-        top.setSpacing(0);
-        top.setPrefHeight(100);
-        top.setPrefWidth(800);
-        top.setMaxHeight(Region.USE_PREF_SIZE);
-        top.setMaxWidth(Region.USE_PREF_SIZE);
-        top.setAlignment(Pos.BOTTOM_LEFT);
-        top.setStyle( "-fx-background-color: linear-gradient(#bdd49b, #94b26a)");
-        BorderPane.setMargin( top, new Insets(0,0,0,100));
-
-        HBox bottom = new HBox();
-        bottom.setSpacing(0);
-        bottom.setOpacity(0.75);
-        bottom.setPrefHeight(100);
-        bottom.setPrefWidth(800);
-        bottom.setMaxHeight(Region.USE_PREF_SIZE);
-        bottom.setMaxWidth(Region.USE_PREF_SIZE);
-        bottom.setAlignment(Pos.TOP_LEFT);
-        bottom.setStyle( "-fx-background-color: linear-gradient(#bdd49b, #94b26a)");
-        BorderPane.setMargin( bottom, new Insets(0,0,0,100));
-
-        for(int i=0; i<16;i++) {
-            white[i] = new ImageView(image2);
-            white[i].setFitHeight(25);
-            white[i].setFitWidth(25);
-            top.getChildren().add( white[i] );
-
-            black[i] = new ImageView(image1);
-            black[i].setFitHeight(25);
-            black[i].setFitWidth(25);
-            bottom.getChildren().add( black[i] );
-        }
-        borderPane.setTop( top );
-        borderPane.setBottom( bottom );
-    }
     public void draw_possible_circles( int x, int y ) throws FileNotFoundException
     {
         circles                 = controller.getCircles();

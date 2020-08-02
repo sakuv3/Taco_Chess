@@ -1,14 +1,8 @@
 package Taco_Chess;
 import Taco_Chess.Figures.*;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
-import javafx.beans.Observable;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 import javafx.fxml.FXMLLoader;
@@ -20,17 +14,10 @@ import javafx.stage.Stage;
 
 public class Board extends Stage
 {
-    static private Abstract_Figure figures[][];
+    static private  Abstract_Figure figures[][];
     static private  BoardController controller;
     static private  GridPane chessBoard;
     static private  Button buttons[][];
-
-    static private  King king[];
-    static private  ArrayList <Queen>   queens;
-    static private  ArrayList <Bishop>  bishops;
-    static private  ArrayList<Horse>    horses;
-    static private  ArrayList <Rook>    rooks;
-    static private  ArrayList <Pawn>    pawns;
 
     public Board(  ) throws FileNotFoundException, IOException
     {
@@ -78,59 +65,46 @@ public class Board extends Stage
         figure.setBlack( isBlack );
         figures[x][y]   = figure;
         figures[x][y].setBtn( buttons[x][y] );
-        figure.setCoordinates( x, y );
+        figures[x][y].setCoordinates( x, y );
     }
 
     private void define_start_positions() throws FileNotFoundException
     {
-        Queen queen;
-        king    = new King[2];
-        queens  = new ArrayList();
-        rooks   = new ArrayList();
-        bishops = new ArrayList();
-        horses  = new ArrayList();
-        pawns   = new ArrayList();
-        boolean isBlack =false;
-
-        // rooks, horses & pawns - jeweils 2 für jedes Team
-
-
+        Queen queen[]     = new Queen[2];
+        King king[]       = new King[2];
         Rook rook[]       = new Rook[4];
         Horse horse[]     = new Horse[4];
         Bishop bishop[]   = new Bishop[4];
+        boolean isBlack   = false;
+
+        // rooks, horses & pawns - jeweils 2 für jedes Team
 
         for( int i=0; i<4; i++ )
         {
             rook[i] = new Rook();
             horse[i] = new Horse();
             bishop[i] = new Bishop();
-
-            rooks.add( rook[i] );
-            horses.add( horse[i] );
-            bishops.add( bishop[i] );
         }
 
         // white Team
-        king[0] = new King();
-        queen   = new Queen();
-        queens.add( queen );
+        king[0]     = new King();
+        queen[0]    = new Queen();
         set_figure( rook[0], 0, 0, true);
         set_figure( horse[0], 1, 0, true );
         set_figure( bishop[0], 2, 0, true );
-        set_figure( queen, 3, 0, true );
+        set_figure( queen[0], 3, 0, true );
         set_figure( king[0], 4, 0, true);
         set_figure( bishop[1], 5, 0,true );
         set_figure( horse[1], 6, 0, true );
         set_figure( rook[1], 7, 0, true );
 
         // black Team
-        king[1] = new King();
-        queen   = new Queen();
-        queens.add( queen );
+        king[1]     = new King();
+        queen[1]    = new Queen();
         set_figure( rook[2], 0, 7, false );
         set_figure( horse[2], 1, 7, false );
         set_figure( bishop[2], 2, 7, false );
-        set_figure( queen, 3, 7, false);
+        set_figure( queen[1], 3, 7, false);
         set_figure( king[1], 4, 7, false);
         set_figure( bishop[3], 5, 7, false );
         set_figure( horse[3], 6, 7, false );
@@ -141,7 +115,6 @@ public class Board extends Stage
         {
             int x,y;
             Pawn pawn = new Pawn();
-            pawns.add( pawn );
 
             if( i < 8 ) // white Team
             {
@@ -225,29 +198,6 @@ public class Board extends Stage
         this.figures = figures;
     }
 
-    public void setBishops(ArrayList<Bishop> bishops) {
-        this.bishops = bishops;
-    }
-
-    public void setHorses(ArrayList<Horse> horses) {
-        this.horses = horses;
-    }
-
-    public void setKing(King[] king) {
-        this.king = king;
-    }
-
-    public void setPawns(ArrayList<Pawn> pawns) {
-        this.pawns = pawns;
-    }
-
-    public void setQueens(ArrayList<Queen> queens) {
-        this.queens = queens;
-    }
-
-    public void setRooks(ArrayList<Rook> rooks) {
-        this.rooks = rooks;
-    }
 
     public GridPane getChessBoard() {
         return chessBoard;
@@ -261,27 +211,8 @@ public class Board extends Stage
         return buttons;
     }
 
-    public ArrayList<Bishop> getBishops() {
-        return bishops;
-    }
-
-    public ArrayList<Pawn> getPawns() {
-        return pawns;
-    }
-
-    public ArrayList<Horse> getHorses() {
-        return horses;
-    }
-
-    public ArrayList<Queen> getQueens() {
-        return queens;
-    }
-
     public Abstract_Figure[][] getFigures() {
         return figures;
     }
 
-    public ArrayList<Rook> getRooks() {
-        return rooks;
-    }
 }

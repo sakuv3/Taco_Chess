@@ -28,6 +28,7 @@ public class Dialog
 
     public static void spawn_new_figure(Abstract_Figure activePlayer, Button btn, boolean isBlack) throws FileNotFoundException {
         String PATH;
+        board.getChessBoard().setDisable( true );
         String figs[]   = new String[4];
         Button btns[]   = new Button[4];
         GridPane grid   = new GridPane();
@@ -36,8 +37,8 @@ public class Dialog
 
         // gibt den auswählbaren figuren ne abgerundete Form
         Rectangle rect = new Rectangle(100, 100);
-        rect.setArcHeight(40);
-        rect.setArcWidth(40);
+        rect.setArcHeight(10);
+        rect.setArcWidth(10);
 
         grid.getColumnConstraints().add(column);
         grid.getColumnConstraints().add(column);
@@ -81,7 +82,6 @@ public class Dialog
                 ImageView IMAGEVIEW  = new ImageView( IMAGE );
                 view.clear_possible_circles();
                 Abstract_Figure newFig =null;
-                try {
                     if( j ==0 )
                         newFig = new Queen();
 
@@ -94,19 +94,17 @@ public class Dialog
                     else if( j==3 )
                         newFig = new Bishop();
 
-                    newFig.setBtn( btn );
-                    newFig.setBlack(isBlack);
-                    newFig.setImageView( IMAGEVIEW );
-                    newFig.getBtn().setGraphic( IMAGEVIEW );
-                    board.move_player( activePlayer, btn );
+                    int x = board.get_xCoord_btn( btn );
+                    int y = board.get_yCoord_btn( btn );
 
+                    board.set_figure( newFig, x, y, isBlack);
+                    newFig.setImageView( IMAGEVIEW );
+                    btn.setGraphic( IMAGEVIEW );
+
+                    view.update_credit_cnt( view.get_credits(newFig), !isBlack );
                     // remove the chosable 4 figures
                     view.getStackPane().getChildren().remove( grid );
-                }
-                catch (FileNotFoundException fex )
-                {
-                    System.out.println("mayday");
-                }
+                    board.getChessBoard().setDisable( false );
             });
         }
         grid.add(btns[0], 0, 0);
