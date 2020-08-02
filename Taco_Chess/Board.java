@@ -18,6 +18,7 @@ public class Board extends Stage
     static private  BoardController controller;
     static private  GridPane chessBoard;
     static private  Button buttons[][];
+    static private boolean isWhitesMove = true;
 
     public Board(  ) throws FileNotFoundException, IOException
     {
@@ -32,7 +33,8 @@ public class Board extends Stage
     };
 
     public void create_chessBoard() throws IOException
-    {// create 64 fields, each getting equipped with sensors
+    {
+        // makes it look super awesome *___*
         Rectangle r = new Rectangle();
         r.setFill(Color.AQUA);
         r.setWidth(100);
@@ -40,6 +42,7 @@ public class Board extends Stage
         r.setArcHeight(5);
         r.setArcWidth(5);
 
+        // create 64 fields, each getting equipped with sensors
         for( int y=0;y<8;y++)
         {
             for(int x=0;x<8;x++)
@@ -140,12 +143,30 @@ public class Board extends Stage
         int xNew = get_xCoord_btn( dest );
         int yNew = get_yCoord_btn( dest );
 
-        player.setCoordinates(xNew, yNew);
-        player.setBtn(dest);
         figures[xOld][yOld] = null;
         figures[xNew][yNew] = player;
+        figures[xNew][yNew].setBtn(dest);
+        figures[xNew][yNew].setCoordinates(xNew, yNew);
 
-        return null;
+        return figures[xNew][yNew];
+    }
+
+    public int get_type( Abstract_Figure figure )
+    {
+        if( figure instanceof Pawn )
+            return 0;
+        else if( figure instanceof Bishop )
+            return 1;
+        else if( figure instanceof Horse)
+            return 2;
+        else if( figure instanceof Rook)
+            return 3;
+        else if( figure instanceof Queen)
+            return 4;
+        else if( figure instanceof King)
+            return 5;
+
+        return -1;  // never reached
     }
 
     public int get_xCoord_btn( Button btn )
@@ -164,6 +185,16 @@ public class Board extends Stage
         return null;
     }
 
+    public Button get_king_btn(  boolean isBblack )
+    {
+        Abstract_Figure[] figs = get_team( isBblack );
+
+        for (int i = 0; i < figs.length; i++) {
+            if( get_type(figs[i]) == 5 )
+                return get_button( figs[i].getXCoord(), figs[i].getYCoord() );
+        }
+        return null;
+    }
     // returns the figure, on the field clicked or null if no figure is in the field
     public Abstract_Figure get_figure( Button btn )
     {
@@ -177,6 +208,22 @@ public class Board extends Stage
         return null;
     }
 
+    public Abstract_Figure[] get_team( boolean isBlack )
+    {
+        ArrayList<Abstract_Figure> retFigures = new ArrayList();
+
+        for( int y=0; y<8; y++ )
+        {
+            for( int x=0; x<8; x++ )
+            {
+                if( figures[x][y] != null && figures[x][y].isBlack() == isBlack )
+                    retFigures.add( figures[x][y] );
+            }
+        }
+
+        Abstract_Figure[] figs = new Abstract_Figure[retFigures.size()];
+        return retFigures.toArray(figs);
+    }
     public Abstract_Figure[] get_all_figures()
     {
         ArrayList<Abstract_Figure> retFigures = new ArrayList();
@@ -198,9 +245,16 @@ public class Board extends Stage
         this.figures = figures;
     }
 
-
     public GridPane getChessBoard() {
         return chessBoard;
+    }
+
+    public static boolean isWhitesMove() {
+        return isWhitesMove;
+    }
+
+    public static void setIsWhitesMove(boolean isWhitesMove) {
+        Board.isWhitesMove = isWhitesMove;
     }
 
     public BoardController getController() {

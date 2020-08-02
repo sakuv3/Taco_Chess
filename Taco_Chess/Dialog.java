@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 public class Dialog
 {
 
-    static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
+    static final String URL = "src/Taco_Chess/images/";
     static final String type[] = {"queen.png", "horse.png", "rook.png", "bishop.png"};
     static Board board;
     static View view;
@@ -49,9 +49,9 @@ public class Dialog
         grid.setMaxWidth(200);
 
         if( isBlack )
-            PATH = linuxURL +"black/";
+            PATH = URL +"black/";
         else
-            PATH = linuxURL +"white/";
+            PATH = URL +"white/";
 
         for(int i =0; i<4 ; i++)
         {
@@ -72,16 +72,13 @@ public class Dialog
 
             btns[i].setOnMouseClicked( e ->
             {   // SPAWN NEW CHOSEN FIGURE
-                activePlayer.getBtn().setGraphic( null );
                 FileInputStream FIS  = null;
-                try {  FIS = new FileInputStream( URL );
-                } catch (FileNotFoundException fileNotFoundException) {
-                    fileNotFoundException.printStackTrace();
-                }
+                try {
+                    FIS = new FileInputStream( URL );
                 Image IMAGE          = new Image(FIS);
-                ImageView IMAGEVIEW  = new ImageView( IMAGE );
-                view.clear_possible_circles();
+                ImageView IMG  = new ImageView( IMAGE );
                 Abstract_Figure newFig =null;
+
                     if( j ==0 )
                         newFig = new Queen();
 
@@ -94,17 +91,23 @@ public class Dialog
                     else if( j==3 )
                         newFig = new Bishop();
 
+
+                    newFig.setImageView( IMG );
+                    newFig.setBtn( btn );
+                    view.update( newFig, btn, false );
                     int x = board.get_xCoord_btn( btn );
                     int y = board.get_yCoord_btn( btn );
-
                     board.set_figure( newFig, x, y, isBlack);
-                    newFig.setImageView( IMAGEVIEW );
-                    btn.setGraphic( IMAGEVIEW );
+                    view.update_score( null );
 
-                    view.update_credit_cnt( view.get_credits(newFig), !isBlack );
                     // remove the chosable 4 figures
                     view.getStackPane().getChildren().remove( grid );
                     board.getChessBoard().setDisable( false );
+                }
+                catch (FileNotFoundException fileNotFoundException)
+                {
+                    System.out.println("mayday");
+                }
             });
         }
         grid.add(btns[0], 0, 0);

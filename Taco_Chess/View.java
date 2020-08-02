@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -22,21 +23,31 @@ import java.io.IOException;
 
 public class View
 {
-    static int blackCNT=0, whiteCNT=0;
-    static Label blackLabelCNT, whiteLabelCNT;
-    static Stage mainStage;
     static private Board board;
+    static private Stage mainStage;
     static private StackPane stackPane;
     static private BorderPane borderPane;
-    static private HBox top;
-    static private HBox bottom;
     static private BoardController controller;
+    static final private String URL = "src/Taco_Chess/images/";
 
-    static final String linuxURL = "/home/saku/IdeaProjects/Taco/src/Taco_Chess/images/";
+    /* Top and Bottom Panes for Players Images and killed figures */
+    static private HBox hTop;
+    static private HBox hBottom;
+    static private VBox vTop;
+    static private VBox vBottom;
+    static private HBox bottomFigureBox;
+    static private HBox topFigureBox;
+    static private int blackValue=0, whiteValue=0;
+    static private Label topLabelCNT, bottomLabelCNT;
+
+    static private Abstract_Figure deadWhite[];
+    static private Abstract_Figure deadBlack[];
     static private FileInputStream FIS;
     static private ImageView IMAGEVIEW;
+    static private Image players[];
     static private Image IMAGE;
 
+    /* used to graphically indicate possible moves and current players position */
     static private Circle circles[];
     static private Rectangle rect[];
 
@@ -67,136 +78,129 @@ public class View
         rect[1].setFill( Color.GREEN);
         rect[1].setOpacity(0.25);
         rect[1].setDisable(true);
+
+        // killed figures
+        deadWhite = new Abstract_Figure[20];
+        deadBlack = new Abstract_Figure[20];
+
+        // team values
+        blackValue = total_team_value( true );
+        whiteValue = total_team_value( false );
+        topLabelCNT     = new Label();
+        bottomLabelCNT  = new Label();
     }
 
     private void init_panes( double width, double height ) throws IOException
     {
         // Wallpaper
-        FIS         = new FileInputStream(linuxURL +"nature.jpg");
+        FIS         = new FileInputStream(URL +"background.jpg");
         IMAGE       = new Image(FIS);
         IMAGEVIEW   = new ImageView(IMAGE);
         IMAGEVIEW.setFitWidth( width );
         IMAGEVIEW.setFitHeight( height );
 
-        // Actual GUI -> top - right - bottom - left
+        // BorderPane-> ( top-> (HBox-> (PlayerImage, VBox-> (Label, Hbox-> (deadFigure1, deadFigure2, etc..)))))
+        // BorderPane-> ( bottom-> (HBox-> (PlayerImage, VBox-> (Label, Hbox-> (deadFigure1, deadFigure2, etc..)))))
         init_borderPane( width, height );
 
         // Bottom - Field
         stackPane   = new StackPane();
         stackPane.setMaxWidth( width );
         stackPane.setMaxHeight( height );
-        stackPane.getChildren().addAll( IMAGEVIEW, borderPane );
+        stackPane.getChildren().addAll( IMAGEVIEW, borderPane  );
 
         // set the one and only scene for the chess gui
         Scene scene = new Scene( stackPane );
         scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
         mainStage.setScene( scene );
     }
-
-    public void update_credit_cnt( int val, boolean blackIsDead )
-    {
-        top.getChildren().remove( blackLabelCNT );
-        bottom.getChildren().remove( whiteLabelCNT );
-
-        if( blackIsDead )
-            whiteCNT += val;
-        else
-            blackCNT +=val;
-
-        int tmp = blackCNT - whiteCNT;
-        if( tmp > 0 )
-        {
-            blackLabelCNT = new Label( "+" +Integer.toString( tmp ) );
-            blackLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
-            top.getChildren().add( blackLabelCNT );
-        }
-        else if( tmp < 0 )
-        {
-            tmp = tmp * (-1);
-            whiteLabelCNT = new Label( "+" +Integer.toString( tmp ) );
-            whiteLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
-            bottom.getChildren().add( whiteLabelCNT );
-        }
-        else
-            whiteCNT = blackCNT = 0;
-    }
-    public int get_credits( Abstract_Figure figure )
-    {
-        if( figure instanceof Queen)
-            return 9;
-        else if( figure instanceof Rook)
-            return 4;
-        else if( figure instanceof Horse)
-            return 3;
-        else if( figure instanceof Bishop )
-           return 2;
-        else if( figure instanceof Pawn )
-            return 1;
-        return -1;
-    }
-    public void add_killed_figure( Abstract_Figure killed ) throws FileNotFoundException {
-        String PATH     = get_figure_path( killed );
-        FIS             = new FileInputStream( PATH );
-        IMAGE           = new Image(FIS);
-        ImageView dead  = new ImageView(IMAGE);
-        dead.setFitWidth(25);
-        dead.setFitHeight(25);
-
-        if( killed.isBlack() )   // white killed someone
-            bottom.getChildren().add(dead );
-        else  // black killed someone
-            top.getChildren().add(dead );
-
-        update_credit_cnt( get_credits(killed), killed.isBlack() );
-    }
-
     private void init_borderPane( double width, double height ) throws FileNotFoundException {
         borderPane = new BorderPane();
         borderPane.setPrefWidth( width );
         borderPane.setPrefHeight( height );
         borderPane.setCenter( board.getChessBoard() );
 
-        FIS         = new FileInputStream(linuxURL +"players/pharaoh.png");
-        IMAGE       = new Image(FIS);
-        ImageView xx[]   = new ImageView[2];
-        xx[0] = new ImageView(IMAGE);
-        xx[0].setFitWidth( 90 );
-        xx[0].setFitHeight( 90 );
+        topFigureBox    = new HBox();
+        bottomFigureBox = new HBox();
+        players         = new Image[2];
+        Rectangle r[]   = new Rectangle[2];
 
-        FIS         = new FileInputStream(linuxURL +"players/lion.png");
-        IMAGE       = new Image(FIS);
-        xx[1] = new ImageView(IMAGE);
-        xx[1].setFitWidth( 90 );
-        xx[1].setFitHeight( 90 );
 
-        top = new HBox();
-        top.setOpacity(0.7);
-        top.setPrefWidth(800);
-        top.setPrefHeight(100);
-        top.setAlignment(Pos.CENTER_LEFT);
-        top.setMaxWidth(Region.USE_PREF_SIZE);
-        top.setMaxHeight(Region.USE_PREF_SIZE);
-        BorderPane.setAlignment(top, Pos.TOP_CENTER);
-        top.setPadding( new Insets(0, 0,0,0));
-        top.setStyle(" -fx-background-color: linear-gradient( #cbe3a8, #77944e); ");
-        top.getChildren().add( xx[0] );
+        /* Player 1 */
+        Label name1 = new Label("Black Pharaoh");
+        FIS         = new FileInputStream(URL +"players/pharaoh.png");
+        players[0]  = new Image(FIS);
+        r[0]        = new Rectangle();
+        r[0].setHeight(90);
+        r[0].setWidth(90);
+        r[0].setArcHeight(30);
+        r[0].setArcWidth(30);
+        r[0].setFill( new ImagePattern(players[0]) );
 
-        bottom = new HBox();
-        bottom.setOpacity(0.7);
-        bottom.setPrefWidth(800);
-        bottom.setPrefHeight(100);
-        bottom.setAlignment(Pos.CENTER_LEFT);
-        bottom.setMaxWidth(Region.USE_PREF_SIZE);
-        bottom.setMaxHeight(Region.USE_PREF_SIZE);
-        BorderPane.setAlignment(bottom, Pos.BOTTOM_CENTER);
-        bottom.setStyle(" -fx-background-color: linear-gradient( #cbe3a8, #77944e); ");;
-        bottom.getChildren().add( xx[1] );
+        vTop = new VBox();
+        vTop.setSpacing(10);
+        vTop.setPrefWidth(700);
+        vTop.setPrefHeight(100);
+        vTop.setMaxWidth(Region.USE_PREF_SIZE);
+        vTop.setMaxHeight(Region.USE_PREF_SIZE);
+        name1.setTextFill(Color.BLACK);
+        name1.setPadding( new Insets(10,0,0,5));
+        name1.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+        vTop.getChildren().addAll( name1, topFigureBox );
 
-        borderPane.setTop( top );
-        borderPane.setBottom( bottom );
+        // Black Players TOP BOX for storing IMAGE and killed white figures
+        hTop = new HBox();
+        hTop.setOpacity(0.9);
+        hTop.setPrefWidth(800);
+        hTop.setPrefHeight(100);
+        hTop.setAlignment(Pos.CENTER_LEFT);
+        hTop.setMaxWidth(Region.USE_PREF_SIZE);
+        hTop.setMaxHeight(Region.USE_PREF_SIZE);
+        BorderPane.setAlignment(hTop, Pos.TOP_CENTER);
+        hTop.setPadding( new Insets(0, 0,0,5));
+        hTop.setStyle(" -fx-background-color: linear-gradient( #cbe3a8, #77944e); ");
+        hTop.getChildren().addAll( r[0], vTop );
 
+        /* Player 2 */
+        Label name2 = new Label("White Lion");
+        FIS         = new FileInputStream(URL +"players/lion.png");
+        players[1]  = new Image(FIS);
+        r[1]        = new Rectangle();
+        r[1].setHeight(90);
+        r[1].setWidth(90);
+        r[1].setArcHeight(30);
+        r[1].setArcWidth(30);
+        r[1].setFill( new ImagePattern(players[1]) );
+
+        vBottom = new VBox();
+        vBottom.setSpacing(10);
+        vBottom.setPrefWidth(700);
+        vBottom.setPrefHeight(100);
+        vBottom.setMaxWidth(Region.USE_PREF_SIZE);
+        vBottom.setMaxHeight(Region.USE_PREF_SIZE);
+        name2.setTextFill(Color.BLACK);
+        name2.setPadding(new Insets(10,0,0,5));
+        name2.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+        vBottom.getChildren().addAll( name2, bottomFigureBox );
+
+        // White Players BOTTOM BOX for storing IMAGE and killed black figures (box in a box) lol
+        hBottom = new HBox();
+        hBottom.setOpacity(0.9);
+        hBottom.setPrefWidth(800);
+        hBottom.setPrefHeight(100);
+        hBottom.setAlignment(Pos.CENTER_LEFT);
+        hBottom.setMaxWidth(Region.USE_PREF_SIZE);
+        hBottom.setMaxHeight(Region.USE_PREF_SIZE);
+        BorderPane.setAlignment(hBottom, Pos.BOTTOM_CENTER);
+        hBottom.setPadding( new Insets(0, 0,0,5));
+        hBottom.setStyle(" -fx-background-color: linear-gradient( #cbe3a8, #77944e); ");;
+        hBottom.getChildren().addAll( r[1], vBottom );
+
+        borderPane.setTop( hTop );
+        borderPane.setBottom( hBottom );
     }
-    public void draw_figures( ) throws FileNotFoundException
+
+    private void draw_figures( ) throws FileNotFoundException
     {
         String PATH;
         Abstract_Figure[] activeFigs = board.get_all_figures();
@@ -213,20 +217,135 @@ public class View
         }
     }
 
-    public void update( Abstract_Figure oldPlayer, Button dest )
+
+    public void update( Abstract_Figure oldPlayer, Button dest, boolean mark ) throws FileNotFoundException
     {
+        Abstract_Figure killed = board.get_figure( dest );
+        if( killed != null && killed.isBlack() != oldPlayer.isBlack() )
+            add_killed_figure( killed );
+
+        if( mark ) {
+            // mark players destination field with color
+            int x = board.get_xCoord_btn(dest);
+            int y = board.get_yCoord_btn(dest);
+            mark_active_field(1, x, y);
+        }
+
         clear_possible_circles();
         oldPlayer.getBtn().setGraphic( null );
         dest.setGraphic( oldPlayer.getImageView() );
     }
+    public void add_killed_figure( Abstract_Figure killed ) throws FileNotFoundException
+    {
+        FIS                     = new FileInputStream( get_figure_path( killed ) );
+        IMAGE                   = new Image(FIS);
+        ImageView deadIMG       = new ImageView(IMAGE);
+        Abstract_Figure deadFig = get_new_dead( killed );
+        deadIMG.setFitHeight(25);
+        deadIMG.setFitWidth(25);
+        deadFig.setImageView( deadIMG );
+        deadFig.setBlack( killed.isBlack() );
 
+        inSORT_killed_figure( deadFig );
+        update_score( killed );
+    }
+
+    // sort killed figures
+    private void inSORT_killed_figure( Abstract_Figure dead )
+    {
+        Abstract_Figure deadFIGS[];
+        HBox box;
+
+        if( dead.isBlack() ) {
+
+            deadFIGS = deadBlack;
+            box = bottomFigureBox;
+        }
+        else {
+            deadFIGS = deadWhite;
+            box = topFigureBox;
+        }
+
+        // remove all figs
+        int i=0;
+        while( deadFIGS[i] != null )
+            box.getChildren().remove( deadFIGS[i++].getImageView() );
+
+        // add new dead figure at end of array
+        for(int j=0;j<16;j++)
+            if( deadFIGS[j] == null ) {
+                deadFIGS[j] = dead;
+                break;
+            }
+
+        i=0;
+        Abstract_Figure tmp; // insertionsort
+        while( deadFIGS[i] != null )
+        {
+            int j = i;
+            tmp = deadFIGS[i];
+            while( j > 0 && board.get_type( deadFIGS[j-1] ) > board.get_type( tmp )  )
+            {
+                deadFIGS[j] = deadFIGS[j-1];
+                j--;
+            }
+            deadFIGS[j] = tmp;
+            i++;
+        }
+
+        i =0;   // re-adding the updated and sorted dead figures
+        while( deadFIGS[i] != null )
+            box.getChildren().add( deadFIGS[i++].getImageView() );
+
+    }
+
+    public void set_score()
+    {
+
+    }
+    public void update_score( Abstract_Figure killed )
+    {
+        topFigureBox.getChildren().remove( topLabelCNT );
+        bottomFigureBox.getChildren().remove( bottomLabelCNT );
+
+        if( killed != null ) {
+            if (killed.isBlack())
+                blackValue = total_team_value(true) - get_credits(killed);
+            else
+                whiteValue = total_team_value(false) - get_credits(killed);
+        }
+        else
+        {
+            blackValue = total_team_value( true );
+            whiteValue = total_team_value( false );
+        }
+
+        // make difference Positiv
+        int DIFF = blackValue - whiteValue;
+        int SCORE = (int) Math.sqrt( Math.pow( DIFF, 2) );
+
+        if( DIFF > 0 )
+        {   // black still has bigger score
+            topLabelCNT.setText( "  +" +SCORE );
+            topLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+            topFigureBox.getChildren().add( topLabelCNT );
+        }
+        else if( DIFF < 0 )
+        {   // white has bigger score
+            bottomLabelCNT.setText( "  +" +SCORE );
+            bottomLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+            bottomFigureBox.getChildren().add( bottomLabelCNT );
+        }
+        else
+            System.out.println("equal");
+    }
     public void draw_possible_circles( int x, int y ) throws FileNotFoundException
     {
         circles                 = controller.getCircles();
         Button possibleMoves[]  = controller.getPossibleMoves();
 
         // mark players current-field with color
-        set_active_field( 0, x, y );
+        mark_active_field( 0, x, y );
 
         for( int i=0; i<64; i++ )
         {
@@ -240,20 +359,6 @@ public class View
                 break;
         }
     }
-
-    public void set_active_field( int i, int x, int y )
-    {
-        board.getChessBoard().add( rect[i], x, y );
-    }
-    public void clear_active_fields()
-    {
-        if( rect != null )
-        {
-            board.getChessBoard().getChildren().remove( rect[0]);
-            board.getChessBoard().getChildren().remove( rect[1]);
-        }
-    }
-
     public void clear_possible_circles()
     {
         Button possibleMoves[] = controller.getPossibleMoves();
@@ -266,32 +371,90 @@ public class View
                 else
                     break;
             }
-            circles = null;
+        }
+    }
+    public void mark_active_field( int i, int x, int y )
+    {
+        board.getChessBoard().add( rect[i], x, y );
+    }
+    public void clear_active_fields()
+    {
+        if( rect != null )
+        {
+            board.getChessBoard().getChildren().remove( rect[0]);
+            board.getChessBoard().getChildren().remove( rect[1]);
         }
     }
 
-    public String get_figure_path( Abstract_Figure figure )
+    public int total_team_value( boolean isBlack )
+    {
+        int CNT=0;
+        Abstract_Figure figs[] = board.get_team( isBlack );
+
+        for(int i=0;i<figs.length;i++)
+            CNT += get_credits( figs[i] );
+        return CNT;
+    }
+    public int get_credits( Abstract_Figure figure )
+    {
+        int type = board.get_type( figure );
+        if( type == 4 )
+            return 9;   // queen
+        else if( type == 3 )
+            return 4;   // rook
+        else if( type == 2)
+            return 3;   // horse
+        else if( type == 1)
+            return 2;    // bishop
+        else if( type == 0 )
+            return 1;   // pawn
+
+        return -1;      // king cant be killed
+    }
+
+    private Abstract_Figure get_new_dead( Abstract_Figure killed )
+    {
+        int type = board.get_type( killed );
+
+        if( type == 0 )
+            return new Pawn();
+        if( type == 1 )
+            return new Bishop();
+        if( type == 2 )
+            return new Horse();
+        if( type == 3 )
+            return new Rook();
+        if (type == 4 )
+            return new Queen();
+
+        return null;
+    }
+
+    private String get_figure_path( Abstract_Figure figure )
     {
         String PATH;
-        if( figure.isBlack() )
-            PATH = linuxURL + "black/";
-        else
-            PATH = linuxURL +"white/";
+        int type = board.get_type( figure );
 
-        if( figure instanceof King)
-            PATH = PATH + "king.png";
-        else if( figure instanceof Queen)
-            PATH = PATH +"queen.png";
-        else if( figure instanceof Rook)
-            PATH = PATH + "rook.png";
-        else if( figure instanceof Horse)
-            PATH = PATH + "horse.png";
-        else if( figure instanceof Bishop )
-            PATH = PATH + "bishop.png";
-        else if( figure instanceof Pawn )
+        if( figure.isBlack() )
+            PATH = URL + "black/";
+        else
+            PATH = URL +"white/";
+
+        if( type == 0 )
             PATH = PATH + "pawn.png";
+        else if( type == 1)
+            PATH = PATH +"bishop.png";
+        else if( type == 2 )
+            PATH = PATH + "horse.png";
+        else if( type == 3 )
+            PATH = PATH + "rook.png";
+        else if( type == 4 )
+            PATH = PATH + "queen.png";
+        else if( type == 5 )
+            PATH = PATH + "king.png";
         return PATH;
     }
+
 
     public static StackPane getStackPane() {
         return stackPane;

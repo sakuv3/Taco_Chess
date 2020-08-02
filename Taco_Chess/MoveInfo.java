@@ -12,6 +12,8 @@ public class MoveInfo
     static Abstract_Figure enemy;
     static BoardController controller;
 
+    static boolean whitesMove;
+
     public MoveInfo( Board board, BoardController controller )
     {
         btn                 = null;
@@ -40,26 +42,32 @@ public class MoveInfo
             y2 = y -2;
         }
 
-        if (board.get_figure( board.get_button(x, y1 ) ) == null)
-        {   // 1down - 1up
-            controller.add_valid_move(board.get_button(x, y1));
+        // 1 up - down
+        Abstract_Figure tmp = board.get_figure(( board.get_button(x, y1)));
 
-            // black can go 2down
-            if ( y == 1 && board.get_figure( board.get_button(x, y2) ) ==null && isBlack )
-                controller.add_valid_move(board.get_button(x, y2));
+        if( tmp == null )
+        {
+            if (move_is_valid(x, y1, isBlack))
+            {
+                tmp = board.get_figure( board.get_button(x, y2));
+                // black can jump 2 down from top
+                if (y == 1 && isBlack && tmp == null )
+                    move_is_valid(x, y2, isBlack);
 
-            // white can go 2 up
-            else if ( y ==6 && board.get_figure( board.get_button(x, y2) ) ==null && !isBlack )
-                controller.add_valid_move(board.get_button(x, y2));
+                    // white can jump 2 up from bottom
+                else if (y == 6 && !isBlack && tmp == null)
+                    move_is_valid(x, y2, isBlack);
+            }
         }
 
-        enemy = board.get_figure( board.get_button(x1, y1) );
-        if (x1 >= 0 && enemy != null && ( enemy.isBlack() != isBlack) )// kill-left
-            controller.add_valid_move(board.get_button(x1, y1));
+        /* pawn can kill */
 
-        enemy = board.get_figure( board.get_button(x2, y1) );
-        if (x2 < 8 && enemy != null && (enemy.isBlack() != isBlack) )   // kill-right
-            controller.add_valid_move(board.get_button(x2, y1));
+
+        if( board.get_figure( board.get_button(x1, y1) ) != null )
+            move_is_valid(x1, y1, isBlack); // kill left
+
+        if( board.get_figure( board.get_button(x2, y1) ) != null )
+            move_is_valid(x2, y1, isBlack); // kill right
     }
 
     // returns true if move is valid ( for rook and bishop  only )

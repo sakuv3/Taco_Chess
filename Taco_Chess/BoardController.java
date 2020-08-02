@@ -18,7 +18,7 @@ public class BoardController implements Initializable
     static private  String BEFORE;
     static private  MoveInfo moveInfo;
     static private  Button possibleMoves [];
-    static private Circle circles[];
+    static private  Circle circles[];
     static private  Abstract_Figure activePlayer;
 
     @Override
@@ -34,6 +34,7 @@ public class BoardController implements Initializable
         dialog          = new Dialog( this.board, this.view );
         moveInfo        = new MoveInfo( this.board, this);
 
+        // to indicate possible moves for a chosen figure
         circles         = new Circle[64];
         for(int i=0; i<64; i++) {
             circles[i] = new Circle(15, Color.YELLOW);
@@ -42,45 +43,59 @@ public class BoardController implements Initializable
         }
     }
 
-    // return true if clicked button is a move
-    public boolean button_is_valid_move( Button btn )
+    public void handleButtonMove( Button btn )
     {
-        int xB = board.get_xCoord_btn( btn );
-        int yB = board.get_yCoord_btn( btn );
-        int xF, yF;
-        if( possibleMoves != null )
-        {
-            for( int i=0; i<possibleMoves.length; i++ )
-            {
-                if( possibleMoves[i] == null )
-                    return false;
+        try {
+            if( activePlayer == null )
+                init_moves( btn );
 
-                xF = board.get_xCoord_btn( possibleMoves[i] );
-                yF = board.get_yCoord_btn( possibleMoves[i] );
+            else
+            {   // MOVE is possible
+                if (  button_is_valid_move(btn) )
+                {
+                    if( !turn_is_valid( btn ) )
+                        return; // its not your turn mate
+                    // if a pawn has crosses enemy lines
+                    if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
+                       dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
 
-                if( xF == xB && yF == yB )
-                    return true;
+                    switch_turn();
+                    view.update( activePlayer, btn, true );
+                    activePlayer = board.move_player(activePlayer, btn);
+
+                   // if( is_mate() )
+                     //   System.out.println("MATE");
+                    activePlayer  = null;
+                    possibleMoves = null;
+
+                }
+                else  // DIFFERENT FIGURE HAS BEEN CLICKED
+                {
+                    view.clear_possible_circles();
+                    init_moves(btn);
+                }
             }
         }
-        return false;
-    }
-
-    public void add_valid_move( Button btn )
-    {
-        if ( possibleMoves == null )
-            possibleMoves = new Button[64];
-
-        for(int i=0; i<64; i++)
+        catch( FileNotFoundException fex )
         {
-            if( possibleMoves[i] == null  )
-            {
-                possibleMoves[i] = btn;
-                break;
-            }
+            System.out.println("Wo bin ich hier?");
         }
     }
 
-    public void set_possible_moves() throws FileNotFoundException
+    private void init_moves( Button btn ) throws FileNotFoundException
+    {
+        view.clear_active_fields();
+        activePlayer = board.get_figure( btn );
+
+        if (activePlayer != null && turn_is_valid( btn ) )
+            set_possible_moves();
+    }
+
+    public void is_mate( )
+    {
+    }
+
+    private void set_possible_moves() throws FileNotFoundException
     {
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
@@ -103,62 +118,69 @@ public class BoardController implements Initializable
             view.draw_possible_circles(x,y);
     }
 
-    private void init_moves( Button btn ) throws FileNotFoundException
+    // return true if clicked button is a valid move
+    private boolean button_is_valid_move( Button btn )
     {
-        activePlayer = board.get_figure( btn );
-        view.clear_active_fields();
-        if (activePlayer != null)
+        int xBtn = board.get_xCoord_btn( btn );
+        int yBtn = board.get_yCoord_btn( btn );
+        int xFig, yFig;
+        if( possibleMoves != null )
         {
-            possibleMoves = null;
-            activePlayer.setBtn(btn);
-            set_possible_moves();
-        }
-    }
-    public void handleButtonMove( Button btn )
-    {
-        int x ,y;
-        try {
-            if( activePlayer == null )
-                init_moves( btn );
+            for( int i=0; i<possibleMoves.length; i++ )
+            {
+                if( possibleMoves[i] == null )
+                    return false;
 
-            else
-            {   // MOVE is possible
-                x = activePlayer.getXCoord();
-                y = activePlayer.getYCoord();
+                xFig = board.get_xCoord_btn( possibleMoves[i] );
+                yFig = board.get_yCoord_btn( possibleMoves[i] );
 
-                if ( button_is_valid_move(btn) )
-                {   // LETS MOVE
-
-                    Abstract_Figure killed = board.get_figure( btn );
-                    if( killed != null )
-                        view.add_killed_figure( killed );
-                    // if a pawn has crosses enemy lines
-                    if( pawn_can_choose_a_queen( y ) )
-                       Dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
-
-                    // mark players destination field with color
-                    x = board.get_xCoord_btn(btn);
-                    y = board.get_yCoord_btn(btn);
-                    view.set_active_field( 1, x, y );
-
-                    view.update( activePlayer, btn );
-                    activePlayer = board.move_player(activePlayer, btn);
-                    possibleMoves = null;
-                }
-                else  // DIFFERENT FIGURE HAS BEEN CLICKED
-                {
-                    view.clear_possible_circles();
-                    init_moves(btn);
-                }
+                if( xFig == xBtn && yFig == yBtn )
+                    return true;
             }
         }
-        catch( FileNotFoundException fex )
+        return false;
+    }
+
+    public void add_limited_move( Button btn )
+    {
+
+    }
+    public void add_valid_move( Button btn )
+    {
+        if ( possibleMoves == null )
+            possibleMoves = new Button[64];
+
+        for(int i=0; i<64; i++)
         {
-            System.out.println("file not found ");
+            if( possibleMoves[i] == null  )
+            {
+                possibleMoves[i] = btn;
+                break;
+            }
         }
     }
 
-    public boolean pawn_can_choose_a_queen( int y ) throws FileNotFoundException
+    private void switch_turn()
+    {
+        if( activePlayer.isBlack() && !board.isWhitesMove() )
+            board.setIsWhitesMove( true );
+        else
+            board.setIsWhitesMove( false );
+    }
+    private boolean turn_is_valid( Button btn )
+    {
+        // blacks move
+        if( activePlayer.isBlack() && board.isWhitesMove() )
+            return false;
+
+        // whites move
+        if( !activePlayer.isBlack() && !board.isWhitesMove() )
+            return false;
+
+        return true; // turn is valid
+    }
+
+    private boolean pawn_can_choose_a_queen( int y ) throws FileNotFoundException
     {
         if( activePlayer instanceof Pawn )
         {
@@ -182,8 +204,8 @@ public class BoardController implements Initializable
     {
         return possibleMoves;
     }
-
-    // makes it look just awesome *________*
+    
+    // makes it look super responsive *________*
     public void buttonEnter(  Button btn )
     {
         BEFORE = btn.getStyle();
