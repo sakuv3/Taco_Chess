@@ -47,7 +47,7 @@ public class BoardController implements Initializable
     {
         try {
             if( activePlayer == null )
-                init_moves( btn );
+                init_moves(btn);
 
             else
             {   // MOVE is possible
@@ -55,6 +55,7 @@ public class BoardController implements Initializable
                 {
                     if( !turn_is_valid( btn ) )
                         return; // its not your turn mate
+
                     // if a pawn has crosses enemy lines
                     if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
                        dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
@@ -63,8 +64,8 @@ public class BoardController implements Initializable
                     view.update( activePlayer, btn, true );
                     activePlayer = board.move_player(activePlayer, btn);
 
-                   // if( is_mate() )
-                     //   System.out.println("MATE");
+                    //if( is_mate() )
+                      //  System.out.println("MATE");
                     activePlayer  = null;
                     possibleMoves = null;
 
@@ -82,20 +83,43 @@ public class BoardController implements Initializable
         }
     }
 
+    public boolean is_mate( ) throws FileNotFoundException {
+        Button enemyKing = board.get_king_btn( !activePlayer.isBlack() );
+        Abstract_Figure team[] = board.get_team( activePlayer.isBlack() );
+
+        for(int i=0;i<team.length;i++)
+        {
+            activePlayer = team[i];
+            set_possible_moves( true );
+
+            if( possibleMoves == null )
+                continue;
+            for(int j=0;j<possibleMoves.length;j++)
+            {
+                if( possibleMoves[i] == null )
+                    continue;
+                if( enemyKing.getId().equals( possibleMoves[i].getId() ))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private void init_moves( Button btn ) throws FileNotFoundException
     {
         view.clear_active_fields();
         activePlayer = board.get_figure( btn );
-
-        if (activePlayer != null && turn_is_valid( btn ) )
-            set_possible_moves();
+        
+        if (activePlayer != null)
+        {
+            if( !turn_is_valid( btn ))
+                return; // its not your turn mate
+            possibleMoves = null;
+            set_possible_moves(false );
+        }
     }
 
-    public void is_mate( )
-    {
-    }
-
-    private void set_possible_moves() throws FileNotFoundException
+    private void set_possible_moves( boolean TEST ) throws FileNotFoundException
     {
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
@@ -114,6 +138,8 @@ public class BoardController implements Initializable
         else if( activePlayer instanceof Queen )
             moveInfo.queen(x, y, isBlack);
 
+        if( TEST )
+            return;
         if( possibleMoves != null )
             view.draw_possible_circles(x,y);
     }
