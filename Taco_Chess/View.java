@@ -51,6 +51,7 @@ public class View
     /* used to graphically indicate possible moves and current players position */
     static private Circle circles[];
     static private Rectangle rect[];
+    static private String COLOR;
     static private String WHITE = " -fx-border-color: #cbe3a8";
     static private String BLACK = " -fx-border-color: #77944e";
 
@@ -62,7 +63,6 @@ public class View
         this.board      = board;
         moveInfo        = new MoveInfo();
     }
-
     public void init(double width, double height ) throws IOException
     {
         init_panes( width, height );
@@ -92,12 +92,12 @@ public class View
         topLabelCNT     = new Label();
         bottomLabelCNT  = new Label();
     }
-
     private void init_panes( double width, double height ) throws IOException
     {
         // Wallpaper
-        FIS         = new FileInputStream(URL +"background.jpg");
+        FIS         = new FileInputStream(URL +"background/wood3.jpg");
         IMAGE       = new Image(FIS);
+
         IMAGEVIEW   = new ImageView(IMAGE);
         IMAGEVIEW.setFitWidth( width );
         IMAGEVIEW.setFitHeight( height );
@@ -202,7 +202,6 @@ public class View
         borderPane.setTop( hTop );
         borderPane.setBottom( hBottom );
     }
-
     private void draw_figures( ) throws FileNotFoundException
     {
         String PATH;
@@ -219,8 +218,6 @@ public class View
             activeFigs[i].getBtn().setGraphic( IMAGEVIEW );
         }
     }
-
-
     public void update( Abstract_Figure oldPlayer, Button dest, boolean mark ) throws FileNotFoundException
     {
         Abstract_Figure killed = board.get_figure( dest );
@@ -266,38 +263,30 @@ public class View
     public void draw_critical_moves()
     {
         Button critical[] =  controller.getCriticalMoves();
+        COLOR = "-fx-border-color: red";
         if( critical != null )
         {
             for (int k = 0; k < 64; k++)
             {
                 if (critical[k] == null)
                     break;
-                critical[k].setStyle("-fx-border-color: red");
-                controller.setBEFORE("-fx-border-color: red");
+                critical[k].setStyle( COLOR );
             }
         }
     }
     public void clear_critical_moves( )
     {
         Button critical[] =  controller.getCriticalMoves();
-        String BEFORE;
-        int X,Y;
-
+        COLOR = "-fx-border-color: null";
         if( critical != null )
         {
+            //controller.setCOLOR( BEFORE );
             for (int k = 0; k < 64; k++)
             {
                 if (critical[k] == null)
                     break;
-                X = Character.getNumericValue( critical[k].getId().charAt(0));
-                Y = Character.getNumericValue( critical[k].getId().charAt(1));
-                if( X+Y %2 == 0 )
-                    BEFORE = WHITE;
-                else
-                    BEFORE = BLACK;
 
-                critical[k].setStyle( BEFORE );
-                controller.setBEFORE( BEFORE );
+                critical[k].setStyle( COLOR );
             }
         }
 
@@ -501,6 +490,9 @@ public class View
         return PATH;
     }
 
+    public static String getCOLOR() {
+        return COLOR;
+    }
 
     public static StackPane getStackPane() {
         return stackPane;

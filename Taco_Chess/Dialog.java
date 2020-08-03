@@ -17,11 +17,13 @@ public class Dialog
 
     static final String URL = "src/Taco_Chess/images/";
     static final String type[] = {"queen.png", "horse.png", "rook.png", "bishop.png"};
+    static private BoardController controller;
     static Board board;
     static View view;
 
-    public Dialog( Board board, View view )
+    public Dialog( Board board, View view, BoardController controller )
     {
+        this.controller = controller;
         this.board = board;
         this.view = view;
     }
@@ -99,6 +101,14 @@ public class Dialog
                     int y = board.get_yCoord_btn( btn );
                     board.set_figure( newFig, x, y, isBlack);
                     view.update_score( null );
+
+
+                    controller.check_for_mate( newFig.isBlack() );// falls der neue Zug den Gegner in Schach setzt
+                    if( controller.isCheck() ) // ja hat er
+                    {
+                        controller.setIsCheck(true);
+                        System.out.println("CHECK");
+                    }
 
                     // remove the chosable 4 figures
                     view.getStackPane().getChildren().remove( grid );

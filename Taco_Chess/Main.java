@@ -14,13 +14,13 @@ public class Main extends Application
         model           = new Board( );
         view            = new View( mainStage, model );
         controller      = new BoardController();
-        view.init(1000, 1000);
+        view.init(800, 1000);
         controller.init( model, view );
 
         mainStage.setTitle("Taco_Chess");
         mainStage.setAlwaysOnTop(false);
         mainStage.setFullScreen(false);
-        mainStage.setResizable(true);
+        mainStage.setResizable(false);
         mainStage.centerOnScreen();
         mainStage.show();
     }
