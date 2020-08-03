@@ -375,6 +375,20 @@ public class MoveInfo
 
             if( xCord <0 || xCord >7 || yCord <0 || yCord >7 )
                 continue;
+
+            if( y == 2 )
+                System.out.print("");
+            if( CHECK_FOR_MATE )
+            {
+                if (move_is_check(xCord, yCord, playerIsBlack)) {
+                    // either the horse gets killed or the king moves, or it simply check-mate
+                    btn = board.get_button(xCord, yCord);
+                    controller.add_critical_figure_move(btn);
+                    btn = board.get_button(x,y);
+                    controller.add_critical_king_move(btn);
+                }
+            }
+
             enemy = board.get_figure( board.get_button(xCord, yCord) );
             if( enemy != null )
                 if ( enemy.isBlack() == playerIsBlack )

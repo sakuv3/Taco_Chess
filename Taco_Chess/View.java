@@ -72,13 +72,13 @@ public class View
         rect = new Rectangle[2];
         // current BTN
         rect[0] = new Rectangle(100, 100 );
-        rect[0].setFill( Color.ORANGE);
-        rect[0].setOpacity(0.25);
+        rect[0].setFill( Color.DEEPSKYBLUE);
+        rect[0].setOpacity(0.2);
         rect[0].setDisable(true);
 
         // destination BTN
         rect[1] = new Rectangle( 100, 100 );
-        rect[1].setFill( Color.GREEN);
+        rect[1].setFill( Color.AQUA);
         rect[1].setOpacity(0.25);
         rect[1].setDisable(true);
 
@@ -91,6 +91,11 @@ public class View
         whiteValue = total_team_value( false );
         topLabelCNT     = new Label();
         bottomLabelCNT  = new Label();
+        topLabelCNT.setTextFill(Color.SKYBLUE);
+        bottomLabelCNT.setTextFill(Color.SKYBLUE);
+        topLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+        bottomLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+
     }
     private void init_panes( double width, double height ) throws IOException
     {
@@ -161,7 +166,7 @@ public class View
         hTop.setMaxHeight(Region.USE_PREF_SIZE);
         BorderPane.setAlignment(hTop, Pos.TOP_CENTER);
         hTop.setPadding( new Insets(0, 0,0,5));
-        hTop.setStyle(" -fx-background-color: linear-gradient( #cbe3a8, #77944e); ");
+        hTop.setStyle(" -fx-background-color: linear-gradient( #d77822, #3f230a); ");
         hTop.getChildren().addAll( r[0], vTop );
 
         /* Player 2 */
@@ -181,7 +186,7 @@ public class View
         vBottom.setPrefHeight(100);
         vBottom.setMaxWidth(Region.USE_PREF_SIZE);
         vBottom.setMaxHeight(Region.USE_PREF_SIZE);
-        name2.setTextFill(Color.BLACK);
+        name2.setTextFill(Color.WHITESMOKE);
         name2.setPadding(new Insets(10,0,0,5));
         name2.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
         vBottom.getChildren().addAll( name2, bottomFigureBox );
@@ -196,7 +201,7 @@ public class View
         hBottom.setMaxHeight(Region.USE_PREF_SIZE);
         BorderPane.setAlignment(hBottom, Pos.BOTTOM_CENTER);
         hBottom.setPadding( new Insets(0, 0,0,5));
-        hBottom.setStyle(" -fx-background-color: linear-gradient( #cbe3a8, #77944e); ");;
+        hBottom.setStyle(" -fx-background-color: linear-gradient( #3f230a, #d77822); ");;
         hBottom.getChildren().addAll( r[1], vBottom );
 
         borderPane.setTop( hTop );
@@ -260,10 +265,13 @@ public class View
                 break;
         }
     }
-    public void draw_critical_moves()
+    public void draw_critical_moves( boolean isBlack )
     {
         Button critical[] =  controller.getCriticalMoves();
-        COLOR = "-fx-border-color: red";
+        if( isBlack )
+            COLOR = "-fx-background-color: slategrey; -fx-border-color: #cbe3a8";
+        else
+            COLOR = "-fx-background-color: coral; -fx-border-color: #cbe3a8";
         if( critical != null )
         {
             for (int k = 0; k < 64; k++)
@@ -408,13 +416,11 @@ public class View
         if( DIFF > 0 )
         {   // black still has bigger score
             topLabelCNT.setText( "  +" +SCORE );
-            topLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
             topFigureBox.getChildren().add( topLabelCNT );
         }
         else if( DIFF < 0 )
         {   // white has bigger score
             bottomLabelCNT.setText( "  +" +SCORE );
-            bottomLabelCNT.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
             bottomFigureBox.getChildren().add( bottomLabelCNT );
         }
         else

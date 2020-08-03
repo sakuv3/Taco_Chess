@@ -43,7 +43,7 @@ public class BoardController implements Initializable
         // to indicate possible moves for a chosen figure
         circles         = new Circle[64];
         for(int i=0; i<64; i++) {
-            circles[i] = new Circle(15, Color.YELLOW);
+            circles[i] = new Circle(10, Color.DEEPSKYBLUE);
             circles[i].setOpacity(0.3);
             circles[i].setDisable(true);
         }
@@ -181,7 +181,7 @@ public class BoardController implements Initializable
             set_moves( true );
         }
         if( criticalMoves != null )
-            view.draw_critical_moves();
+            view.draw_critical_moves( activePlayer.isBlack() ) ;
 
         moveInfo.set_Check_For_Mate(false);
     }
@@ -380,7 +380,7 @@ public class BoardController implements Initializable
     public void buttonEnter(  Button btn )
     {
         COLOR_before = btn.getStyle();
-        COLOR_after = "-fx-border-color: #000000;";
+        COLOR_after = "-fx-border-color: deepskyblue;";
         btn.setStyle( COLOR_after );
     }
     public void buttonExit( Button btn )
