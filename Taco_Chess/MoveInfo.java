@@ -12,17 +12,52 @@ public class MoveInfo
     static Abstract_Figure enemy;
     static BoardController controller;
 
-    static boolean whitesMove;
+    static boolean CHECK;
+    static Button criticalMoves[];
 
-    public MoveInfo( Board board, BoardController controller )
+    public Button[] getCriticalMoves() {
+        return criticalMoves;
+    }
+
+    public static void setCriticalMoves(Button[] criticalMoves) {
+        MoveInfo.criticalMoves = criticalMoves;
+    }
+
+    public boolean isCheck() {
+        return CHECK;
+    }
+
+    public static void setCheck(boolean check) {
+        MoveInfo.CHECK = check;
+    }
+
+    public MoveInfo(Board board, BoardController controller )
     {
+        criticalMoves = new Button[1024];
         btn                 = null;
         enemy               = null;
         this.board          = board;
         this.controller     = controller;
     }
 
-    public void pawn( int x, int y, boolean isBlack) throws FileNotFoundException
+    public boolean is_critical_btn(Button btn)
+    {
+        if( criticalMoves != null && btn != null)
+        {
+            for(int i=0;i<criticalMoves.length;i++)
+            {
+                if(criticalMoves[i] == null)
+                    break;
+                else
+                {
+                    if( btn.getId().equals( criticalMoves[i].getId() ) )
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+    public void pawn( int x, int y, boolean isBlack, boolean critical ) throws FileNotFoundException
     {
         int x1, x2;
         int y1, y2;
@@ -42,7 +77,31 @@ public class MoveInfo
             y2 = y -2;
         }
 
-        // 1 up - down
+        if( critical )
+        {
+            // 1 up - down  CRITICAL
+            Button bt = board.get_button(x, y1);
+            if( is_critical_btn(bt) )
+            {
+                if( move_is_valid(x, y1, isBlack) )
+                {
+                    bt = board.get_button(x, y2);
+
+                    if( is_critical_btn(bt) )
+                        move_is_valid(x, y2, isBlack );
+                }
+            }
+
+            bt = board.get_button(x1, y1);
+            if( is_critical_btn(bt) )
+                move_is_valid(x1,y1, isBlack);
+
+            bt = board.get_button(x2, y1);
+            if( is_critical_btn(bt) )
+                move_is_valid(x2, y1, isBlack);
+            return;
+        }
+        // 1 up - down NORMAL
         Abstract_Figure tmp = board.get_figure(( board.get_button(x, y1)));
 
         if( tmp == null )
@@ -59,7 +118,6 @@ public class MoveInfo
                     move_is_valid(x, y2, isBlack);
             }
         }
-
         /* pawn can kill */
 
 
@@ -68,21 +126,6 @@ public class MoveInfo
 
         if( board.get_figure( board.get_button(x2, y1) ) != null )
             move_is_valid(x2, y1, isBlack); // kill right
-    }
-
-    // returns true if move is valid ( for rook and bishop  only )
-    public boolean move_is_valid(int x, int y, boolean playerIsBlack )
-    {
-        enemy = board.get_figure( board.get_button(x, y) );
-        if( enemy != null )
-        {
-            if( enemy.isBlack() != playerIsBlack )  // no further than enemy
-                controller.add_valid_move( board.get_button(x, y) );
-            return false;
-        }
-        else    // free field
-            controller.add_valid_move( board.get_button(x, y ) );
-        return true;
     }
 
     public void king( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
@@ -116,6 +159,13 @@ public class MoveInfo
         //DOWN-RIGHT
         if( x1 >=0 && x1 <8 && y2 >=0 && y2 <8)
             move_is_valid(x1, y2, playerIsBlack);
+    }
+
+    public void critical_queen( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
+    {
+        // yes, the almighty queen has combined power of rook and pawn
+        rook(x,y, playerIsBlack);
+        critical_bishop( x,y, playerIsBlack );
     }
 
     public void queen( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
@@ -160,6 +210,35 @@ public class MoveInfo
         }
     }
 
+    // returns true if move is valid ( for rook and bishop  only )
+    public boolean move_is_valid(int x, int y, boolean playerIsBlack )
+    {
+        enemy = board.get_figure( board.get_button(x, y) );
+        if( enemy != null )
+        {
+            if( enemy.isBlack() != playerIsBlack )  // no further than enemy
+                controller.add_valid_move( board.get_button(x, y) );
+            return false;
+        }
+        else    // free field
+            controller.add_valid_move( board.get_button(x, y ) );
+        return true;
+    }
+
+    public boolean move_is_check( int x, int y, boolean isBlack )
+    {
+        Button king = board.get_king_btn( !isBlack );
+        Button check = board.get_button(x,y);
+
+        if( check != null && king != null )
+            if( king.getId().equals( check.getId() )) {
+                setCheck( true );
+                return true;
+            }
+
+        return false;
+    }
+
     public void bishop( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
     {
         for(int i=1; i<8; i++)
@@ -169,6 +248,7 @@ public class MoveInfo
 
             if( !move_is_valid(x+i, y+i, playerIsBlack) )
                 break;
+
         }
         for(int i=1; i<8; i++)
         {   //DOWN-LEFT
@@ -178,6 +258,7 @@ public class MoveInfo
             if( !move_is_valid(x-i, y+i, playerIsBlack) )
                 break;
         }
+
         for(int i=1; i<8; i++)
         {   //UP-RIGHT
             if( x+i >7 || y-i <0 )
@@ -186,15 +267,100 @@ public class MoveInfo
             if( !move_is_valid(x+i, y-i, playerIsBlack) )
                 break;
         }
+
         for(int i=1; i<8; i++)
         {   //UP_LEFT
             if( x-i <0 || y-i <0 )
                 break;
 
-            if( !move_is_valid(x-i, y-i, playerIsBlack) )
+                if( !move_is_valid(x-i, y-i, playerIsBlack) )
+                    break;
+        }
+    }
+
+    public void critical_bishop( int x, int y, boolean playerIsBlack ) throws FileNotFoundException {
+        for (int i = 1; i < 8; i++) {   //DOWN-RIGHT
+            if (x + i > 7 || y + i > 7)
+                break;
+
+            if (move_is_check(x + i, y + i, playerIsBlack)) {   // add CRITICAL fields - all the way back
+                for (int j = 0; j <= i; j++) {
+                    btn = board.get_button(x + j, y + j);
+                    for (int k = 0; k < 1024; k++) {
+                        if (criticalMoves[k] == null) {
+                            criticalMoves[k] = btn;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            enemy = board.get_figure(board.get_button(x + i, y + i));
+            if (enemy != null)
+                break;
+        }
+        for (int i = 1; i < 8; i++) {   //DOWN-LEFT
+            if (x - i < 0 || y + i > 7)
+                break;
+
+            if (move_is_check(x - i, y + i, playerIsBlack)) {   // all the way back
+                for (int j = 0; j <= i; j++) {
+                    btn = board.get_button(x - j, y + j);
+                    for (int k = 0; k < 1024; k++) {
+                        if (criticalMoves[k] == null) {
+                            criticalMoves[k] = btn;
+                            break;
+                        }
+                    }
+                }
+            }
+            enemy = board.get_figure(board.get_button(x - i, y + i));
+            if (enemy != null)
+                break;
+        }
+
+        for (int i = 1; i < 8; i++) {   //UP-RIGHT
+            if (x + i > 7 || y - i < 0)
+                break;
+
+            if (move_is_check(x + i, y - i, playerIsBlack)) {   // all the way back
+                for (int j = 0; j <= i; j++) {
+                    btn = board.get_button(x + j, y - j);
+                    for (int k = 0; k < 1024; k++) {
+                        if (criticalMoves[k] == null) {
+                            criticalMoves[k] = btn;
+                            break;
+                        }
+                    }
+                }
+            }
+            enemy = board.get_figure(board.get_button(x + i, y - i));
+            if (enemy != null)
+                break;
+        }
+
+        for (int i = 1; i < 8; i++) {   //UP_LEFT
+            if (x - i < 0 || y - i < 0)
+                break;
+
+            if (move_is_check(x - i, y - i, playerIsBlack)) {   // all the way back
+                for (int j = 0; j <= i; j++) {
+                    btn = board.get_button(x - j, y - j);
+                    for (int k = 0; k < 1024; k++) {
+                        if (criticalMoves[k] == null) {
+                            criticalMoves[k] = btn;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            enemy = board.get_figure(board.get_button(x - i, y - i));
+            if (enemy != null)
                 break;
         }
     }
+
     public void horse( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
     {
         int horseMovesX[] = new int[8];

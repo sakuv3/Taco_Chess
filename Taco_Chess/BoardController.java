@@ -20,6 +20,7 @@ public class BoardController implements Initializable
     static private  Button possibleMoves [];
     static private  Circle circles[];
     static private  Abstract_Figure activePlayer;
+    static int CNT =0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) { }
@@ -55,17 +56,22 @@ public class BoardController implements Initializable
                 {
                     if( !turn_is_valid( btn ) )
                         return; // its not your turn mate
+                    else
+                        switch_turn();
 
                     // if a pawn has crosses enemy lines
                     if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
                        dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
 
-                    switch_turn();
                     view.update( activePlayer, btn, true );
                     activePlayer = board.move_player(activePlayer, btn);
 
-                    //if( is_mate() )
-                      //  System.out.println("MATE");
+                    // falls der neue Zug den Gegner in Schach setzt
+                    if( check_for_each() )
+                    {
+                        System.out.println("CHECK");
+                        return;
+                    }
                     activePlayer  = null;
                     possibleMoves = null;
 
@@ -78,55 +84,88 @@ public class BoardController implements Initializable
             }
         }
         catch( FileNotFoundException fex )
-        {
-            System.out.println("Wo bin ich hier?");
-        }
-    }
-
-    public boolean is_mate( ) throws FileNotFoundException {
-        Button enemyKing = board.get_king_btn( !activePlayer.isBlack() );
-        Abstract_Figure team[] = board.get_team( activePlayer.isBlack() );
-
-        for(int i=0;i<team.length;i++)
-        {
-            activePlayer = team[i];
-            set_possible_moves( true );
-
-            if( possibleMoves == null )
-                continue;
-            for(int j=0;j<possibleMoves.length;j++)
-            {
-                if( possibleMoves[i] == null )
-                    continue;
-                if( enemyKing.getId().equals( possibleMoves[i].getId() ))
-                    return true;
-            }
-        }
-        return false;
+        { System.out.println("Wo bin ich hier?"); }
     }
 
     private void init_moves( Button btn ) throws FileNotFoundException
     {
         view.clear_active_fields();
         activePlayer = board.get_figure( btn );
-        
+
         if (activePlayer != null)
         {
             if( !turn_is_valid( btn ))
                 return; // its not your turn mate
+
+            if( moveInfo.isCheck() )
+            {
+                System.out.println("HELP I AM BEING MATED");
+                possibleMoves = moveInfo.getCriticalMoves();
+                view.draw_possible_circles(activePlayer.getXCoord(), activePlayer.getYCoord());
+                return;
+            }
             possibleMoves = null;
-            set_possible_moves(false );
+            set_possible_moves( );
         }
     }
 
-    private void set_possible_moves( boolean TEST ) throws FileNotFoundException
+    public boolean  check_for_each( ) throws FileNotFoundException {
+
+        boolean isCheck = false;
+        Abstract_Figure team[] = board.get_team( activePlayer.isBlack() );
+
+        Button critical[];
+        for(int i=0;i<team.length;i++)
+        {
+            activePlayer = team[i];
+            set_critical_moves( );
+
+            critical = moveInfo.getCriticalMoves();
+            if( critical != null )
+                if( critical[0] != null ) {
+                    for (int k = 0; k < 1024; k++) {
+                        if (critical[k] == null)
+                            break;
+                        critical[k].setStyle("-fx-border-color: red");
+                    }
+                    isCheck = true;
+                    moveInfo.setCheck( true );
+                }
+        }
+        moveInfo.setCheck( isCheck );
+        return isCheck;
+    }
+
+    private void set_critical_moves() throws FileNotFoundException {
+        int x = activePlayer.getXCoord();
+        int y = activePlayer.getYCoord();
+        boolean isBlack = activePlayer.isBlack();
+
+        if( activePlayer instanceof Pawn )
+            moveInfo.pawn(x, y, isBlack, true);
+        else if( activePlayer instanceof Horse )
+            moveInfo.horse(x, y, isBlack );
+        else if( activePlayer instanceof Rook )
+            moveInfo.rook(x, y, isBlack );
+        else if( activePlayer instanceof Bishop )
+            moveInfo.critical_bishop(x, y, isBlack );
+        else if( activePlayer instanceof  King )
+            moveInfo.king(x, y, isBlack);
+        else if( activePlayer instanceof Queen )
+            moveInfo.critical_queen(x, y, isBlack);
+
+        //if( possibleMoves != null )
+          //  view.draw_possible_circles(x,y);
+        System.out.println("handle limited moves here");
+    }
+    private void set_possible_moves( ) throws FileNotFoundException
     {
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
         boolean isBlack = activePlayer.isBlack();
 
         if( activePlayer instanceof Pawn )
-            moveInfo.pawn(x, y, isBlack );
+            moveInfo.pawn(x, y, isBlack, false);
         else if( activePlayer instanceof Horse )
             moveInfo.horse(x, y, isBlack );
         else if( activePlayer instanceof Rook )
@@ -138,8 +177,6 @@ public class BoardController implements Initializable
         else if( activePlayer instanceof Queen )
             moveInfo.queen(x, y, isBlack);
 
-        if( TEST )
-            return;
         if( possibleMoves != null )
             view.draw_possible_circles(x,y);
     }
@@ -167,10 +204,6 @@ public class BoardController implements Initializable
         return false;
     }
 
-    public void add_limited_move( Button btn )
-    {
-
-    }
     public void add_valid_move( Button btn )
     {
         if ( possibleMoves == null )
