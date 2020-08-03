@@ -18,6 +18,7 @@ public class BoardController implements Initializable
     static private  String BEFORE, NORMAL;
     static private  MoveInfo moveInfo;
     static private  Button possibleMoves [];
+    static private  Button criticalMoves [];
     static private  Circle circles[];
     static private  Abstract_Figure activePlayer;
     static private boolean  IS_CHECK;
@@ -54,13 +55,37 @@ public class BoardController implements Initializable
             if( !turn_is_valid( btn ))
                 return; // its not your turn mate
 
-            if( isCheck() )
-            {
-                System.out.println("HELP I AM BEING MATED");
-
-            }
             possibleMoves = null;
             set_moves( false );
+
+            if( isCheck() )
+            {   // LIMIT POSSIBLE MOVES based on critical moves
+                System.out.println("HELP I AM BEING MATED");;
+                int CNT=0;
+                // compare possible moves with critical moves
+                Button tmp[] =new Button[64];
+                if( criticalMoves != null && possibleMoves != null )
+                {
+                    for(int i=0; i<possibleMoves.length; i++)
+                    {
+                        if( possibleMoves[i] == null )
+                            break;
+
+                        for(int j=0; j<criticalMoves.length; j++ )
+                        {
+                            if( criticalMoves[j] == null )
+                                break;
+
+                            // COMPARE
+                            if( criticalMoves[j].getId().equals( possibleMoves[i].getId()) )
+                                tmp[CNT++] = criticalMoves[j];
+                        }
+                    }
+                }
+                possibleMoves = tmp;
+            }
+            if( possibleMoves != null )
+                view.draw_possible_circles( activePlayer );
         }
     }
 
@@ -85,12 +110,19 @@ public class BoardController implements Initializable
 
                     view.update( activePlayer, btn, true );
                     activePlayer = board.move_player(activePlayer, btn);
+                    criticalMoves = null;
 
-                    // falls der neue Zug den Gegner in Schach setzt
-                    check_for_mate();
                     if( isCheck() )
-                        System.out.println("CHECK");
+                        setIsCheck( false );
 
+                    check_for_mate();// falls der neue Zug den Gegner in Schach setzt
+                    if( isCheck() ) // ja hat er
+                    {
+                        setIsCheck(true);
+                        System.out.println("CHECK");
+                    }
+
+                    // player took valid moved, reset possible moves
                     activePlayer  = null;
                     possibleMoves = null;
 
@@ -98,7 +130,7 @@ public class BoardController implements Initializable
                 else  // DIFFERENT FIGURE HAS BEEN CLICKED
                 {
                     view.clear_possible_circles();
-                    init_moves(btn);
+                    init_moves( btn );
                 }
             }
         }
@@ -116,7 +148,8 @@ public class BoardController implements Initializable
             activePlayer = team[i];
             set_moves( true );
         }
-        view.draw_critical_moves();
+        if( criticalMoves != null )
+            view.draw_critical_moves();
     }
 
     private void set_moves( boolean check_for_mate ) throws FileNotFoundException
@@ -137,12 +170,6 @@ public class BoardController implements Initializable
             moveInfo.king(x, y, isBlack);
         else if( activePlayer instanceof Queen )
             moveInfo.queen(x, y, isBlack, check_for_mate);
-
-        if( check_for_mate )
-            return;
-
-        if( possibleMoves != null )
-            view.draw_possible_circles(x,y);
     }
 
     // return true if clicked button is a valid move
@@ -178,6 +205,41 @@ public class BoardController implements Initializable
             if( possibleMoves[i] == null  )
             {
                 possibleMoves[i] = btn;
+                break;
+            }
+        }
+    }
+
+    // critical moves have already been set,
+    // here just checking if taken move is in one of the critical fields
+    public boolean is_critical_btn(Button btn)
+    {
+        if( criticalMoves != null && btn != null)
+        {
+            for(int i=0;i<criticalMoves.length;i++)
+            {
+                if(criticalMoves[i] == null)
+                    break;
+                else
+                {
+                    if( btn.getId().equals( criticalMoves[i].getId() ) )
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void add_critical_move( Button btn )
+    {
+        if ( criticalMoves == null )
+            criticalMoves = new Button[64];
+
+        for(int i=0; i<64; i++)
+        {
+            if( criticalMoves[i] == null  )
+            {
+                criticalMoves[i] = btn;
                 break;
             }
         }
@@ -235,7 +297,12 @@ public class BoardController implements Initializable
     {
         return possibleMoves;
     }
-    
+
+    public static Button[] getCriticalMoves() {
+        return criticalMoves;
+    }
+
+
     // makes it look super responsive *________*
     public void buttonEnter(  Button btn )
     {
@@ -245,5 +312,13 @@ public class BoardController implements Initializable
     public void buttonExit( Button btn )
     {
         btn.setStyle( BEFORE );
+    }
+
+    public  void setBEFORE(String BEFORE) {
+       this.BEFORE = BEFORE;
+    }
+
+    public static String getBEFORE() {
+        return BEFORE;
     }
 }

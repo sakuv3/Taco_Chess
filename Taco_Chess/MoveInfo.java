@@ -13,20 +13,10 @@ public class MoveInfo
     static BoardController controller;
 
     static boolean check_for_mate;
-    static Button criticalMoves[];
-
-    public Button[] getCriticalMoves() {
-        return criticalMoves;
-    }
-
-    public static void setCriticalMoves(Button[] criticalMoves) {
-        MoveInfo.criticalMoves = criticalMoves;
-    }
 
     public MoveInfo(){};
     public MoveInfo(Board board, BoardController controller )
     {
-        criticalMoves = new Button[1024];
         btn                 = null;
         enemy               = null;
         this.board          = board;
@@ -63,26 +53,6 @@ public class MoveInfo
         return false;
     }
 
-    // critical moves have already been set,
-    // here just checking if taken move is in one of the critical fields
-    public boolean is_critical_btn(Button btn)
-    {
-        if( criticalMoves != null && btn != null)
-        {
-            for(int i=0;i<criticalMoves.length;i++)
-            {
-                if(criticalMoves[i] == null)
-                    break;
-                else
-                {
-                    if( btn.getId().equals( criticalMoves[i].getId() ) )
-                        return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public void pawn( int x, int y, boolean isBlack, boolean check_for_mate ) throws FileNotFoundException
     {
         int x1, x2;
@@ -106,24 +76,24 @@ public class MoveInfo
         if( check_for_mate )
         { // 1 up - down
             Button bt = board.get_button(x, y1);
-            if( is_critical_btn(bt) )
+            if( controller.is_critical_btn(bt) )
             {   // 2 up or down
                 if( move_is_valid(x, y1, isBlack) )
                 {
                     bt = board.get_button(x, y2);
 
-                    if( is_critical_btn(bt) )
+                    if( controller.is_critical_btn(bt) )
                         move_is_valid(x, y2, isBlack );
                 }
             }
 
             // pawn can kill
             bt = board.get_button(x1, y1);
-            if( is_critical_btn(bt) )
+            if( controller.is_critical_btn(bt) )
                 move_is_valid(x1,y1, isBlack);
 
             bt = board.get_button(x2, y1);
-            if( is_critical_btn(bt) )
+            if( controller.is_critical_btn(bt) )
                 move_is_valid(x2, y1, isBlack);
             return;
         }
@@ -242,12 +212,7 @@ public class MoveInfo
                 if (move_is_check(x + i, y + i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x + j, y + j);
-                        for (int k = 0; k < 1024; k++) {
-                            if (criticalMoves[k] == null) {
-                                criticalMoves[k] = btn;
-                                break;
-                            }
-                        }
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -263,12 +228,7 @@ public class MoveInfo
             if (move_is_check(x - i, y + i, playerIsBlack)) {   // all the way back
                 for (int j = 0; j < i; j++) {
                     btn = board.get_button(x - j, y + j);
-                    for (int k = 0; k < 1024; k++) {
-                        if (criticalMoves[k] == null) {
-                            criticalMoves[k] = btn;
-                            break;
-                        }
-                    }
+                    controller.add_critical_move(btn);
                 }
             }
 
@@ -284,12 +244,7 @@ public class MoveInfo
             if (move_is_check(x + i, y - i, playerIsBlack)) {   // all the way back
                 for (int j = 0; j < i; j++) {
                     btn = board.get_button(x + j, y - j);
-                    for (int k = 0; k < 1024; k++) {
-                        if (criticalMoves[k] == null) {
-                            criticalMoves[k] = btn;
-                            break;
-                        }
-                    }
+                    controller.add_critical_move(btn);
                 }
             }
 
@@ -305,12 +260,7 @@ public class MoveInfo
             if (move_is_check(x - i, y - i, playerIsBlack)) {   // all the way back
                 for (int j = 0; j < i; j++) {
                     btn = board.get_button(x - j, y - j);
-                    for (int k = 0; k < 1024; k++) {
-                        if (criticalMoves[k] == null) {
-                            criticalMoves[k] = btn;
-                            break;
-                        }
-                    }
+                    controller.add_critical_move(btn);
                 }
             }
 

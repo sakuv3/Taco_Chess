@@ -51,8 +51,8 @@ public class View
     /* used to graphically indicate possible moves and current players position */
     static private Circle circles[];
     static private Rectangle rect[];
-    static private String NORMAL;
-
+    static private String WHITE = " -fx-border-color: #cbe3a8";
+    static private String BLACK = " -fx-border-color: #77944e";
 
     public View(){};
     public View( Stage mainStage, Board board ) throws IOException
@@ -234,10 +234,103 @@ public class View
             mark_active_field(1, x, y);
         }
 
-        clear_possible_circles();
         oldPlayer.getBtn().setGraphic( null );
         dest.setGraphic( oldPlayer.getImageView() );
+        clear_possible_circles();
+        clear_critical_moves();
     }
+
+    public void draw_possible_circles( Abstract_Figure activePlayer) throws FileNotFoundException
+    {
+        int x = activePlayer.getXCoord();
+        int y = activePlayer.getYCoord();
+
+        circles                 = controller.getCircles();
+        Button possibleMoves[]  = controller.getPossibleMoves();
+
+        // mark players current-field with color
+        mark_active_field( 0, x, y );
+
+        for( int i=0; i<64; i++ )
+        {
+            if( possibleMoves[i] != null )
+            {
+                x = board.get_xCoord_btn( possibleMoves[i] );
+                y = board.get_yCoord_btn( possibleMoves[i] );
+                board.getChessBoard().add( circles[i], x, y );
+            }
+            else
+                break;
+        }
+    }
+    public void draw_critical_moves()
+    {
+        Button critical[] =  controller.getCriticalMoves();
+        if( critical != null )
+        {
+            for (int k = 0; k < 64; k++)
+            {
+                if (critical[k] == null)
+                    break;
+                critical[k].setStyle("-fx-border-color: red");
+                controller.setBEFORE("-fx-border-color: red");
+            }
+        }
+    }
+    public void clear_critical_moves( )
+    {
+        Button critical[] =  controller.getCriticalMoves();
+        String BEFORE;
+        int X,Y;
+
+        if( critical != null )
+        {
+            for (int k = 0; k < 64; k++)
+            {
+                if (critical[k] == null)
+                    break;
+                X = Character.getNumericValue( critical[k].getId().charAt(0));
+                Y = Character.getNumericValue( critical[k].getId().charAt(1));
+                if( X+Y %2 == 0 )
+                    BEFORE = WHITE;
+                else
+                    BEFORE = BLACK;
+
+                critical[k].setStyle( BEFORE );
+                controller.setBEFORE( BEFORE );
+            }
+        }
+
+    }
+
+
+    public void clear_possible_circles()
+    {
+        Button possibleMoves[] = controller.getPossibleMoves();
+        if( possibleMoves != null )
+        {
+            for(int i=0; i<64; i++)
+            {
+                if( possibleMoves[i] != null )
+                    board.getChessBoard().getChildren().remove(circles[i]);
+                else
+                    break;
+            }
+        }
+    }
+    public void mark_active_field( int i, int x, int y )
+    {
+        board.getChessBoard().add( rect[i], x, y );
+    }
+    public void clear_active_fields()
+    {
+        if( rect != null )
+        {
+            board.getChessBoard().getChildren().remove( rect[0]);
+            board.getChessBoard().getChildren().remove( rect[1]);
+        }
+    }
+
     public void add_killed_figure( Abstract_Figure killed ) throws FileNotFoundException
     {
         FIS                     = new FileInputStream( get_figure_path( killed ) );
@@ -337,68 +430,6 @@ public class View
         }
         else
             System.out.println("equal");
-    }
-    public void draw_possible_circles( int x, int y ) throws FileNotFoundException
-    {
-        circles                 = controller.getCircles();
-        Button possibleMoves[]  = controller.getPossibleMoves();
-
-        // mark players current-field with color
-        mark_active_field( 0, x, y );
-
-        for( int i=0; i<64; i++ )
-        {
-            if( possibleMoves[i] != null )
-            {
-                x = board.get_xCoord_btn( possibleMoves[i] );
-                y = board.get_yCoord_btn( possibleMoves[i] );
-                board.getChessBoard().add( circles[i], x, y );
-            }
-            else
-                break;
-        }
-    }
-    public void draw_critical_moves()
-    {
-        Button critical[];
-        critical = moveInfo.getCriticalMoves();
-        if( critical != null )
-        {
-            for (int k = 0; k < 1024; k++)
-            {
-                if (critical[k] == null)
-                    break;
-                NORMAL = critical[k].getStyle();
-                critical[k].setStyle("-fx-border-color: red");
-            }
-        }
-    }
-
-    public void clear_possible_circles()
-    {
-        Button possibleMoves[] = controller.getPossibleMoves();
-        if( possibleMoves != null )
-        {
-            for(int i=0; i<64; i++)
-            {
-                if( possibleMoves[i] != null )
-                    board.getChessBoard().getChildren().remove(circles[i]);
-                else
-                    break;
-            }
-        }
-    }
-    public void mark_active_field( int i, int x, int y )
-    {
-        board.getChessBoard().add( rect[i], x, y );
-    }
-    public void clear_active_fields()
-    {
-        if( rect != null )
-        {
-            board.getChessBoard().getChildren().remove( rect[0]);
-            board.getChessBoard().getChildren().remove( rect[1]);
-        }
     }
 
     public int total_team_value( boolean isBlack )
