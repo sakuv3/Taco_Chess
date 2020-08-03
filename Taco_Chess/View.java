@@ -25,6 +25,7 @@ public class View
 {
     static private Board board;
     static private Stage mainStage;
+    static private MoveInfo moveInfo;
     static private StackPane stackPane;
     static private BorderPane borderPane;
     static private BoardController controller;
@@ -50,6 +51,7 @@ public class View
     /* used to graphically indicate possible moves and current players position */
     static private Circle circles[];
     static private Rectangle rect[];
+    static private String NORMAL;
 
 
     public View(){};
@@ -58,6 +60,7 @@ public class View
         controller      = new BoardController();
         this.mainStage  = mainStage;
         this.board      = board;
+        moveInfo        = new MoveInfo();
     }
 
     public void init(double width, double height ) throws IOException
@@ -299,10 +302,6 @@ public class View
 
     }
 
-    public void set_score()
-    {
-
-    }
     public void update_score( Abstract_Figure killed )
     {
         topFigureBox.getChildren().remove( topLabelCNT );
@@ -359,6 +358,22 @@ public class View
                 break;
         }
     }
+    public void draw_critical_moves()
+    {
+        Button critical[];
+        critical = moveInfo.getCriticalMoves();
+        if( critical != null )
+        {
+            for (int k = 0; k < 1024; k++)
+            {
+                if (critical[k] == null)
+                    break;
+                NORMAL = critical[k].getStyle();
+                critical[k].setStyle("-fx-border-color: red");
+            }
+        }
+    }
+
     public void clear_possible_circles()
     {
         Button possibleMoves[] = controller.getPossibleMoves();

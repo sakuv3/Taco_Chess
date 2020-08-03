@@ -15,12 +15,12 @@ public class BoardController implements Initializable
     static private  View view;
     static private  Board board;
     static private  Dialog dialog;
-    static private  String BEFORE;
+    static private  String BEFORE, NORMAL;
     static private  MoveInfo moveInfo;
     static private  Button possibleMoves [];
     static private  Circle circles[];
     static private  Abstract_Figure activePlayer;
-    static int CNT =0;
+    static private boolean  IS_CHECK;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) { }
@@ -41,6 +41,26 @@ public class BoardController implements Initializable
             circles[i] = new Circle(15, Color.YELLOW);
             circles[i].setOpacity(0.3);
             circles[i].setDisable(true);
+        }
+    }
+
+    private void init_moves( Button btn ) throws FileNotFoundException
+    {
+        view.clear_active_fields();
+        activePlayer = board.get_figure( btn );
+
+        if (activePlayer != null)
+        {
+            if( !turn_is_valid( btn ))
+                return; // its not your turn mate
+
+            if( isCheck() )
+            {
+                System.out.println("HELP I AM BEING MATED");
+
+            }
+            possibleMoves = null;
+            set_moves( false );
         }
     }
 
@@ -67,11 +87,10 @@ public class BoardController implements Initializable
                     activePlayer = board.move_player(activePlayer, btn);
 
                     // falls der neue Zug den Gegner in Schach setzt
-                    if( check_for_each() )
-                    {
+                    check_for_mate();
+                    if( isCheck() )
                         System.out.println("CHECK");
-                        return;
-                    }
+
                     activePlayer  = null;
                     possibleMoves = null;
 
@@ -84,98 +103,43 @@ public class BoardController implements Initializable
             }
         }
         catch( FileNotFoundException fex )
-        { System.out.println("Wo bin ich hier?"); }
+        { System.out.println("File not found"); }
     }
 
-    private void init_moves( Button btn ) throws FileNotFoundException
+    // goes over the whole current team to check if a member is checking the enemy king
+    public void  check_for_mate( ) throws FileNotFoundException
     {
-        view.clear_active_fields();
-        activePlayer = board.get_figure( btn );
-
-        if (activePlayer != null)
-        {
-            if( !turn_is_valid( btn ))
-                return; // its not your turn mate
-
-            if( moveInfo.isCheck() )
-            {
-                System.out.println("HELP I AM BEING MATED");
-                possibleMoves = moveInfo.getCriticalMoves();
-                view.draw_possible_circles(activePlayer.getXCoord(), activePlayer.getYCoord());
-                return;
-            }
-            possibleMoves = null;
-            set_possible_moves( );
-        }
-    }
-
-    public boolean  check_for_each( ) throws FileNotFoundException {
-
-        boolean isCheck = false;
         Abstract_Figure team[] = board.get_team( activePlayer.isBlack() );
 
-        Button critical[];
         for(int i=0;i<team.length;i++)
         {
             activePlayer = team[i];
-            set_critical_moves( );
-
-            critical = moveInfo.getCriticalMoves();
-            if( critical != null )
-                if( critical[0] != null ) {
-                    for (int k = 0; k < 1024; k++) {
-                        if (critical[k] == null)
-                            break;
-                        critical[k].setStyle("-fx-border-color: red");
-                    }
-                    isCheck = true;
-                    moveInfo.setCheck( true );
-                }
+            set_moves( true );
         }
-        moveInfo.setCheck( isCheck );
-        return isCheck;
+        view.draw_critical_moves();
     }
 
-    private void set_critical_moves() throws FileNotFoundException {
-        int x = activePlayer.getXCoord();
-        int y = activePlayer.getYCoord();
-        boolean isBlack = activePlayer.isBlack();
-
-        if( activePlayer instanceof Pawn )
-            moveInfo.pawn(x, y, isBlack, true);
-        else if( activePlayer instanceof Horse )
-            moveInfo.horse(x, y, isBlack );
-        else if( activePlayer instanceof Rook )
-            moveInfo.rook(x, y, isBlack );
-        else if( activePlayer instanceof Bishop )
-            moveInfo.critical_bishop(x, y, isBlack );
-        else if( activePlayer instanceof  King )
-            moveInfo.king(x, y, isBlack);
-        else if( activePlayer instanceof Queen )
-            moveInfo.critical_queen(x, y, isBlack);
-
-        //if( possibleMoves != null )
-          //  view.draw_possible_circles(x,y);
-        System.out.println("handle limited moves here");
-    }
-    private void set_possible_moves( ) throws FileNotFoundException
+    private void set_moves( boolean check_for_mate ) throws FileNotFoundException
     {
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
         boolean isBlack = activePlayer.isBlack();
 
         if( activePlayer instanceof Pawn )
-            moveInfo.pawn(x, y, isBlack, false);
+            moveInfo.pawn(x, y, isBlack, check_for_mate);
         else if( activePlayer instanceof Horse )
-            moveInfo.horse(x, y, isBlack );
+            moveInfo.horse(x, y, isBlack, check_for_mate );
         else if( activePlayer instanceof Rook )
-            moveInfo.rook(x, y, isBlack );
+            moveInfo.rook(x, y, isBlack , check_for_mate);
         else if( activePlayer instanceof Bishop )
-            moveInfo.bishop(x, y, isBlack );
+            moveInfo.bishop(x, y, isBlack, check_for_mate );
         else if( activePlayer instanceof  King )
             moveInfo.king(x, y, isBlack);
         else if( activePlayer instanceof Queen )
-            moveInfo.queen(x, y, isBlack);
+            moveInfo.queen(x, y, isBlack, check_for_mate);
+
+        if( check_for_mate )
+            return;
 
         if( possibleMoves != null )
             view.draw_possible_circles(x,y);
@@ -252,6 +216,14 @@ public class BoardController implements Initializable
         }
 
         return false;
+    }
+
+    public static void setIsCheck(boolean isCheck) {
+        IS_CHECK = isCheck;
+    }
+
+    public static boolean isCheck() {
+        return IS_CHECK;
     }
 
     public static Circle[] getCircles( )
