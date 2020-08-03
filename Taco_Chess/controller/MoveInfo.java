@@ -1,7 +1,8 @@
-package Taco_Chess;
+package Taco_Chess.controller;
 
 import Taco_Chess.Figures.Abstract_Figure;
 import Taco_Chess.Figures.King;
+import Taco_Chess.model.Board;
 import javafx.scene.control.Button;
 
 import java.io.FileNotFoundException;
@@ -54,6 +55,7 @@ public class MoveInfo
 
         else if( IS_CHECK )
         {
+        // TODO: king cant just walk in a Critical field
             Button CRITICALS[] = controller.getCriticalKINGMove();
             System.out.print("");
         }
@@ -367,6 +369,7 @@ public class MoveInfo
 
         horseMovesX[7] = x-1;
         horseMovesY[7] = y+2;
+
 
         for(int i=0;i<8;i++)
         {

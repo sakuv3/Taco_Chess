@@ -1,7 +1,9 @@
-package Taco_Chess;
+package Taco_Chess.model;
 import Taco_Chess.Figures.*;
 
 import java.io.FileNotFoundException;
+
+import Taco_Chess.controller.BoardController;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ import javafx.stage.Stage;
 public class Board extends Stage
 {
     static private  Abstract_Figure figures[][];
-    static private  BoardController controller;
+    static private BoardController controller;
     static private  GridPane chessBoard;
     static private  Button buttons[][];
     static private boolean isWhitesMove = true;

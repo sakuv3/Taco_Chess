@@ -1,4 +1,7 @@
 package Taco_Chess;
+import Taco_Chess.controller.BoardController;
+import Taco_Chess.model.Board;
+import Taco_Chess.view.View;
 import javafx.stage.Stage;
 import javafx.application.Application;
 

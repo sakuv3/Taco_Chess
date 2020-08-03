@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane fx:controller="Taco_Chess.BoardController" prefHeight="800.0" prefWidth="800.0" alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane fx:controller="Taco_Chess.controller.BoardController" prefHeight="800.0" prefWidth="800.0" alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
 
     <columnConstraints>
       <ColumnConstraints halignment ="CENTER" prefWidth="100.0" />

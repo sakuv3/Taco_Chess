@@ -1,6 +1,9 @@
-package Taco_Chess;
+package Taco_Chess.view;
 
 import Taco_Chess.Figures.*;
+import Taco_Chess.controller.BoardController;
+import Taco_Chess.controller.MoveInfo;
+import Taco_Chess.model.Board;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

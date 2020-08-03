@@ -1,8 +1,13 @@
-package Taco_Chess;
+package Taco_Chess.controller;
 import java.io.FileNotFoundException;
 import java.net.URL;
+
+import Taco_Chess.view.Dialog;
 import Taco_Chess.Figures.*;
 import java.util.ResourceBundle;
+
+import Taco_Chess.model.Board;
+import Taco_Chess.view.View;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
@@ -12,9 +17,9 @@ import javafx.scene.shape.Rectangle;
 
 public class BoardController implements Initializable
 {
-    static private  View view;
-    static private  Board board;
-    static private  Dialog dialog;
+    static private View view;
+    static private Board board;
+    static private Dialog dialog;
     static private  String COLOR_before, COLOR_after;
     static private  MoveInfo moveInfo;
     static private  Button possibleMoves [];
@@ -103,7 +108,7 @@ public class BoardController implements Initializable
                 }
 
                 /*      A L L    O T H E R S        */
-                else {  // check if critical moves fit with possible moves
+                else {
                     for (int j = 0; j < criticalKINGMove.length; j++)
                     {
                         if (criticalKINGMove[j] == null)
@@ -133,7 +138,7 @@ public class BoardController implements Initializable
                     else
                         switch_turn();
 
-                    // if a pawn has crosses enemy lines
+                    // if a pawn has crossed enemy lines
                     if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
                        dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
 
@@ -156,7 +161,7 @@ public class BoardController implements Initializable
                     possibleMoves = null;
 
                 }
-                else  // DIFFERENT FIGURE HAS BEEN CLICKED
+                else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
                 {
                     view.clear_possible_circles();
                     init_moves( btn );
@@ -205,14 +210,6 @@ public class BoardController implements Initializable
             moveInfo.king(x, y, isBlack);
         else if( activePlayer instanceof Queen )
             moveInfo.queen(x, y, isBlack);
-
-        Button POSS[] = possibleMoves;
-
-        if( check_for_mate )
-            add_critical_moves();
-
-        Button CRIT[] = criticalMoves;
-        System.out.print("");
     }
 
     public void add_critical_moves()
