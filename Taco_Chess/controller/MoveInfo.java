@@ -55,12 +55,6 @@ public class MoveInfo
             return true;
         }
 
-        else if( IS_CHECK )
-        {
-        // TODO: king cant just walk in a Critical field
-            Button CRITICALS[] = controller.getCriticalKINGMove();
-            System.out.print("");
-        }
         else
         {
             enemy = board.get_figure(board.get_button(x, y));
@@ -74,7 +68,6 @@ public class MoveInfo
             return true;
 
         }
-        return false;
     }
 
     public boolean move_is_check( int x, int y, boolean isBlack )
@@ -114,11 +107,22 @@ public class MoveInfo
         }
 
         if(COLLECTING_NEXT_MOVES )
-        {    // pawn could kill
+        {
+
+            // pawn could kill
+
+            // pawn can kill
+            if( move_is_check(x1, y1, isBlack) )
+                controller.add_critical_king_move( board.get_button(x,y) );
+
             if (board.get_figure(board.get_button(x1, y1)) == null)
                 move_is_valid(x1, y1, isBlack); // kill left
             else if( board.get_figure(board.get_button(x1,y1)).isBlack() == isBlack )
                 move_is_valid(x1,y1,isBlack);   // king could kill this one
+
+            // pawn can kill
+            if( move_is_check(x1, y1, isBlack) )
+                controller.add_critical_king_move( board.get_button(x,y) );
 
             if (board.get_figure(board.get_button(x2, y1)) == null)
                 move_is_valid(x2, y1, isBlack); // kill right

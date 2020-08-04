@@ -194,8 +194,8 @@ public class BoardController implements Initializable
             activePlayer = team[i];
             set_moves( true );
         }
-        if( nextMoves != null )
-            view.draw_critical_moves( activePlayer.isBlack() ) ;
+       // if( nextMoves != null )
+         //   view.draw_critical_moves( activePlayer.isBlack() ) ;
 
         moveInfo.set_COLLECTING_NEXT_MOVES(false);
     }
