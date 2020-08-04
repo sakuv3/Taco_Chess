@@ -270,11 +270,11 @@ public class View
     }
     public void draw_critical_moves( boolean isBlack )
     {
-        Button critical[] =  controller.getCriticalMoves();
+        Button critical[] =  controller.getNextMoves();
         if( isBlack )
             COLOR = "-fx-background-color: slategrey; -fx-border-color: #cbe3a8";
         else
-            COLOR = "-fx-background-color: coral; -fx-border-color: #cbe3a8";
+            COLOR = "-fx-background-color: darkslateblue; -fx-border-color: #cbe3a8";
         if( critical != null )
         {
             for (int k = 0; k < 64; k++)
@@ -287,7 +287,7 @@ public class View
     }
     public void clear_critical_moves( )
     {
-        Button critical[] =  controller.getCriticalMoves();
+        Button critical[] =  controller.getNextMoves();
         COLOR = "-fx-border-color: null";
         if( critical != null )
         {

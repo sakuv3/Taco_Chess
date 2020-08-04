@@ -23,7 +23,7 @@ public class BoardController implements Initializable
     static private  String COLOR_before, COLOR_after;
     static private  MoveInfo moveInfo;
     static private  Button possibleMoves [];
-    static private  Button criticalKINGMove [], criticalMoves[];
+    static private  Button criticalKINGMove [], nextMoves[];
     static private  Circle circles[];
     static private  Abstract_Figure activePlayer;
     static private boolean  IS_CHECK;
@@ -31,7 +31,14 @@ public class BoardController implements Initializable
     public Button[] getCriticalKINGMove() {
         return criticalKINGMove;
     }
-
+    public Button[] get_next_moves()
+    {
+        return nextMoves;
+    }
+    public Button[] getPossibleMoves()
+    {
+        return possibleMoves;
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) { }
 
@@ -64,6 +71,8 @@ public class BoardController implements Initializable
             if( !turn_is_valid( btn ))
                 return; // its not your turn mate
 
+            // CHECK critical moves for King
+
             possibleMoves = null;
             set_moves( false );
 
@@ -78,13 +87,13 @@ public class BoardController implements Initializable
     public void CRITICAL_MOVE()
     {
         // LIMIT POSSIBLE MOVES based on critical moves
-        System.out.println("HELP I AM BEING MATED");;
+        System.out.println("I AM BEING MATED");;
         int CNT=0;
         // compare possible moves with critical moves
         Button tmp[] =new Button[64];
         boolean freeForKing=true;
 
-        if( criticalMoves != null && possibleMoves != null )
+        if( nextMoves != null && possibleMoves != null )
         {
             for(int i=0; i<possibleMoves.length; i++)
             {
@@ -94,12 +103,12 @@ public class BoardController implements Initializable
                 /*      K I N G     */
                 if( activePlayer instanceof King )
                 {
-                    for (int j = 0; j < criticalMoves.length; j++)
+                    for (int j = 0; j < nextMoves.length; j++)
                     {
-                        if (criticalMoves[j] == null)
+                        if (nextMoves[j] == null)
                             break;
 
-                        if ( criticalMoves[j].getId().equals(possibleMoves[i].getId()) )
+                        if ( nextMoves[j].getId().equals(possibleMoves[i].getId()) )
                             freeForKing = false;
                     }
                     if( freeForKing )
@@ -127,7 +136,7 @@ public class BoardController implements Initializable
     {
         try {
             if( activePlayer == null )
-                init_moves(btn);
+                init_moves( btn );
 
             else
             {   // MOVE is possible
@@ -144,12 +153,12 @@ public class BoardController implements Initializable
 
                     view.update( activePlayer, btn, true );
                     activePlayer = board.move_player(activePlayer, btn);
-                    criticalMoves = null;
+                    nextMoves = null;
 
                     if( isCheck() )
                         setIsCheck( false );
 
-                    check_for_mate( activePlayer.isBlack() );// falls der neue Zug den Gegner in Schach setzt
+                    collect_next_moves( activePlayer.isBlack() );// falls der neue Zug den Gegner in Schach setzt
                     if( isCheck() ) // ja hat er
                     {
                         setIsCheck(true);
@@ -173,11 +182,11 @@ public class BoardController implements Initializable
     }
 
     // Finds out ALL critical positions ( where the king cant go )
-    public void  check_for_mate( boolean isBlack ) throws FileNotFoundException
+    public void  collect_next_moves( boolean isBlack ) throws FileNotFoundException
     {
         Abstract_Figure team[] = board.get_team(isBlack );
 
-        moveInfo.set_Check_For_Mate( true );
+        moveInfo.set_COLLECTING_NEXT_MOVES( true );
 
         for(int i=0;i<team.length;i++)
         {
@@ -185,14 +194,14 @@ public class BoardController implements Initializable
             activePlayer = team[i];
             set_moves( true );
         }
-        if( criticalMoves != null )
+        if( nextMoves != null )
             view.draw_critical_moves( activePlayer.isBlack() ) ;
 
-        moveInfo.set_Check_For_Mate(false);
+        moveInfo.set_COLLECTING_NEXT_MOVES(false);
     }
 
     // for ONE Figure
-    private void set_moves( boolean check_for_mate ) throws FileNotFoundException
+    private void set_moves( boolean collecting_next ) throws FileNotFoundException
     {
         int x = activePlayer.getXCoord();
         int y = activePlayer.getYCoord();
@@ -206,13 +215,22 @@ public class BoardController implements Initializable
             moveInfo.rook(x, y, isBlack );
         else if( activePlayer instanceof Bishop )
             moveInfo.bishop(x, y, isBlack );
+
+        if( !collecting_next && activePlayer instanceof King )
+            moveInfo.king(x, y, isBlack);
         else if( activePlayer instanceof  King )
             moveInfo.king(x, y, isBlack);
         else if( activePlayer instanceof Queen )
             moveInfo.queen(x, y, isBlack);
+
+        Button POSS[] = possibleMoves;
+
+        if( collecting_next )
+            add_next_moves();
+
     }
 
-    public void add_critical_moves()
+    public void add_next_moves()
     {
         if( possibleMoves == null )
             return;
@@ -220,24 +238,41 @@ public class BoardController implements Initializable
         for(int i=0;i<possibleMoves.length;i++)
         {
             if( possibleMoves[i] != null )
-                add_critical_figure_move(possibleMoves[i] );
+                add_next_move( possibleMoves[i] );
             else
                 break;
         }
     }
-    public void add_critical_figure_move( Button btn )
-    {
-        if ( criticalMoves == null )
-            criticalMoves = new Button[1024];
 
-        for(int i=0; i<criticalMoves.length; i++)
+    // critical moves have already been set,
+    // here just checking if taken move is in one of the critical fields
+    public boolean is_critical_move( Button btn )
+    {
+        if( nextMoves != null && btn != null)
         {
-            if( criticalMoves[i] == null  )
+            for(int i=0;i<nextMoves.length;i++)
             {
-                criticalMoves[i] = btn;
+                if(nextMoves[i] == null)
+                    break;
+                if( btn.getId().equals( nextMoves[i].getId() ) )
+                    return true;
+            }
+        }
+        return false;
+    }
+    public void add_next_move( Button btn )
+    {
+        if ( nextMoves == null )
+            nextMoves = new Button[1024];
+
+        for(int i=0; i<nextMoves.length; i++)
+        {
+            if( nextMoves[i] == null  )
+            {
+                nextMoves[i] = btn;
                 break;
             }
-            else if( criticalMoves[i].getId().equals( btn.getId() ))
+            else if( nextMoves[i].getId().equals( btn.getId() ))
                 break;
         }
     }
@@ -271,26 +306,6 @@ public class BoardController implements Initializable
                 break;
             }
         }
-    }
-
-    // critical moves have already been set,
-    // here just checking if taken move is in one of the critical fields
-    public boolean is_critical_btn(Button btn)
-    {
-        if( criticalMoves != null && btn != null)
-        {
-            for(int i=0;i<criticalMoves.length;i++)
-            {
-                if(criticalMoves[i] == null)
-                    break;
-                else
-                {
-                    if( btn.getId().equals( criticalMoves[i].getId() ) )
-                        return true;
-                }
-            }
-        }
-        return false;
     }
 
     // return true if clicked button is a valid move
@@ -363,13 +378,8 @@ public class BoardController implements Initializable
         return circles;
     }
 
-    public static Button[] getPossibleMoves()
-    {
-        return possibleMoves;
-    }
-
-    public static Button[] getCriticalMoves() {
-        return criticalMoves;
+    public static Button[] getNextMoves() {
+        return nextMoves;
     }
 
 
