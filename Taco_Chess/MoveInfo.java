@@ -12,7 +12,7 @@ public class MoveInfo
     static Board board;
     static Abstract_Figure enemy;
     static BoardController controller;
-    static private boolean CHECK_FOR_MATE, IS_CHECK;
+    static private boolean COLLECTING_NEXT_MOVES, IS_CHECK;
 
     public MoveInfo(){};
     public MoveInfo(Board board, BoardController controller )
@@ -23,14 +23,14 @@ public class MoveInfo
         this.controller     = controller;
     }
 
-    public static void set_Check_For_Mate(boolean checkForMate) {
-        CHECK_FOR_MATE = checkForMate;
+    public static void set_COLLECTING_NEXT_MOVES(boolean c_n_m) {
+        COLLECTING_NEXT_MOVES = c_n_m;
     }
 
     // returns true if move is valid ( for rook and bishop  only )
     public boolean move_is_valid(int x, int y, boolean playerIsBlack )
     {
-        if( CHECK_FOR_MATE )
+        if( COLLECTING_NEXT_MOVES )
         {
             if( move_is_check(x,y, playerIsBlack) )
                 controller.setIsCheck(true);
@@ -39,8 +39,10 @@ public class MoveInfo
             if (enemy != null)
             {
                 if( enemy instanceof King ) {
-                    controller.add_valid_move(board.get_button(x, y));
-                    return true;
+                    if( playerIsBlack != enemy.isBlack() ) {
+                        controller.add_valid_move(board.get_button(x, y));
+                        return true;
+                    }
                 }
 
                 if (enemy.isBlack() == playerIsBlack)  // no further than enemy
@@ -109,7 +111,7 @@ public class MoveInfo
             y2 = y -2;
         }
 
-        if( CHECK_FOR_MATE )
+        if(COLLECTING_NEXT_MOVES )
         {    // pawn could kill
             if (board.get_figure(board.get_button(x1, y1)) == null)
                 move_is_valid(x1, y1, isBlack); // kill left
@@ -155,37 +157,111 @@ public class MoveInfo
         int x2 = x-1;
         int y1 = y+1;
         int y2 = y-1;
+        Button tmp;
 
+        if( !COLLECTING_NEXT_MOVES )
+        {
+            //UP
+            tmp = board.get_button(x, y1 );
+            if( ! controller.is_critical_move( tmp ))
+                if( y1 >=0 && y1 <8 )
+                    move_is_valid(x, y1, playerIsBlack);
+            //DOWN
+            tmp = board.get_button(x, y2 );
+            if( ! controller.is_critical_move( tmp ))
+                if( y2 >=0 && y2 <8 )
+                    move_is_valid(x, y2, playerIsBlack);
+
+            //RIGHT
+            tmp = board.get_button(x1, y );
+            if( ! controller.is_critical_move( tmp ))
+                if( x1 >=0 && x1 <8 )
+                    move_is_valid(x1, y, playerIsBlack);
+            //LEFT
+            tmp = board.get_button(x2, y );
+            if( ! controller.is_critical_move( tmp ))
+                if( x2 >=0 && x2 <8 )
+                    move_is_valid(x2, y, playerIsBlack);
+
+            //UP-LEFT
+            tmp = board.get_button(x2, y1 );
+            if( ! controller.is_critical_move( tmp ))
+                if( x2 >=0 && x2 <8 && y1 >=0 && y1 <8)
+                    move_is_valid(x2, y1, playerIsBlack);
+
+            //DOWN-LEFT
+            tmp = board.get_button(x2, y2 );
+            if( ! controller.is_critical_move( tmp ))
+                if( x2 >=0 && x2 <8 && y2 >=0 && y2 <8)
+                    move_is_valid(x2, y2, playerIsBlack);
+
+            //UP-RIGHT
+            tmp = board.get_button(x1, y1 );
+            if( ! controller.is_critical_move( tmp ))
+                if( x1 >=0 && x1 <8 && y1 >=0 && y1 <8)
+                    move_is_valid(x1, y1, playerIsBlack);
+
+            //DOWN-RIGHT
+            tmp = board.get_button(x1, y2 );
+            if( ! controller.is_critical_move( tmp ))
+                if( x1 >=0 && x1 <8 && y2 >=0 && y2 <8)
+                    move_is_valid(x1, y2, playerIsBlack);
+
+                return;
+        }
         //UP
-        if( y1 >=0 && y1 <8 )
-            move_is_valid(x, y1, playerIsBlack);
+        tmp = board.get_button(x, y1 );
+        if( ! controller.is_critical_move( tmp ))
+            if( y1 >=0 && y1 <8 )
+                move_is_valid(x, y1, playerIsBlack);
         //DOWN
-        if( y2 >=0 && y2 <8 )
-            move_is_valid(x, y2, playerIsBlack);
+        tmp = board.get_button(x, y2 );
+        if( ! controller.is_critical_move( tmp ))
+            if( y2 >=0 && y2 <8 )
+                move_is_valid(x, y2, playerIsBlack);
+
         //RIGHT
-        if( x1 >=0 && x1 <8 )
-            move_is_valid(x1, y, playerIsBlack);
+        tmp = board.get_button(x1, y );
+        if( ! controller.is_critical_move( tmp ))
+            if( x1 >=0 && x1 <8 )
+                move_is_valid(x1, y, playerIsBlack);
         //LEFT
-        if( x2 >=0 && x2 <8 )
-            move_is_valid(x2, y, playerIsBlack);
+        tmp = board.get_button(x2, y );
+        if( ! controller.is_critical_move( tmp ))
+            if( x2 >=0 && x2 <8 )
+                move_is_valid(x2, y, playerIsBlack);
+
         //UP-LEFT
-        if( x2 >=0 && x2 <8 && y1 >=0 && y1 <8)
-            move_is_valid(x2, y1, playerIsBlack);
+        tmp = board.get_button(x2, y1 );
+        if( ! controller.is_critical_move( tmp ))
+            if( x2 >=0 && x2 <8 && y1 >=0 && y1 <8)
+                move_is_valid(x2, y1, playerIsBlack);
+
         //DOWN-LEFT
-        if( x2 >=0 && x2 <8 && y2 >=0 && y2 <8)
-            move_is_valid(x2, y2, playerIsBlack);
+        tmp = board.get_button(x2, y2 );
+        if( ! controller.is_critical_move( tmp ))
+            if( x2 >=0 && x2 <8 && y2 >=0 && y2 <8)
+                move_is_valid(x2, y2, playerIsBlack);
+
         //UP-RIGHT
-        if( x1 >=0 && x1 <8 && y1 >=0 && y1 <8)
-            move_is_valid(x1, y1, playerIsBlack);
+        tmp = board.get_button(x1, y1 );
+        if( ! controller.is_critical_move( tmp ))
+            if( x1 >=0 && x1 <8 && y1 >=0 && y1 <8)
+                move_is_valid(x1, y1, playerIsBlack);
+
         //DOWN-RIGHT
-        if( x1 >=0 && x1 <8 && y2 >=0 && y2 <8)
-            move_is_valid(x1, y2, playerIsBlack);
+        tmp = board.get_button(x1, y2 );
+        if( ! controller.is_critical_move( tmp ))
+            if( x1 >=0 && x1 <8 && y2 >=0 && y2 <8)
+                move_is_valid(x1, y2, playerIsBlack);
     }
 
     public void queen( int x, int y, boolean playerIsBlack ) throws FileNotFoundException
     {
         // yes, the almighty queen has combined power of rook and pawn
         rook(x,y, playerIsBlack);
+        Button POSS[] = controller.getPossibleMoves();
+        Button NEXT[] = controller.get_next_moves();
         bishop(x,y, playerIsBlack);
     }
 
@@ -196,7 +272,7 @@ public class MoveInfo
             if( x+i > 7 )
                 break;
 
-            if( CHECK_FOR_MATE )
+            if( COLLECTING_NEXT_MOVES )
             {
                 if (move_is_check(x + i, y, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
@@ -214,7 +290,7 @@ public class MoveInfo
             if( x-i < 0 )
                 break;
 
-            if( CHECK_FOR_MATE )
+            if( COLLECTING_NEXT_MOVES )
             {
                 if (move_is_check(x - i, y, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
@@ -231,7 +307,7 @@ public class MoveInfo
             if( y+i > 7 )
                 break;
 
-            if( CHECK_FOR_MATE )
+            if( COLLECTING_NEXT_MOVES )
             {
                 if (move_is_check(x , y+i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
@@ -248,7 +324,7 @@ public class MoveInfo
             if( y-i < 0 )
                 break;
 
-            if( CHECK_FOR_MATE )
+            if( COLLECTING_NEXT_MOVES )
             {
                 if (move_is_check(x, y-i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
@@ -269,7 +345,7 @@ public class MoveInfo
             if( x+i >7 || y+i >7 )
                 break;
 
-            if( CHECK_FOR_MATE ) {
+            if( COLLECTING_NEXT_MOVES ) {
                 if (move_is_check(x + i, y + i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x + j, y + j);
@@ -287,7 +363,7 @@ public class MoveInfo
             if( x-i <0 || y+i >7 )
                 break;
 
-            if( CHECK_FOR_MATE ) {
+            if( COLLECTING_NEXT_MOVES ) {
                 if (move_is_check(x - i, y + i, playerIsBlack)) {   // all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x - j, y + j);
@@ -306,7 +382,7 @@ public class MoveInfo
                 break;
 
 
-            if( CHECK_FOR_MATE ) {
+            if( COLLECTING_NEXT_MOVES ) {
                 if (move_is_check(x + i, y - i, playerIsBlack)) {   // all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x + j, y - j);
@@ -325,7 +401,7 @@ public class MoveInfo
                 break;
 
 
-            if( CHECK_FOR_MATE ) {
+            if( COLLECTING_NEXT_MOVES ) {
                 if (move_is_check(x - i, y - i, playerIsBlack)) {   // all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x - j, y - j);
@@ -378,12 +454,12 @@ public class MoveInfo
 
             if( y == 2 )
                 System.out.print("");
-            if( CHECK_FOR_MATE )
+            if( COLLECTING_NEXT_MOVES )
             {
                 if (move_is_check(xCord, yCord, playerIsBlack)) {
                     // either the horse gets killed or the king moves, or it simply check-mate
                     btn = board.get_button(xCord, yCord);
-                    controller.add_critical_figure_move(btn);
+                    controller.add_next_move(btn);
                     btn = board.get_button(x,y);
                     controller.add_critical_king_move(btn);
                 }

@@ -103,7 +103,7 @@ public class Dialog
                     view.update_score( null );
 
 
-                    controller.check_for_mate( newFig.isBlack() );// falls der neue Zug den Gegner in Schach setzt
+                    controller.collect_next_moves( newFig.isBlack() );// falls der neue Zug den Gegner in Schach setzt
                     if( controller.isCheck() ) // ja hat er
                     {
                         controller.setIsCheck(true);
