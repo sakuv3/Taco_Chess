@@ -54,7 +54,7 @@ public class View
     /* used to graphically indicate possible moves and current players position */
     static private Circle circles[];
     static private Rectangle rect[];
-    static private String COLOR;
+    static private String COLOR = "-fx-border-color: deepskyblue";
     static private String WHITE = " -fx-border-color: #cbe3a8";
     static private String BLACK = " -fx-border-color: #77944e";
 
@@ -242,7 +242,8 @@ public class View
         oldPlayer.getBtn().setGraphic( null );
         dest.setGraphic( oldPlayer.getImageView() );
         clear_possible_circles();
-        clear_critical_moves();
+        clear_next_moves();
+        controller.setCOLOR( null );
     }
 
     public void draw_possible_circles( Abstract_Figure activePlayer) throws FileNotFoundException
@@ -268,13 +269,13 @@ public class View
                 break;
         }
     }
-    public void draw_critical_moves( boolean isBlack )
+    public void draw_next_moves( boolean isBlack )
     {
         Button critical[] =  controller.getNextMoves();
         if( isBlack )
-            COLOR = "-fx-background-color: slategrey; -fx-border-color: #cbe3a8";
+            COLOR = "-fx-background-color: slategrey; -fx-border-color: black";
         else
-            COLOR = "-fx-background-color: darkslateblue; -fx-border-color: #cbe3a8";
+            COLOR = "-fx-background-color: darkslateblue; -fx-border-color: navajowhite";
         if( critical != null )
         {
             for (int k = 0; k < 64; k++)
@@ -285,19 +286,19 @@ public class View
             }
         }
     }
-    public void clear_critical_moves( )
+    public void clear_next_moves( )
     {
         Button critical[] =  controller.getNextMoves();
         COLOR = "-fx-border-color: null";
         if( critical != null )
         {
-            //controller.setCOLOR( BEFORE );
+           // controller.setCOLOR( COLOR );
             for (int k = 0; k < 64; k++)
             {
                 if (critical[k] == null)
                     break;
 
-                critical[k].setStyle( COLOR );
+                critical[k].setStyle( null );
             }
         }
 
@@ -418,16 +419,14 @@ public class View
 
         if( DIFF > 0 )
         {   // black still has bigger score
-            topLabelCNT.setText( "  +" +SCORE );
+            topLabelCNT.setText( "   +" +SCORE );
             topFigureBox.getChildren().add( topLabelCNT );
         }
         else if( DIFF < 0 )
         {   // white has bigger score
-            bottomLabelCNT.setText( "  +" +SCORE );
+            bottomLabelCNT.setText( "   +" +SCORE );
             bottomFigureBox.getChildren().add( bottomLabelCNT );
         }
-        else
-            System.out.println("equal");
     }
 
     public int total_team_value( boolean isBlack )

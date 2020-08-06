@@ -13,7 +13,7 @@ public class MoveInfo
     static Board board;
     static Abstract_Figure enemy;
     static BoardController controller;
-    static private boolean COLLECTING_NEXT_MOVES, IS_CHECK;
+    static private boolean COLLECTING_NEXT_MOVES;
 
     public MoveInfo(){};
     public MoveInfo(Board board, BoardController controller )
@@ -41,17 +41,17 @@ public class MoveInfo
             {
                 if( enemy instanceof King ) {
                     if( playerIsBlack != enemy.isBlack() ) {
-                        controller.add_valid_move(board.get_button(x, y));
+                        controller.add_possible_move(board.get_button(x, y));
                         return true;
                     }
                 }
 
                 if (enemy.isBlack() == playerIsBlack)  // no further than enemy
-                    controller.add_valid_move(board.get_button(x, y));
+                    controller.add_possible_move(board.get_button(x, y));
                 return false;
             }
             else    // free field
-                controller.add_valid_move(board.get_button(x, y));
+                controller.add_possible_move(board.get_button(x, y));
             return true;
         }
 
@@ -61,10 +61,10 @@ public class MoveInfo
             if (enemy != null)
             {
                 if (enemy.isBlack() != playerIsBlack)  // no further than enemy
-                    controller.add_valid_move(board.get_button(x, y));
+                    controller.add_possible_move(board.get_button(x, y));
                 return false;
             } else    // free field
-                controller.add_valid_move(board.get_button(x, y));
+                controller.add_possible_move(board.get_button(x, y));
             return true;
 
         }
@@ -113,7 +113,7 @@ public class MoveInfo
 
             // pawn can kill
             if( move_is_check(x1, y1, isBlack) )
-                controller.add_critical_king_move( board.get_button(x,y) );
+                controller.add_critical_move( board.get_button(x1,y1) );
 
             if (board.get_figure(board.get_button(x1, y1)) == null)
                 move_is_valid(x1, y1, isBlack); // kill left
@@ -121,8 +121,8 @@ public class MoveInfo
                 move_is_valid(x1,y1,isBlack);   // king could kill this one
 
             // pawn can kill
-            if( move_is_check(x1, y1, isBlack) )
-                controller.add_critical_king_move( board.get_button(x,y) );
+            if( move_is_check(x2, y1, isBlack) )
+                controller.add_critical_move( board.get_button(x,y) );
 
             if (board.get_figure(board.get_button(x2, y1)) == null)
                 move_is_valid(x2, y1, isBlack); // kill right
@@ -167,12 +167,12 @@ public class MoveInfo
 
         if( !COLLECTING_NEXT_MOVES )
         {
-            //UP
+            //DOWN
             tmp = board.get_button(x, y1 );
             if( ! controller.is_critical_move( tmp ))
                 if( y1 >=0 && y1 <8 )
                     move_is_valid(x, y1, playerIsBlack);
-            //DOWN
+            //UP
             tmp = board.get_button(x, y2 );
             if( ! controller.is_critical_move( tmp ))
                 if( y2 >=0 && y2 <8 )
@@ -283,7 +283,7 @@ public class MoveInfo
                 if (move_is_check(x + i, y, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x + j, y);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -301,7 +301,7 @@ public class MoveInfo
                 if (move_is_check(x - i, y, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x - j, y);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -309,7 +309,7 @@ public class MoveInfo
                 break;
         }
         for(int i=1; i<8; i++)
-        {   //UP
+        {   //DOWN
             if( y+i > 7 )
                 break;
 
@@ -318,7 +318,7 @@ public class MoveInfo
                 if (move_is_check(x , y+i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x , y+j);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -326,7 +326,7 @@ public class MoveInfo
                 break;
         }
         for(int i=1; i<8; i++)
-        {   //DOWN
+        {   //UP
             if( y-i < 0 )
                 break;
 
@@ -335,7 +335,7 @@ public class MoveInfo
                 if (move_is_check(x, y-i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x, y -j);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -355,7 +355,7 @@ public class MoveInfo
                 if (move_is_check(x + i, y + i, playerIsBlack)) {   // add CRITICAL fields - all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x + j, y + j);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -373,7 +373,7 @@ public class MoveInfo
                 if (move_is_check(x - i, y + i, playerIsBlack)) {   // all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x - j, y + j);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -392,7 +392,7 @@ public class MoveInfo
                 if (move_is_check(x + i, y - i, playerIsBlack)) {   // all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x + j, y - j);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -411,7 +411,7 @@ public class MoveInfo
                 if (move_is_check(x - i, y - i, playerIsBlack)) {   // all the way back
                     for (int j = 0; j < i; j++) {
                         btn = board.get_button(x - j, y - j);
-                        controller.add_critical_king_move(btn);
+                        controller.add_critical_move(btn);
                     }
                 }
             }
@@ -468,7 +468,7 @@ public class MoveInfo
                     btn = board.get_button(xCord, yCord);
                     controller.add_next_move(btn);
                     btn = board.get_button(x,y);
-                    controller.add_critical_king_move(btn);
+                    controller.add_critical_move(btn);
                 }
             }
 
@@ -477,7 +477,7 @@ public class MoveInfo
                 if ( enemy.isBlack() == playerIsBlack )
                     continue;   // no team-kill
 
-            controller.add_valid_move( board.get_button(xCord, yCord) );
+            controller.add_possible_move( board.get_button(xCord, yCord) );
         }
     }
 

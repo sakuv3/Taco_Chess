@@ -91,7 +91,7 @@ public class Board extends Stage
             bishop[i] = new Bishop();
         }
 
-        // white Team
+        // black Team
         king[0]     = new King();
         queen[0]    = new Queen();
         set_figure( rook[0], 0, 0, true);
@@ -103,7 +103,7 @@ public class Board extends Stage
         set_figure( horse[1], 6, 0, true );
         set_figure( rook[1], 7, 0, true );
 
-        // black Team
+        // white Team
         king[1]     = new King();
         queen[1]    = new Queen();
         set_figure( rook[2], 0, 7, false );
