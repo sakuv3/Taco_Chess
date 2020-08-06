@@ -28,6 +28,7 @@ import java.io.IOException;
 public class View
 {
     private Main main;
+    private static Scene scene;
     static private Stage mainStage;
     static private Board board;
     static private VBox vbox;
@@ -50,7 +51,7 @@ public class View
     static private Abstract_Figure deadWhite[];
     static private Abstract_Figure deadBlack[];
     static private FileInputStream FIS;
-    static private ImageView IMAGEVIEW;
+    static private ImageView BACKGROUND, FIGS;
     static private Image players[];
     static private Image IMAGE;
 
@@ -110,9 +111,9 @@ public class View
         FIS         = new FileInputStream(URL +"background/wood3.jpg");
         IMAGE       = new Image(FIS);
 
-        IMAGEVIEW   = new ImageView(IMAGE);
-        IMAGEVIEW.setFitWidth( width );
-        IMAGEVIEW.setFitHeight( height );
+        BACKGROUND   = new ImageView(IMAGE);
+        BACKGROUND.setFitWidth( width );
+        BACKGROUND.setFitHeight( height );
 
         // BorderPane-> ( top-> (HBox-> (PlayerImage, VBox-> (Label, Hbox-> (deadFigure1, deadFigure2, etc..)))))
         // BorderPane-> ( bottom-> (HBox-> (PlayerImage, VBox-> (Label, Hbox-> (deadFigure1, deadFigure2, etc..)))))
@@ -122,10 +123,10 @@ public class View
         stackPane   = new StackPane();
         stackPane.setMaxWidth( width );
         stackPane.setMaxHeight( height );
-        stackPane.getChildren().addAll( IMAGEVIEW, vbox  );
+        stackPane.getChildren().addAll( BACKGROUND, vbox  );
 
         // set the one and only scene for the chess gui
-        Scene scene = new Scene( stackPane );
+        scene = new Scene( stackPane );
         scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
         mainStage.setScene( scene );
     }
@@ -269,7 +270,39 @@ public class View
         whON.setOnAction( (ActionEvent e) -> controller.setWallhackMode(true));
         whOFF.setOnAction( (ActionEvent e) -> controller.setWallhackMode(false));
         wallhack.getItems().addAll( whON, whOFF);
-        settings.getItems().add(wallhack);
+
+        Menu style = new Menu("Style");
+        RadioMenuItem brown = new RadioMenuItem("Brown-White");
+        RadioMenuItem green = new RadioMenuItem("Green-Lime");
+        ToggleGroup ts = new ToggleGroup();
+        brown.setToggleGroup(ts);
+        green.setToggleGroup(ts);
+
+        brown.setOnAction( (ActionEvent e) -> {
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add( getClass().getResource("Board.css").toExternalForm());
+        });
+        green.setOnAction( (ActionEvent e) ->
+        {
+            try {
+                stackPane.getChildren().removeAll( BACKGROUND, vbox );
+                FIS = new FileInputStream(URL + "background/grass.jpg");
+                IMAGE = new Image(FIS);
+                BACKGROUND = new ImageView(IMAGE);
+                BACKGROUND.setFitWidth(width);
+                BACKGROUND.setFitHeight(height);
+                stackPane.getChildren().addAll( BACKGROUND, vbox );
+                hBottom.setStyle(" -fx-background-color: linear-gradient( #77944e, #bdd49b); ");
+                hTop.setStyle(" -fx-background-color: linear-gradient( #bdd49b, #77944e); ");
+                scene.getStylesheets().clear();
+                scene.getStylesheets().add(getClass().getResource("Green.css").toExternalForm());
+            }
+            catch (FileNotFoundException fileNotFoundException)
+            { fileNotFoundException.printStackTrace(); }
+        });
+        style.getItems().addAll( brown, green);
+
+        settings.getItems().addAll(wallhack, style);
 
         Menu faq          = new Menu("FAQ");
         RadioMenuItem xxx = new RadioMenuItem("FAQS");
@@ -292,10 +325,10 @@ public class View
             PATH    = get_figure_path( activeFigs[i] );
             FIS     = new FileInputStream( PATH );
             IMAGE   = new Image( FIS );
-            IMAGEVIEW = new ImageView( IMAGE );
+            FIGS = new ImageView( IMAGE );
 
-            activeFigs[i].setImageView( IMAGEVIEW );
-            activeFigs[i].getBtn().setGraphic( IMAGEVIEW );
+            activeFigs[i].setImageView( FIGS );
+            activeFigs[i].getBtn().setGraphic( FIGS );
         }
     }
     public void update( Abstract_Figure oldPlayer, Button dest, boolean mark ) throws FileNotFoundException

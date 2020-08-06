@@ -91,7 +91,8 @@ public class BoardController implements Initializable
                         criticalKINGMove =null;
                     }
 
-                    collect_next_moves( activePlayer.isBlack(), false );// falls der neue Zug den Gegner in Schach setzt
+                    boolean isBlack = activePlayer.isBlack();
+                    collect_next_moves( isBlack, false );// falls der neue Zug den Gegner in Schach setzt
                     if( isCheck() ) // ja hat er
                     {
                         setIsCheck(true);
@@ -101,7 +102,8 @@ public class BoardController implements Initializable
                             possibleMoves=null;
                             criticalKINGMove=null;
                             setIsCheck(false);
-                            dialog.GAMEOVER();
+                            dialog.GAMEOVER( isBlack);
+                            return;
                         }
                     }
 

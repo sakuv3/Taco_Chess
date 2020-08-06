@@ -3,17 +3,22 @@ import Taco_Chess.Figures.*;
 import Taco_Chess.controller.BoardController;
 import Taco_Chess.model.Board;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,6 +28,7 @@ public class Dialog
 {
 
     static final String URL = "src/Taco_Chess/images/";
+    static String BEFORE1, BEFORE2;
     static final String type[] = {"queen.png", "horse.png", "rook.png", "bishop.png"};
     static private BoardController controller;
     static Board board;
@@ -35,19 +41,46 @@ public class Dialog
         this.view = view;
     }
 
-    public static void GAMEOVER()
-    {
+    public static void GAMEOVER( boolean isBlack ) throws FileNotFoundException {
         Stage window    = new Stage();
         GridPane grid   = new GridPane();
-        Scene scene     = new Scene (grid, 250, 150 );
+        StackPane stack = new StackPane();
+        FileInputStream fis = new FileInputStream("src/Taco_Chess/images/background/gameover.jpg");
+        Image img = new Image(fis);
+        ImageView bg = new ImageView(img);
+        bg.setFitWidth(300);
+        bg.setFitHeight(200);
+
         Button close    = new Button("Quit");
         Button newGame  = new Button("New Game");
         Button celeb    = new Button("Celebrate");
 
         close.setAlignment( Pos.BOTTOM_LEFT);
+        close.setPrefHeight(25);
+        close.setPrefWidth(100);
+        close.setOnMouseEntered( e ->
+        {
+            BEFORE2 = close.getStyle();
+            close.setStyle("-fx-background-color: linear-gradient(darkred,lightskyblue );");
+        });
+        close.setOnMouseExited( e -> {
+            close.setStyle(BEFORE2);
+        });
         close.setOnMouseClicked( e -> Platform.exit() );
+        close.setStyle("-fx-background-color: linear-gradient(indianred, darksalmon)");
 
+        newGame.setPrefWidth(100);
+        newGame.setPrefHeight(25);
+        newGame.setStyle("-fx-background-color: linear-gradient( cadetblue, lightgreen)");
         newGame.setAlignment( Pos.BOTTOM_RIGHT);
+        newGame.setOnMouseEntered( e ->
+        {
+            BEFORE1 = newGame.getStyle();
+            newGame.setStyle("-fx-background-color: linear-gradient(lightskyblue, greenyellow);");
+        });
+        newGame.setOnMouseExited( e -> {
+            newGame.setStyle(BEFORE1);
+        });
         newGame.setOnMouseClicked( e -> {
             try {
                 board.reset_board();
@@ -59,8 +92,27 @@ public class Dialog
 
         grid.add( close, 0, 0);
         grid.add( newGame, 1, 0);
-        grid.setAlignment( Pos.CENTER );
+        grid.setAlignment( Pos.BOTTOM_CENTER );
+        grid.setPadding( new Insets(130,0,0,0));
+        VBox v = new VBox();
+        String x;
+        if( isBlack )
+            x = "B L A C K  is the Winner";
+        else
+            x = "W H I T E   is the Winner";
+        Label text = new Label(x);
+        text.setAlignment(Pos.CENTER);
+        text.setPadding( new Insets(10,0,0,40));
+        text.setFont( Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 20));
+        text.setTextFill(Color.WHITESMOKE);
+        text.setDisable(true);
+        v.getChildren().addAll(text, grid);
+
+        stack.getChildren().addAll( bg, v );
+        Scene scene     = new Scene (stack, 300, 200 );
+
         window.initModality( Modality.APPLICATION_MODAL );
+        window.initStyle(StageStyle.TRANSPARENT);
         window.setTitle("CHECKMATE");
         window.centerOnScreen();
         window.setScene(scene);

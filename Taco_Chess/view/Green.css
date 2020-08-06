@@ -1,6 +1,7 @@
 .root{
-        lightBrown1: #D67611; lightBrown2:#e08c40 ;
-        darkBrown1: #3f230a; darkBrown2:#502c0d ;
+    lightgreen1: #cbe3a8; lightgreen2: #bdd49b;
+    darkgreen1: #94b26a; darkgreen2: #77944e;
+
 }
 
 .button /* ALL Squares */
@@ -15,7 +16,7 @@
 #00, #20, #40, #60, #11, #31, #51, #71, #02, #22, #42, #62, #13, #33, #53, #73,
 #04, #24, #44, #64, #15, #35, #55, #75, #06, #26, #46, #66, #17, #37, #57, #77
 {
-    -fx-background-color: linear-gradient(lightBrown2, lightBrown1);
+    -fx-background-color: linear-gradient(lightgreen1, lightgreen2);
     -fx-opacity: 0.9;
 }
 
@@ -23,6 +24,6 @@
 #10, #30, #50, #70, #01, #21, #41, #61, #12, #32, #52, #72, #03, #23, #43, #63,
 #14, #34, #54, #74, #05, #25, #45, #65, #16, #36, #56, #76, #07, #27, #47, #67
 {
-    -fx-background-color: linear-gradient(darkBrown1, darkBrown2);
+    -fx-background-color: linear-gradient(darkgreen1, darkgreen2);
     -fx-opacity: 0.9;
 }
