@@ -61,6 +61,66 @@ public class BoardController implements Initializable
         }
     }
 
+    public void handleButtonMove( Button btn )
+    {
+        try {
+            if( activePlayer == null )
+                init_moves( btn );
+
+            else
+            {   // selected move is possible
+                if (  button_is_valid_move(btn) )
+                {
+                    if( !turn_is_valid( btn ) )
+                        return; // its not your turn mate
+                    else
+                        switch_turn();
+
+                    // if a pawn has crossed enemy lines
+                    if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
+                        dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
+
+                    view.update( activePlayer, btn, true );
+                    activePlayer = board.move_player(activePlayer, btn);
+                    nextMoves = null;
+
+                    if( isCheck() )
+                    {
+                        setIsCheck(false);
+                        criticalKINGMove =null;
+                    }
+
+                    collect_next_moves( activePlayer.isBlack(), false );// falls der neue Zug den Gegner in Schach setzt
+                    if( isCheck() ) // ja hat er
+                    {
+                        setIsCheck(true);
+                        if( is_checkMate() ) {
+                            System.out.println("CHECKMATE");
+                            activePlayer =null;
+                            possibleMoves=null;
+                            criticalKINGMove=null;
+                            setIsCheck(false);
+                            dialog.GAMEOVER();
+                        }
+                    }
+
+                    // player took valid moved, reset possible moves
+                    activePlayer  = null;
+                    possibleMoves = null;
+
+                }
+                else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
+                {
+                    view.clear_possible_circles();
+                    possibleMoves=null;
+                    init_moves( btn );
+                }
+            }
+        }
+        catch( FileNotFoundException fex )
+        { System.out.println("File not found"); }
+    }
+
     private void init_moves( Button btn ) throws FileNotFoundException
     {
         view.clear_active_fields();
@@ -137,61 +197,7 @@ public class BoardController implements Initializable
         possibleMoves = tmp;
     }
 
-    public void handleButtonMove( Button btn )
-    {
-        try {
-            if( activePlayer == null )
-                init_moves( btn );
-
-            else
-            {   // selected move is possible
-                if (  button_is_valid_move(btn) )
-                {
-                    if( !turn_is_valid( btn ) )
-                        return; // its not your turn mate
-                    else
-                        switch_turn();
-
-                    // if a pawn has crossed enemy lines
-                    if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
-                       dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
-
-                    view.update( activePlayer, btn, true );
-                    activePlayer = board.move_player(activePlayer, btn);
-                    nextMoves = null;
-
-                    if( isCheck() )
-                    {
-                        setIsCheck(false);
-                        criticalKINGMove =null;
-                    }
-
-                    collect_next_moves( activePlayer.isBlack(), false );// falls der neue Zug den Gegner in Schach setzt
-                    if( isCheck() ) // ja hat er
-                    {
-                        setIsCheck(true);
-
-
-                    }
-
-                    // player took valid moved, reset possible moves
-                    activePlayer  = null;
-                    possibleMoves = null;
-
-                }
-                else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
-                {
-                    view.clear_possible_circles();
-                    possibleMoves=null;
-                    init_moves( btn );
-                }
-            }
-        }
-        catch( FileNotFoundException fex )
-        { System.out.println("File not found"); }
-    }
-
-    private void check_for_checkMate() throws FileNotFoundException {
+    private boolean is_checkMate() throws FileNotFoundException {
         Abstract_Figure team[] = board.get_team( !activePlayer.isBlack() );
         Button tmp[]=null;
         int CNT = 0;
@@ -241,11 +247,10 @@ public class BoardController implements Initializable
         }
 
         // tmp now has all limited critical moves or null, if checkmate
-        Button TEMP[] = tmp;
         if ( tmp[0] == null )
-            System.out.println("CHECK MATE");
+            return true;
         else
-            System.out.println("CHECK");
+            return false;
     }
     // Finds out ALL critical positions ( where the king cant go )
     public void  collect_next_moves( boolean isBlack, boolean checkForMate ) throws FileNotFoundException

@@ -7,6 +7,8 @@ import javafx.application.Application;
 
 public class Main extends Application
 {
+    static private Main main;
+    static private Stage mainStage;
     static private View view;
     static private Board model;
     static private BoardController controller;
@@ -14,6 +16,8 @@ public class Main extends Application
     @Override
     public void start(Stage mainStage) throws Exception
     {
+        main            = this;
+        this.mainStage  = mainStage;
         model           = new Board( );
         view            = new View( mainStage, model );
         controller      = new BoardController();
@@ -28,6 +32,9 @@ public class Main extends Application
         mainStage.show();
     }
 
+    public void restart() throws Exception {
+        this.start(this.mainStage);
+    }
     public static void main(String[] args) {
         launch(args);
     }

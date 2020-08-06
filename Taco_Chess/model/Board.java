@@ -3,7 +3,9 @@ import Taco_Chess.Figures.*;
 
 import java.io.FileNotFoundException;
 
+import Taco_Chess.Main;
 import Taco_Chess.controller.BoardController;
+import Taco_Chess.view.View;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
@@ -16,15 +18,20 @@ import javafx.stage.Stage;
 
 public class Board extends Stage
 {
+    private Main mainStage;
     static private  Abstract_Figure figures[][];
     static private BoardController controller;
     static private  GridPane chessBoard;
     static private  Button buttons[][];
+    static private View view;
     static private boolean isWhitesMove = true;
 
     public Board(  ) throws FileNotFoundException, IOException
     {
         super();
+
+        mainStage   = new Main();
+        view        = new View();
         buttons     = new Button[8][8];
         controller  = new BoardController();
         figures     = new Abstract_Figure[8][8];
@@ -34,6 +41,22 @@ public class Board extends Stage
         define_start_positions();
     };
 
+    public void reset_board() throws Exception {
+        Abstract_Figure old[] = get_all_figures();
+        for(int i=0;i<old.length;i++) {
+            old[i].getBtn().setGraphic(null);
+            old[i].setImageView(null);
+            old[i] = null;
+        }
+        for(int i=0;i<8;i++)
+        {
+            for(int j=0;j<8;j++) {
+                buttons[j][i].setGraphic(null);
+                buttons[j][i] = null;
+            }
+        }
+        mainStage.restart();
+    }
     public void create_chessBoard() throws IOException
     {
         // makes it look super awesome *___*

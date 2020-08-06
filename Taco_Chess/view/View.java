@@ -210,7 +210,7 @@ public class View
         borderPane.setTop( hTop );
         borderPane.setBottom( hBottom );
     }
-    private void draw_figures( ) throws FileNotFoundException
+    public void draw_figures( ) throws FileNotFoundException
     {
         String PATH;
         Abstract_Figure[] activeFigs = board.get_all_figures();

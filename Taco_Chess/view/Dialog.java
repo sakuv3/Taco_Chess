@@ -2,6 +2,8 @@ package Taco_Chess.view;
 import Taco_Chess.Figures.*;
 import Taco_Chess.controller.BoardController;
 import Taco_Chess.model.Board;
+import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.scene.shape.Rectangle;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,9 +12,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Dialog
 {
@@ -30,6 +35,36 @@ public class Dialog
         this.view = view;
     }
 
+    public static void GAMEOVER()
+    {
+        Stage window    = new Stage();
+        GridPane grid   = new GridPane();
+        Scene scene     = new Scene (grid, 250, 150 );
+        Button close    = new Button("Quit");
+        Button newGame  = new Button("New Game");
+
+        close.setAlignment( Pos.BOTTOM_LEFT);
+        close.setOnMouseClicked( e -> Platform.exit() );
+
+        newGame.setAlignment( Pos.BOTTOM_RIGHT);
+        newGame.setOnMouseClicked( e -> {
+            try {
+                board.reset_board();
+                window.close();
+            } catch (Exception ioException) {
+                ioException.printStackTrace();
+            }
+        });
+
+        grid.add( close, 0, 0);
+        grid.add( newGame, 1, 0);
+        grid.setAlignment( Pos.CENTER );
+        window.initModality( Modality.APPLICATION_MODAL );
+        window.setTitle("CHECKMATE");
+        window.centerOnScreen();
+        window.setScene(scene);
+        window.show();
+    }
     public static void spawn_new_figure(Abstract_Figure activePlayer, Button btn, boolean isBlack) throws FileNotFoundException {
         String PATH;
         board.getChessBoard().setDisable( true );
