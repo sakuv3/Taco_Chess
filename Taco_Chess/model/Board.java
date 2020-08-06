@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 
 public class Board extends Stage
 {
-    private Main mainStage;
+    private Main main;
     static private  Abstract_Figure figures[][];
     static private BoardController controller;
     static private  GridPane chessBoard;
@@ -30,7 +30,7 @@ public class Board extends Stage
     {
         super();
 
-        mainStage   = new Main();
+        main        = new Main();
         view        = new View();
         buttons     = new Button[8][8];
         controller  = new BoardController();
@@ -55,7 +55,7 @@ public class Board extends Stage
                 buttons[j][i] = null;
             }
         }
-        mainStage.restart();
+        main.restart();
     }
     public void create_chessBoard() throws IOException
     {

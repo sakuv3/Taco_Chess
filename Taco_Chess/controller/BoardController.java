@@ -27,7 +27,8 @@ public class BoardController implements Initializable
     static private  Circle circles[];
     static private  Abstract_Figure activePlayer;
     static private boolean  IS_CHECK;
-    static private boolean WALLHACK_MODE =true;
+    static private boolean WALLHACK_MODE =false;
+
     public Button[] getCriticalKINGMove() {
         return criticalKINGMove;
     }
@@ -136,10 +137,7 @@ public class BoardController implements Initializable
             set_moves( false );
 
             if( isCheck() )// check if its check-mate
-            {
                 CRITICAL_MOVE();
-                System.out.println("CHECK");
-            }
 
             if( possibleMoves != null )
                 view.draw_possible_circles( activePlayer );
@@ -472,5 +470,9 @@ public class BoardController implements Initializable
 
     public static String getCOLOR() {
         return COLOR_before;
+    }
+
+    public static void setWallhackMode(boolean wallhackMode) {
+        WALLHACK_MODE = wallhackMode;
     }
 }

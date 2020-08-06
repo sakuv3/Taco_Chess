@@ -21,7 +21,7 @@ public class Main extends Application
         model           = new Board( );
         view            = new View( mainStage, model );
         controller      = new BoardController();
-        view.init(800, 1000);
+        view.init(800, 1030);
         controller.init( model, view );
 
         mainStage.setTitle("Taco_Chess");
@@ -32,8 +32,11 @@ public class Main extends Application
         mainStage.show();
     }
 
-    public void restart() throws Exception {
-        this.start(this.mainStage);
+    public void restart()
+    {
+        try
+        { this.start(this.mainStage); }
+        catch (Exception e) { e.printStackTrace(); }
     }
     public static void main(String[] args) {
         launch(args);

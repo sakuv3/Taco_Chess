@@ -42,6 +42,7 @@ public class Dialog
         Scene scene     = new Scene (grid, 250, 150 );
         Button close    = new Button("Quit");
         Button newGame  = new Button("New Game");
+        Button celeb    = new Button("Celebrate");
 
         close.setAlignment( Pos.BOTTOM_LEFT);
         close.setOnMouseClicked( e -> Platform.exit() );
@@ -114,9 +115,9 @@ public class Dialog
                 FileInputStream FIS  = null;
                 try {
                     FIS = new FileInputStream( URL );
-                Image IMAGE          = new Image(FIS);
-                ImageView IMG  = new ImageView( IMAGE );
-                Abstract_Figure newFig =null;
+                    Image IMAGE    = new Image(FIS);
+                    ImageView IMG  = new ImageView( IMAGE );
+                    Abstract_Figure newFig =null;
 
                     if( j ==0 )
                         newFig = new Queen();

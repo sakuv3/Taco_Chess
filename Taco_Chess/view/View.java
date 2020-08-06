@@ -1,14 +1,15 @@
 package Taco_Chess.view;
 
 import Taco_Chess.Figures.*;
+import Taco_Chess.Main;
 import Taco_Chess.controller.BoardController;
-import Taco_Chess.controller.MoveInfo;
 import Taco_Chess.model.Board;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -26,14 +27,16 @@ import java.io.IOException;
 
 public class View
 {
-    static private Board board;
+    private Main main;
     static private Stage mainStage;
-    static private MoveInfo moveInfo;
+    static private Board board;
+    static private VBox vbox;
     static private StackPane stackPane;
-    static private BorderPane borderPane;
     static private BoardController controller;
     static final private String URL = "src/Taco_Chess/images/";
 
+    /* FAQ Box */
+    static private VBox FAQBox;
     /* Top and Bottom Panes for Players Images and killed figures */
     static private HBox hTop;
     static private HBox hBottom;
@@ -61,10 +64,11 @@ public class View
     public View(){};
     public View( Stage mainStage, Board board ) throws IOException
     {
+        main            = new Main();
         controller      = new BoardController();
         this.mainStage  = mainStage;
         this.board      = board;
-        moveInfo        = new MoveInfo();
+
     }
     public void init(double width, double height ) throws IOException
     {
@@ -112,24 +116,66 @@ public class View
 
         // BorderPane-> ( top-> (HBox-> (PlayerImage, VBox-> (Label, Hbox-> (deadFigure1, deadFigure2, etc..)))))
         // BorderPane-> ( bottom-> (HBox-> (PlayerImage, VBox-> (Label, Hbox-> (deadFigure1, deadFigure2, etc..)))))
-        init_borderPane( width, height );
+        init_GUI( width, height );
 
         // Bottom - Field
         stackPane   = new StackPane();
         stackPane.setMaxWidth( width );
         stackPane.setMaxHeight( height );
-        stackPane.getChildren().addAll( IMAGEVIEW, borderPane  );
+        stackPane.getChildren().addAll( IMAGEVIEW, vbox  );
 
         // set the one and only scene for the chess gui
         Scene scene = new Scene( stackPane );
         scene.getStylesheets().add(getClass().getResource("Board.css").toExternalForm());
         mainStage.setScene( scene );
     }
-    private void init_borderPane( double width, double height ) throws FileNotFoundException {
-        borderPane = new BorderPane();
-        borderPane.setPrefWidth( width );
-        borderPane.setPrefHeight( height );
-        borderPane.setCenter( board.getChessBoard() );
+    public void show_faq( boolean selected )
+    {
+
+        if( selected ) {
+            // Create First TitledPane.
+            TitledPane first = new TitledPane();
+            first.setText("Is the white team better than black?");
+            first.setContent(new Label("yes mate"));
+            first.setExpanded(false);
+
+            // Create Second TitledPane.
+            TitledPane second = new TitledPane();
+            second.setText("What is a good chess opening?");
+            second.setExpanded(false);
+
+            VBox content2 = new VBox();
+            TitledPane c21 = new TitledPane();
+            c21.setText("Cicilian Defence");
+            c21.setContent(new Label("just play defensive mate"));
+            c21.setExpanded(false);
+            TitledPane c22 = new TitledPane();
+            c22.setText("Hungarian Attack");
+            c22.setContent(new Label("kill everyone as soon as possible mate"));
+            c22.setExpanded(false);
+
+            content2.getChildren().addAll(c21, c22);
+
+            second.setContent(content2);
+
+            // Create Root Pane.
+            FAQBox = new VBox();
+            FAQBox.setMaxWidth(300);
+            FAQBox.setPadding(new Insets(30, 0, 0, 0));
+            FAQBox.getChildren().addAll(first, second);
+
+            stackPane.getChildren().add( FAQBox );
+        }
+        else
+            stackPane.getChildren().remove( FAQBox );
+
+
+    }
+
+    private void init_GUI( double width, double height ) throws FileNotFoundException {
+        vbox = new VBox();
+        vbox.setPrefWidth( width );
+        vbox.setPrefHeight( height );
 
         topFigureBox    = new HBox();
         bottomFigureBox = new HBox();
@@ -167,7 +213,6 @@ public class View
         hTop.setAlignment(Pos.CENTER_LEFT);
         hTop.setMaxWidth(Region.USE_PREF_SIZE);
         hTop.setMaxHeight(Region.USE_PREF_SIZE);
-        BorderPane.setAlignment(hTop, Pos.TOP_CENTER);
         hTop.setPadding( new Insets(0, 0,0,5));
         hTop.setStyle(" -fx-background-color: linear-gradient( #d77822, #3f230a); ");
         hTop.getChildren().addAll( r[0], vTop );
@@ -202,13 +247,40 @@ public class View
         hBottom.setAlignment(Pos.CENTER_LEFT);
         hBottom.setMaxWidth(Region.USE_PREF_SIZE);
         hBottom.setMaxHeight(Region.USE_PREF_SIZE);
-        BorderPane.setAlignment(hBottom, Pos.BOTTOM_CENTER);
         hBottom.setPadding( new Insets(0, 0,0,5));
         hBottom.setStyle(" -fx-background-color: linear-gradient( #3f230a, #d77822); ");;
         hBottom.getChildren().addAll( r[1], vBottom );
 
-        borderPane.setTop( hTop );
-        borderPane.setBottom( hBottom );
+
+        Menu game           = new Menu("Game");
+        MenuItem newGame    = new MenuItem("New Game");
+        MenuItem quit       = new MenuItem("Quit");
+        newGame.setOnAction( (ActionEvent e) ->  main.restart() );
+        quit.setOnAction( (ActionEvent e) -> Platform.exit() );
+        game.getItems().addAll( newGame, quit );
+
+        Menu settings       = new Menu("Settings");
+        Menu wallhack       = new Menu("Wallhack Mode");
+        ToggleGroup tg      = new ToggleGroup();
+        RadioMenuItem whON  = new RadioMenuItem("ON");
+        RadioMenuItem whOFF = new RadioMenuItem("OFF");
+        whON.setToggleGroup(tg);
+        whOFF.setToggleGroup(tg);
+        whON.setOnAction( (ActionEvent e) -> controller.setWallhackMode(true));
+        whOFF.setOnAction( (ActionEvent e) -> controller.setWallhackMode(false));
+        wallhack.getItems().addAll( whON, whOFF);
+        settings.getItems().add(wallhack);
+
+        Menu faq          = new Menu("FAQ");
+        RadioMenuItem xxx = new RadioMenuItem("FAQS");
+
+        xxx.setOnAction( (ActionEvent e ) -> show_faq( xxx.isSelected() ) );
+        faq.getItems().add( xxx );
+
+        MenuBar bar     = new MenuBar();
+        bar.getMenus().addAll( game, settings, faq );
+
+        vbox.getChildren().addAll( bar, hTop, board.getChessBoard(), hBottom );
     }
     public void draw_figures( ) throws FileNotFoundException
     {
