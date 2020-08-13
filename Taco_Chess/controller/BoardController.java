@@ -17,6 +17,7 @@ import javafx.scene.shape.Rectangle;
 
 public class BoardController implements Initializable
 {
+    static int cnt =0;
     static private View view;
     static private Board board;
     static private Dialog dialog;
@@ -64,66 +65,72 @@ public class BoardController implements Initializable
 
     public void handleButtonMove( Button btn )
     {
+
+        cnt++;
+        if( cnt == 5)
+            System.out.println("xx");
+
         try {
             if( activePlayer == null )
                 init_moves( btn );
 
             else
-            {   // selected move is possible
-                if (  button_is_valid_move(btn) )
-                {
-                    if( !turn_is_valid( btn ) )
-                        return; // its not your turn mate
-                    else
-                        switch_turn();
-
-                    // if a pawn has crossed enemy lines
-                    if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
-                        dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
-
-                    view.update( activePlayer, btn, true );
-                    activePlayer = board.move_player(activePlayer, btn);
-                    nextMoves = null;
-
-                    if( isCheck() )
-                    {
-                        setIsCheck(false);
-                        criticalKINGMove =null;
-                    }
-
-                    boolean isBlack = activePlayer.isBlack();
-                    collect_next_moves( isBlack, false );// falls der neue Zug den Gegner in Schach setzt
-                    if( isCheck() ) // ja hat er
-                    {
-                        setIsCheck(true);
-                        if( is_checkMate() ) {
-                            System.out.println("CHECKMATE");
-                            activePlayer =null;
-                            possibleMoves=null;
-                            criticalKINGMove=null;
-                            setIsCheck(false);
-                            dialog.GAMEOVER( isBlack);
-                            return;
-                        }
-                    }
-
-                    // player took valid moved, reset possible moves
-                    activePlayer  = null;
-                    possibleMoves = null;
-
-                }
-                else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
-                {
-                    view.clear_possible_circles();
-                    possibleMoves=null;
-                    init_moves( btn );
-                }
-            }
+                move_player( btn );
         }
         catch( FileNotFoundException fex )
         { System.out.println("File not found"); }
     }
 
+    private void move_player( Button btn ) throws FileNotFoundException
+    {
+        // selected move is possible
+        if (  button_is_valid_move(btn) )
+        {
+            if( !turn_is_valid( btn ) )
+                return; // its not your turn mate
+            else
+                switch_turn();
+
+            // if a pawn has crossed enemy lines
+            if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
+                dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
+
+            view.update( activePlayer, btn, true );
+            activePlayer = board.move_player(activePlayer, btn);
+            nextMoves = null;
+
+            if( isCheck() )
+            {
+                setIsCheck(false);
+                criticalKINGMove =null;
+            }
+
+            collect_next_moves( activePlayer.isBlack(), false );// falls der neue Zug den Gegner in Schach setzt
+            Button bbb[] = nextMoves;
+            if( isCheck() ) // ja hat er
+            {
+                setIsCheck(true);
+                if( is_checkMate() ) {
+                    System.out.println("CHECKMATE");
+                    activePlayer =null;
+                    possibleMoves=null;
+                    criticalKINGMove=null;
+                    dialog.GAMEOVER( activePlayer.isBlack() );
+                    return;
+                }
+            }
+
+            // player took valid moved, reset possible moves
+            activePlayer  = null;
+            possibleMoves = null;
+
+        }
+        else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
+        {
+            view.clear_possible_circles();
+            init_moves( btn );
+        }
+    }
     private void init_moves( Button btn ) throws FileNotFoundException
     {
         view.clear_active_fields();
@@ -136,14 +143,55 @@ public class BoardController implements Initializable
 
             // checks possible moves for a chosen figure
             possibleMoves = null;
-            set_moves( false );
+            set_moves( false ); // collect possible moves for chosen figure
 
             if( isCheck() )// check if its check-mate
-                CRITICAL_MOVE();
+                CRITICAL_MOVE();    // limit possible moves to protect king
+
+            // limit possible moves to keep protecting the king
+            protect_king( btn );
 
             if( possibleMoves != null )
                 view.draw_possible_circles( activePlayer );
         }
+    }
+
+    public void protect_king( Button btn ) throws FileNotFoundException
+    {
+        if( isCheck() )
+            return;
+        Abstract_Figure activeFIG  = activePlayer;
+
+        Button tmp[] = new Button[64];
+        Button copy [] = possibleMoves;
+
+        int CNT =0;
+        if( possibleMoves != null )
+        {
+            for (int i = 0; i < copy.length; i++)
+            {
+                possibleMoves = copy;
+
+                if( copy[i] == null )
+                    break;
+
+                nextMoves =null;
+                // remove active player from his curr position to see if he is opening up deadly check
+                board.remove_player( activePlayer );
+                collect_next_moves( !activePlayer.isBlack(), false );   // then collect all moves to see if this opens up a deadly check
+                activePlayer = activeFIG;
+                board.add_player( activePlayer );
+
+                if( isCheck() )
+                    continue;
+
+                tmp[CNT++] = copy[i];
+            }
+        }
+        possibleMoves   = tmp;
+        nextMoves       = null;
+        criticalKINGMove= null;
+        setIsCheck( false );
     }
 
     public void CRITICAL_MOVE( )
@@ -152,9 +200,8 @@ public class BoardController implements Initializable
         // Thats either for ALL figures except King OR
         // just for the king, because he cant walk in a critical field
         //System.out.println("I AM BEING MATED");;
-        int CNT=0;
-
         // compare possible moves with critical moves
+        int CNT      = 0;
         Button tmp[] = new Button[64];
         boolean freeForKing=true;
 
@@ -200,7 +247,6 @@ public class BoardController implements Initializable
     private boolean is_checkMate() throws FileNotFoundException {
         Abstract_Figure team[] = board.get_team( !activePlayer.isBlack() );
         Button tmp[]=null;
-        int CNT = 0;
         possibleMoves = null;
         for(int i=0;i<team.length;i++)
         {
@@ -226,20 +272,19 @@ public class BoardController implements Initializable
                 }
                 else if( tmp[j] != null )
                 {
-                    boolean isClone = false;
+                    boolean redundant = false;
                     for(int k=0;k<possibleMoves.length;k++)
                     {
                         if( possibleMoves[k] != null ) {
                             if (tmp[j].getId().equals(possibleMoves[k].getId())) {
-
-                                isClone = true;
+                                redundant = true;
                                 break;
                             }
                         }
                         else
                             break;
                     }
-                    if( isClone )
+                    if( redundant )
                         break;
                 }
 
@@ -253,7 +298,7 @@ public class BoardController implements Initializable
             return false;
     }
     // Finds out ALL critical positions ( where the king cant go )
-    public void  collect_next_moves( boolean isBlack, boolean checkForMate ) throws FileNotFoundException
+    public Button[]  collect_next_moves( boolean isBlack, boolean checkForMate ) throws FileNotFoundException
     {
         Abstract_Figure team[] = board.get_team(isBlack );
 
@@ -269,6 +314,7 @@ public class BoardController implements Initializable
            view.draw_next_moves( activePlayer.isBlack() ) ;
 
         moveInfo.set_COLLECTING_NEXT_MOVES(false);
+        return nextMoves;
     }
 
     // for ONE Figure

@@ -132,7 +132,7 @@ public class Board extends Stage
         set_figure( rook[2], 0, 7, false );
         set_figure( horse[2], 1, 7, false );
         set_figure( bishop[2], 2, 7, false );
-        set_figure( queen[1], 3, 7, false);
+        set_figure( queen[1], 0, 4, false);
         set_figure( king[1], 4, 7, false);
         set_figure( bishop[3], 5, 7, false );
         set_figure( horse[3], 6, 7, false );
@@ -176,6 +176,19 @@ public class Board extends Stage
         return figures[xNew][yNew];
     }
 
+    public void remove_player( Abstract_Figure player )
+    {
+        int x = player.getXCoord();
+        int y = player.getYCoord();
+
+        figures[x][y] = null;
+    }
+    public void add_player( Abstract_Figure player )
+    {
+        int x = player.getXCoord();
+        int y = player.getYCoord();
+        figures[x][y] = player;
+    }
     public int get_type( Abstract_Figure figure )
     {
         if( figure instanceof Pawn )

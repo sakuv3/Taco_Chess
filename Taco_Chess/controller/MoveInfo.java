@@ -266,8 +266,6 @@ public class MoveInfo
     {
         // yes, the almighty queen has combined power of rook and pawn
         rook(x,y, playerIsBlack);
-        Button POSS[] = controller.getPossibleMoves();
-        Button NEXT[] = controller.get_next_moves();
         bishop(x,y, playerIsBlack);
     }
 
