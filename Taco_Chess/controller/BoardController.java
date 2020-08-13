@@ -17,7 +17,6 @@ import javafx.scene.shape.Rectangle;
 
 public class BoardController implements Initializable
 {
-    static int cnt =0;
     static private View view;
     static private Board board;
     static private Dialog dialog;
@@ -30,17 +29,6 @@ public class BoardController implements Initializable
     static private boolean  IS_CHECK;
     static private boolean WALLHACK_MODE =false;
 
-    public Button[] getCriticalKINGMove() {
-        return criticalKINGMove;
-    }
-    public Button[] get_next_moves()
-    {
-        return nextMoves;
-    }
-    public Button[] getPossibleMoves()
-    {
-        return possibleMoves;
-    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) { }
 
@@ -65,11 +53,6 @@ public class BoardController implements Initializable
 
     public void handleButtonMove( Button btn )
     {
-
-        cnt++;
-        if( cnt == 5)
-            System.out.println("xx");
-
         try {
             if( activePlayer == null )
                 init_moves( btn );
@@ -500,6 +483,10 @@ public class BoardController implements Initializable
         return nextMoves;
     }
 
+    public Button[] getPossibleMoves()
+    {
+        return possibleMoves;
+    }
 
     // makes it look super responsive *________*
     public void buttonEnter(  Button btn )
