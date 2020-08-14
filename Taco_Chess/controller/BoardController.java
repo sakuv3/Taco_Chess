@@ -89,7 +89,6 @@ public class BoardController implements Initializable
             }
 
             collect_next_moves( activePlayer.isBlack(), false );// falls der neue Zug den Gegner in Schach setzt
-            Button bbb[] = nextMoves;
             if( isCheck() ) // ja hat er
             {
                 setIsCheck(true);
@@ -143,36 +142,40 @@ public class BoardController implements Initializable
     {
         if( isCheck() )
             return;
-        Abstract_Figure activeFIG  = activePlayer;
 
-        Button tmp[] = new Button[64];
-        Button copy [] = possibleMoves;
+        Abstract_Figure activeFIG   = activePlayer;
+        Button tmp[]                = new Button[64];
+        Button copy []              = possibleMoves;
+        Button copyNXT[]            = nextMoves;
 
         int CNT =0;
         if( possibleMoves != null )
         {
             for (int i = 0; i < copy.length; i++)
             {
-                possibleMoves = copy;
-
                 if( copy[i] == null )
                     break;
+                possibleMoves = copy;
 
                 nextMoves =null;
-                // remove active player from his curr position to see if he is opening up deadly check
-                board.remove_player( activePlayer );
-                collect_next_moves( !activePlayer.isBlack(), false );   // then collect all moves to see if this opens up a deadly check
-                activePlayer = activeFIG;
-                board.add_player( activePlayer );
+                Abstract_Figure KEEP = board.get_figure( copy[i] );
 
-                if( isCheck() )
+                board.move_player( activePlayer, copy[i] );
+                collect_next_moves( !activePlayer.isBlack(), true );   // then collect all moves to see if this opens up a deadly check
+
+                activePlayer = board.move_player( activeFIG, btn );
+                board.add_player( KEEP );
+
+                if( isCheck() ) {
+                    setIsCheck(false);
                     continue;
+                }
 
                 tmp[CNT++] = copy[i];
             }
         }
         possibleMoves   = tmp;
-        nextMoves       = null;
+        nextMoves       = copyNXT;
         criticalKINGMove= null;
         setIsCheck( false );
     }

@@ -19,19 +19,17 @@ import javafx.stage.Stage;
 public class Board extends Stage
 {
     private Main main;
-    static private  Abstract_Figure figures[][];
+    static private  Abstract_Figure figures[][], snapFigs[][];
     static private BoardController controller;
     static private  GridPane chessBoard;
     static private  Button buttons[][];
-    static private View view;
     static private boolean isWhitesMove = true;
 
-    public Board(  ) throws FileNotFoundException, IOException
+    public Board(  ) throws IOException
     {
         super();
 
         main        = new Main();
-        view        = new View();
         buttons     = new Button[8][8];
         controller  = new BoardController();
         figures     = new Abstract_Figure[8][8];
@@ -132,7 +130,7 @@ public class Board extends Stage
         set_figure( rook[2], 0, 7, false );
         set_figure( horse[2], 1, 7, false );
         set_figure( bishop[2], 2, 7, false );
-        set_figure( queen[1], 0, 4, false);
+        set_figure( queen[1], 3, 7, false);
         set_figure( king[1], 4, 7, false);
         set_figure( bishop[3], 5, 7, false );
         set_figure( horse[3], 6, 7, false );
@@ -185,6 +183,8 @@ public class Board extends Stage
     }
     public void add_player( Abstract_Figure player )
     {
+        if( player == null )
+            return;
         int x = player.getXCoord();
         int y = player.getYCoord();
         figures[x][y] = player;

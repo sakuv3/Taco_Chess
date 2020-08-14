@@ -457,8 +457,6 @@ public class MoveInfo
             if( xCord <0 || xCord >7 || yCord <0 || yCord >7 )
                 continue;
 
-            if( y == 2 )
-                System.out.print("");
             if( COLLECTING_NEXT_MOVES )
             {
                 if (move_is_check(xCord, yCord, playerIsBlack)) {
