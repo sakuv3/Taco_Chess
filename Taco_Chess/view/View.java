@@ -59,9 +59,10 @@ public class View
     static private Circle circles[];
     static private Rectangle rect[];
     static private String COLOR = "-fx-border-color: deepskyblue";
+    static private String Color_before =null;
     static private String WHITE = " -fx-border-color: #cbe3a8";
     static private String BLACK = " -fx-border-color: #77944e";
-
+    static private Button HOVER;
     public View(){};
     public View( Stage mainStage, Board board ) throws IOException
     {
@@ -81,13 +82,13 @@ public class View
         // current BTN
         rect[0] = new Rectangle(100, 100 );
         rect[0].setFill( Color.DEEPSKYBLUE);
-        rect[0].setOpacity(0.2);
+        rect[0].setOpacity(0.6);
         rect[0].setDisable(true);
 
         // destination BTN
         rect[1] = new Rectangle( 100, 100 );
         rect[1].setFill( Color.AQUA);
-        rect[1].setOpacity(0.25);
+        rect[1].setOpacity(0.45);
         rect[1].setDisable(true);
 
         // killed figures
@@ -374,6 +375,11 @@ public class View
                 break;
         }
     }
+
+    public static void setHOVER(Button btn) {
+        HOVER = btn;
+    }
+
     public void draw_next_moves( boolean isBlack )
     {
         Button critical[] =  controller.getNextMoves();
@@ -381,6 +387,9 @@ public class View
             COLOR = "-fx-background-color: slategrey; -fx-border-color: black";
         else
             COLOR = "-fx-background-color: darkslateblue; -fx-border-color: navajowhite";
+
+        Color_before = COLOR;
+        boolean hovered = false;
         if( critical != null )
         {
             for (int k = 0; k < 64; k++)
@@ -388,6 +397,16 @@ public class View
                 if (critical[k] == null)
                     break;
                 critical[k].setStyle( COLOR );
+
+                if( critical[k].equals( HOVER ))
+                    hovered = true;
+            }
+        }
+        if( hovered == false )
+        {
+            if ( HOVER != null ) {
+                Color_before = null;
+                HOVER = null;
             }
         }
     }
@@ -601,6 +620,17 @@ public class View
         else if( type == 5 )
             PATH = PATH + "king.png";
         return PATH;
+    }
+
+    public static String getColor_before() {
+        return Color_before;
+    }
+    public static void setColor_before(String color_before) {
+        Color_before = color_before;
+    }
+
+    public static void setCOLOR(String COLOR) {
+        View.COLOR = COLOR;
     }
 
     public static String getCOLOR() {

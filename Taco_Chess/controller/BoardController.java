@@ -53,26 +53,37 @@ public class BoardController implements Initializable
 
     public void handleButtonMove( Button btn )
     {
-        try {
-            if( activePlayer == null )
-                init_moves( btn );
+        try
+        {
+            if (activePlayer == null)
+                init_moves(btn);
 
             else
-                move_player( btn );
+            {   // selected move is possible
+                if (button_is_valid_move(btn))
+                {
+                    if (!turn_is_valid(btn))
+                        return; // its not your turn mate
+                    move_player( btn );
+                    AI_MOVE();
+                }
+                else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
+                {
+                    view.clear_possible_circles();
+                    init_moves( btn );
+                }
+            }
         }
-        catch( FileNotFoundException fex )
+        catch(FileNotFoundException fex )
         { System.out.println("File not found"); }
     }
 
+    private void AI_MOVE()
+    {
+        System.out.println("xd");
+    }
     private void move_player( Button btn ) throws FileNotFoundException
     {
-        // selected move is possible
-        if (  button_is_valid_move(btn) )
-        {
-            if( !turn_is_valid( btn ) )
-                return; // its not your turn mate
-            else
-                switch_turn();
 
             // if a pawn has crossed enemy lines
             if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
@@ -88,7 +99,7 @@ public class BoardController implements Initializable
                 criticalKINGMove =null;
             }
 
-            collect_next_moves( activePlayer.isBlack(), false );// falls der neue Zug den Gegner in Schach setzt
+            collect_next_moves( activePlayer.isBlack(), false, true );// falls der neue Zug den Gegner in Schach setzt
             if( isCheck() ) // ja hat er
             {
                 setIsCheck(true);
@@ -105,13 +116,6 @@ public class BoardController implements Initializable
             // player took valid moved, reset possible moves
             activePlayer  = null;
             possibleMoves = null;
-
-        }
-        else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
-        {
-            view.clear_possible_circles();
-            init_moves( btn );
-        }
     }
     private void init_moves( Button btn ) throws FileNotFoundException
     {
@@ -161,7 +165,7 @@ public class BoardController implements Initializable
                 Abstract_Figure KEEP = board.get_figure( copy[i] );
 
                 board.move_player( activePlayer, copy[i] );
-                collect_next_moves( !activePlayer.isBlack(), true );   // then collect all moves to see if this opens up a deadly check
+                collect_next_moves( !activePlayer.isBlack(), true, true );   // then collect all moves to see if this opens up a deadly check
 
                 activePlayer = board.move_player( activeFIG, btn );
                 board.add_player( KEEP );
@@ -284,11 +288,11 @@ public class BoardController implements Initializable
             return false;
     }
     // Finds out ALL critical positions ( where the king cant go )
-    public Button[]  collect_next_moves( boolean isBlack, boolean checkForMate ) throws FileNotFoundException
+    public Button[]  collect_next_moves( boolean isBlack, boolean checkForMate, boolean collect ) throws FileNotFoundException
     {
         Abstract_Figure team[] = board.get_team(isBlack );
 
-        moveInfo.set_COLLECTING_NEXT_MOVES( true );
+        moveInfo.set_COLLECTING_NEXT_MOVES( collect );
 
         for(int i=0;i<team.length;i++)
         {
@@ -297,9 +301,9 @@ public class BoardController implements Initializable
             set_moves( true );
         }
         if( nextMoves != null && ! checkForMate && WALLHACK_MODE )
-           view.draw_next_moves( activePlayer.isBlack() ) ;
+            view.draw_next_moves( activePlayer.isBlack() ) ;
 
-        moveInfo.set_COLLECTING_NEXT_MOVES(false);
+        moveInfo.set_COLLECTING_NEXT_MOVES( false );
         return nextMoves;
     }
 
@@ -494,16 +498,17 @@ public class BoardController implements Initializable
     // makes it look super responsive *________*
     public void buttonEnter(  Button btn )
     {
-        COLOR_before = btn.getStyle();
+        view.setHOVER( btn );
+        view.setColor_before( btn.getStyle() );
         btn.setStyle( "-fx-border-color: deepskyblue;" );
     }
     public void buttonExit( Button btn )
     {
-            btn.setStyle( COLOR_before );
+        btn.setStyle( view.getColor_before() );
     }
 
     public  void setCOLOR(String BEFORE) {
-       this.COLOR_before = BEFORE;
+        this.COLOR_before = BEFORE;
     }
 
     public static String getCOLOR() {
