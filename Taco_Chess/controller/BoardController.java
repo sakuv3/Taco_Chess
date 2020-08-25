@@ -64,7 +64,7 @@ public class BoardController implements Initializable
                 {
                     if (!turn_is_valid(btn))
                         return; // its not your turn mate
-                    move_player( btn );
+                    move_player( btn, true);
                     AI_MOVE();
                 }
                 else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
@@ -78,18 +78,14 @@ public class BoardController implements Initializable
         { System.out.println("File not found"); }
     }
 
-    private void AI_MOVE()
-    {
-        System.out.println("xd");
-    }
-    private void move_player( Button btn ) throws FileNotFoundException
+    private void move_player( Button btn, boolean mark ) throws FileNotFoundException
     {
 
             // if a pawn has crossed enemy lines
             if( pawn_can_choose_a_queen(activePlayer.getYCoord()) )
                 dialog.spawn_new_figure( activePlayer, btn , activePlayer.isBlack() );
 
-            view.update( activePlayer, btn, true );
+            view.update( activePlayer, btn, mark );
             activePlayer = board.move_player(activePlayer, btn);
             nextMoves = null;
 
@@ -105,10 +101,10 @@ public class BoardController implements Initializable
                 setIsCheck(true);
                 if( is_checkMate() ) {
                     System.out.println("CHECKMATE");
+                    dialog.GAMEOVER( !activePlayer.isBlack() );
                     activePlayer =null;
                     possibleMoves=null;
                     criticalKINGMove=null;
-                    dialog.GAMEOVER( activePlayer.isBlack() );
                     return;
                 }
             }
@@ -142,6 +138,77 @@ public class BoardController implements Initializable
         }
     }
 
+    private void AI_MOVE() throws FileNotFoundException
+    {
+        AI_MOVES ai_moves[] = collect_ai_moves();
+        int cnt =0, GO=0;
+
+        if( isCheck() )// check if its check
+            ai_moves = CRITICAL_AI_MOVE( ai_moves );    // limit possible ai-moves to protect king
+
+        // limit possible moves to keep protecting the king
+        ai_moves = protect_king_ai( ai_moves );
+
+        for(int i=0;i<ai_moves.length;i++)
+        {
+            if( ai_moves[i] == null )
+                break;
+            cnt++;
+        }
+        if( isCheck() )
+            System.out.println();
+        GO = cnt/2;
+
+        if( ai_moves != null )
+            AI_RANDOM( ai_moves[GO] );
+        else
+            Dialog.GAMEOVER( false );
+    }
+
+    private void AI_RANDOM( AI_MOVES ai_moves ) throws FileNotFoundException {
+        if( ai_moves == null )
+            return;
+        activePlayer = ai_moves.getFig();
+        Button btn = ai_moves.getMove();
+
+        move_player( btn, false );
+    }
+
+    public AI_MOVES[] protect_king_ai(  AI_MOVES ai_moves[] ) throws FileNotFoundException
+    {
+        if( isCheck() )
+            return ai_moves;
+        AI_MOVES tmp[]  = new AI_MOVES[1024];
+        AI_MOVES copy[] = ai_moves;
+        Abstract_Figure activeFIG;
+        Button btn_before;
+        int CNT =0;
+        for( int i=0;i<ai_moves.length; i++ )
+        {
+            if( copy[i] == null )
+                break;
+
+            activeFIG               = copy[i].getFig();
+            btn_before              = activeFIG.getBtn();
+            Abstract_Figure keep    = board.get_figure( copy[i].getMove() );
+
+            board.move_player( activeFIG, copy[i].getMove() );
+            collect_next_moves( false, true, true );
+
+            board.move_player( activeFIG, btn_before );
+
+            board.add_player( keep );
+            if( isCheck() ) {
+                setIsCheck(false);
+                continue;
+            }
+
+            tmp[CNT++] = copy[i];
+        }
+        criticalKINGMove = null;
+        setIsCheck( false );
+        return tmp;
+    }
     public void protect_king( Button btn ) throws FileNotFoundException
     {
         if( isCheck() )
@@ -184,13 +251,56 @@ public class BoardController implements Initializable
         setIsCheck( false );
     }
 
+    private AI_MOVES[] CRITICAL_AI_MOVE( AI_MOVES ai_moves[])
+    {
+        int CNT             = 0;
+        boolean freeForKing = true;
+        AI_MOVES tmp[]      = new AI_MOVES[1024];
+
+        if( nextMoves != null && ai_moves != null )
+        {
+            for(int i=0; i<ai_moves.length; i++)
+            {
+                if( ai_moves[i] == null )
+                    break;
+
+                /*      K I N G     */
+                if( ai_moves[i].getFig() instanceof King )
+                {
+                    for (int j = 0; j < nextMoves.length; j++)
+                    {
+                        if (nextMoves[j] == null)
+                            break;
+
+                        if ( nextMoves[j].getId().equals(ai_moves[i].getMove().getId() ) )
+                            freeForKing = false;
+                    }
+                    if( freeForKing )
+                        tmp[CNT++] = ai_moves[i];
+                    freeForKing = true;
+                }
+
+                /*      A L L    O T H E R S        */
+                else {
+                    for (int j = 0; j < criticalKINGMove.length; j++)
+                    {
+                        if (criticalKINGMove[j] == null)
+                            break;
+
+                        if ( criticalKINGMove[j].getId().equals(ai_moves[i].getMove().getId()) )
+                            tmp[CNT++] = ai_moves[i]; // VERY LIMITED CRITICAL MOVE
+                    }
+                }
+            }
+            System.out.println("");
+        }
+        return tmp;
+    }
     public void CRITICAL_MOVE( )
     {
         // LIMIT POSSIBLE MOVES based on critical moves
         // Thats either for ALL figures except King OR
         // just for the king, because he cant walk in a critical field
-        //System.out.println("I AM BEING MATED");;
-        // compare possible moves with critical moves
         int CNT      = 0;
         Button tmp[] = new Button[64];
         boolean freeForKing=true;
@@ -305,6 +415,36 @@ public class BoardController implements Initializable
 
         moveInfo.set_COLLECTING_NEXT_MOVES( false );
         return nextMoves;
+    }
+
+    public AI_MOVES[] collect_ai_moves() throws FileNotFoundException
+    {
+        AI_MOVES ai_moves[]     = new AI_MOVES[1024];
+        Abstract_Figure team[]  = board.get_team( true );
+
+        int a =0;
+        for(int i=0;i<team.length;i++)
+        {
+            possibleMoves   = null;
+            activePlayer    = team[i];
+            set_moves( false );
+
+            for(int j=0;j<64;j++)
+            {
+                if( possibleMoves != null ) {
+                    if (possibleMoves[j] == null)
+                        break;
+                    ai_moves[a] = new AI_MOVES();
+                    ai_moves[a].setFig(team[i]);
+                    ai_moves[a].setMove(possibleMoves[j]);
+                    a++;
+                }
+                else
+                    break;
+            }
+        }
+
+        return ai_moves;
     }
 
     // for ONE Figure

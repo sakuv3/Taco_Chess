@@ -130,7 +130,7 @@ public class Board extends Stage
         set_figure( rook[2], 0, 7, false );
         set_figure( horse[2], 1, 7, false );
         set_figure( bishop[2], 2, 7, false );
-        set_figure( queen[1], 3, 7, false);
+        set_figure( queen[1], 0, 5, false);
         set_figure( king[1], 4, 7, false);
         set_figure( bishop[3], 5, 7, false );
         set_figure( horse[3], 6, 7, false );
@@ -142,14 +142,14 @@ public class Board extends Stage
             int x,y;
             Pawn pawn = new Pawn();
 
-            if( i < 8 ) // white Team
+            if( i < 8 ) // black Team
             {
                 x = i;
                 y = 1;
                 isBlack = true;
             }
 
-            else        // black Team
+            else        // white Team
             {
                 x = i-8;
                 y = 6;
