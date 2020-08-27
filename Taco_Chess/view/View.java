@@ -4,10 +4,13 @@ import Taco_Chess.Figures.*;
 import Taco_Chess.Main;
 import Taco_Chess.controller.BoardController;
 import Taco_Chess.model.Board;
+import javafx.animation.Interpolator;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -21,6 +24,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -63,6 +68,8 @@ public class View
     static private String WHITE = " -fx-border-color: #cbe3a8";
     static private String BLACK = " -fx-border-color: #77944e";
     static private Button HOVER;
+
+    static int cnt =0;
     public View(){};
     public View( Stage mainStage, Board board ) throws IOException
     {
@@ -345,7 +352,38 @@ public class View
             mark_active_field(1, x, y);
         }
 
-        oldPlayer.getBtn().setGraphic( null );
+        double xold = oldPlayer.getBtn().getLayoutX();
+        double yold = oldPlayer.getBtn().getLayoutY();
+        double xnew = dest.getLayoutX();
+        double ynew = dest.getLayoutY();
+        double DIFFX = xnew - xold;
+        double DIFFY = ynew - yold;
+
+        cnt++;
+
+        if( cnt > 2 )
+            System.out.println();
+        if( xnew < xold )
+            DIFFX = Math.sqrt( Math.pow(DIFFX, 2) );
+        else
+            DIFFX = - DIFFX;
+        if( ynew < yold )
+            DIFFY = Math.sqrt( Math.pow(DIFFY, 2) );
+        else
+            DIFFY = -DIFFY;
+
+        ImageView img = oldPlayer.getImageView();
+        img.setTranslateX( DIFFX );
+        img.setTranslateY( DIFFY );
+
+        TranslateTransition tt = new TranslateTransition();
+        tt.setNode( img );
+        tt.setToX( dest.getTranslateX() );
+        tt.setToY( dest.getTranslateY() );
+        tt.setDuration( Duration.seconds(1) );
+        tt.setAutoReverse(true);
+        tt.play();
+
         dest.setGraphic( oldPlayer.getImageView() );
         clear_possible_circles();
         clear_next_moves();

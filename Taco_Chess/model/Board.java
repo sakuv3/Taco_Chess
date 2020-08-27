@@ -25,6 +25,10 @@ public class Board extends Stage
     static private  Button buttons[][];
     static private boolean isWhitesMove = true;
 
+    public GridPane getGridPane() {
+        return chessBoard;
+    }
+
     public Board(  ) throws IOException
     {
         super();
@@ -34,7 +38,6 @@ public class Board extends Stage
         controller  = new BoardController();
         figures     = new Abstract_Figure[8][8];
         chessBoard  = FXMLLoader.load(getClass().getResource("Board.fxml"));
-
         create_chessBoard();
         define_start_positions();
     };
@@ -130,7 +133,7 @@ public class Board extends Stage
         set_figure( rook[2], 0, 7, false );
         set_figure( horse[2], 1, 7, false );
         set_figure( bishop[2], 2, 7, false );
-        set_figure( queen[1], 0, 5, false);
+        set_figure( queen[1], 3, 7, false);
         set_figure( king[1], 4, 7, false);
         set_figure( bishop[3], 5, 7, false );
         set_figure( horse[3], 6, 7, false );

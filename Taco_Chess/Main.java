@@ -21,7 +21,7 @@ public class Main extends Application
         model           = new Board( );
         view            = new View( mainStage, model );
         controller      = new BoardController();
-        view.init(800, 1030);
+        view.init(800, 1025);
         controller.init( model, view );
 
         mainStage.setTitle("Taco_Chess");
