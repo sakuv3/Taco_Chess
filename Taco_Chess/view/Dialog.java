@@ -1,8 +1,10 @@
 package Taco_Chess.view;
 import Taco_Chess.Figures.*;
+import Taco_Chess.Main;
 import Taco_Chess.controller.BoardController;
 import Taco_Chess.model.Board;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -26,7 +28,7 @@ import java.io.IOException;
 
 public class Dialog
 {
-
+    private Main main;
     static final String URL = "src/Taco_Chess/images/";
     static String BEFORE1, BEFORE2;
     static final String type[] = {"queen.png", "horse.png", "rook.png", "bishop.png"};
@@ -36,12 +38,13 @@ public class Dialog
 
     public Dialog( Board board, View view, BoardController controller )
     {
+        main            = new Main();
         this.controller = controller;
         this.board = board;
         this.view = view;
     }
 
-    public static void GAMEOVER( boolean isBlack ) throws FileNotFoundException {
+    public void GAMEOVER( boolean isBlack ) throws FileNotFoundException {
         Stage window    = new Stage();
         GridPane grid   = new GridPane();
         StackPane stack = new StackPane();
@@ -53,7 +56,6 @@ public class Dialog
 
         Button close    = new Button("Quit");
         Button newGame  = new Button("New Game");
-        Button celeb    = new Button("Celebrate");
 
         close.setAlignment( Pos.BOTTOM_LEFT);
         close.setPrefHeight(25);
@@ -81,10 +83,10 @@ public class Dialog
         newGame.setOnMouseExited( e -> {
             newGame.setStyle(BEFORE1);
         });
-        newGame.setOnMouseClicked( e -> {
+        newGame.setOnAction( (ActionEvent e) -> {
             try {
-                board.reset_board();
                 window.close();
+                main.restart();
             } catch (Exception ioException) {
                 ioException.printStackTrace();
             }

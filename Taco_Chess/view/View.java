@@ -4,13 +4,11 @@ import Taco_Chess.Figures.*;
 import Taco_Chess.Main;
 import Taco_Chess.controller.BoardController;
 import Taco_Chess.model.Board;
-import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -352,7 +350,15 @@ public class View
             mark_active_field(1, x, y);
         }
         oldPlayer.getBtn().setGraphic(null);
+        move_animation(oldPlayer, dest);
+        dest.setGraphic( oldPlayer.getImageView() );
+        clear_possible_circles();
+        clear_next_moves();
+        controller.setCOLOR( null );
+    }
 
+    private void move_animation(Abstract_Figure oldPlayer, Button dest)
+    {
         double xold = oldPlayer.getBtn().getLayoutX();
         double yold = oldPlayer.getBtn().getLayoutY();
         double xnew = dest.getLayoutX();
@@ -360,10 +366,6 @@ public class View
         double DIFFX = xnew - xold;
         double DIFFY = ynew - yold;
 
-        cnt++;
-
-        if( cnt > 2 )
-            System.out.println();
         if( xnew > xold )
             DIFFX = - DIFFX;
         else
@@ -383,14 +385,7 @@ public class View
         tt.setDuration( Duration.seconds(1) );
         tt.setAutoReverse(true);
         tt.play();
-
-
-        dest.setGraphic( oldPlayer.getImageView() );
-        clear_possible_circles();
-        clear_next_moves();
-        controller.setCOLOR( null );
     }
-
     public void draw_possible_circles( Abstract_Figure activePlayer) throws FileNotFoundException
     {
         int x = activePlayer.getXCoord();
@@ -666,14 +661,6 @@ public class View
     }
     public static void setColor_before(String color_before) {
         Color_before = color_before;
-    }
-
-    public static void setCOLOR(String COLOR) {
-        View.COLOR = COLOR;
-    }
-
-    public static String getCOLOR() {
-        return COLOR;
     }
 
     public static StackPane getStackPane() {

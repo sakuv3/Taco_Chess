@@ -163,7 +163,7 @@ public class BoardController implements Initializable
         if( ai_moves != null )
             AI_RANDOM( ai_moves[GO] );
         else
-            Dialog.GAMEOVER( false );
+            dialog.GAMEOVER( false );
     }
 
     private void AI_RANDOM( AI_MOVES ai_moves ) throws FileNotFoundException {
@@ -333,14 +333,18 @@ public class BoardController implements Initializable
 
                 /*      A L L    O T H E R S        */
                 else {
-                    for (int j = 0; j < criticalKINGMove.length; j++)
+                    if( criticalKINGMove != null )
                     {
-                        if (criticalKINGMove[j] == null)
-                            break;
+                        for (int j = 0; j < criticalKINGMove.length; j++) {
+                            if (criticalKINGMove[j] == null)
+                                break;
 
-                        if ( criticalKINGMove[j].getId().equals(possibleMoves[i].getId()))
-                            tmp[CNT++] = criticalKINGMove[j]; // VERY LIMITED CRITICAL MOVE
+                            if (criticalKINGMove[j].getId().equals(possibleMoves[i].getId()))
+                                tmp[CNT++] = criticalKINGMove[j]; // VERY LIMITED CRITICAL MOVE
+                        }
                     }
+                    else
+                        tmp[CNT++] = possibleMoves[i];
                 }
             }
         }
@@ -654,8 +658,20 @@ public class BoardController implements Initializable
         this.COLOR_before = BEFORE;
     }
 
-    public static String getCOLOR() {
-        return COLOR_before;
+    public static Button[] getCriticalKINGMove() {
+        return criticalKINGMove;
+    }
+
+    public static void setNextMoves(Button[] nextMoves) {
+        BoardController.nextMoves = nextMoves;
+    }
+
+    public static void setPossibleMoves(Button[] possibleMoves) {
+        BoardController.possibleMoves = possibleMoves;
+    }
+
+    public static void setCriticalKINGMove(Button[] criticalKINGMove) {
+        BoardController.criticalKINGMove = criticalKINGMove;
     }
 
     public static void setWallhackMode(boolean wallhackMode) {
