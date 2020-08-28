@@ -351,6 +351,7 @@ public class View
             int y = board.get_yCoord_btn(dest);
             mark_active_field(1, x, y);
         }
+        oldPlayer.getBtn().setGraphic(null);
 
         double xold = oldPlayer.getBtn().getLayoutX();
         double yold = oldPlayer.getBtn().getLayoutY();
@@ -363,15 +364,14 @@ public class View
 
         if( cnt > 2 )
             System.out.println();
-        if( xnew < xold )
-            DIFFX = Math.sqrt( Math.pow(DIFFX, 2) );
-        else
+        if( xnew > xold )
             DIFFX = - DIFFX;
-        if( ynew < yold )
-            DIFFY = Math.sqrt( Math.pow(DIFFY, 2) );
         else
-            DIFFY = -DIFFY;
-
+            DIFFX = Math.sqrt( Math.pow(DIFFX, 2) );
+        if( ynew > yold )
+            DIFFY = - DIFFY;
+        else
+            DIFFY = Math.sqrt( Math.pow(DIFFY, 2) );
         ImageView img = oldPlayer.getImageView();
         img.setTranslateX( DIFFX );
         img.setTranslateY( DIFFY );
@@ -383,6 +383,7 @@ public class View
         tt.setDuration( Duration.seconds(1) );
         tt.setAutoReverse(true);
         tt.play();
+
 
         dest.setGraphic( oldPlayer.getImageView() );
         clear_possible_circles();

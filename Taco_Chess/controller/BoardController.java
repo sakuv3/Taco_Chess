@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 
 import Taco_Chess.model.Board;
 import Taco_Chess.view.View;
+import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
@@ -74,7 +75,7 @@ public class BoardController implements Initializable
                 }
             }
         }
-        catch(FileNotFoundException fex )
+        catch(FileNotFoundException | InterruptedException fex )
         { System.out.println("File not found"); }
     }
 
@@ -138,7 +139,7 @@ public class BoardController implements Initializable
         }
     }
 
-    private void AI_MOVE() throws FileNotFoundException
+    private void AI_MOVE() throws FileNotFoundException, InterruptedException
     {
         AI_MOVES ai_moves[] = collect_ai_moves();
         int cnt =0, GO=0;
@@ -282,6 +283,8 @@ public class BoardController implements Initializable
 
                 /*      A L L    O T H E R S        */
                 else {
+                    if( criticalKINGMove == null )
+                        break;
                     for (int j = 0; j < criticalKINGMove.length; j++)
                     {
                         if (criticalKINGMove[j] == null)
