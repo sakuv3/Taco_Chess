@@ -7,4 +7,9 @@ public class Pawn extends Abstract_Figure
     {
         return false;
     }
+    public Pawn(){};
+    public Pawn( Pawn X )
+    {
+        super(X);
+    }
 }

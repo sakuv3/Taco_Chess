@@ -6,4 +6,9 @@ public class King extends Abstract_Figure
      boolean move() {
         return false;
     }
+    public King(){};
+    public King( King X )
+    {
+        super(X);
+    }
 }

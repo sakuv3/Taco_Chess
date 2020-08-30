@@ -613,7 +613,7 @@ public class View
         return -1;      // king cant be killed
     }
 
-    private Abstract_Figure get_new_dead( Abstract_Figure killed )
+    public Abstract_Figure get_new_dead( Abstract_Figure killed )
     {
         int type = board.get_type( killed );
 

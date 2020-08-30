@@ -6,4 +6,10 @@ public class Horse extends Abstract_Figure
      boolean move() {
         return false;
     }
+
+    public Horse(){};
+    public Horse( Horse X )
+    {
+        super(X);
+    }
 }

@@ -1,5 +1,6 @@
 package Taco_Chess.controller;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 
 import Taco_Chess.view.Dialog;
@@ -18,6 +19,7 @@ import javafx.scene.shape.Rectangle;
 
 public class BoardController implements Initializable
 {
+    static int CNT =0;
     static private View view;
     static private Board board;
     static private Dialog dialog;
@@ -67,6 +69,7 @@ public class BoardController implements Initializable
                         return; // its not your turn mate
                     move_player( btn, true);
                     AI_MOVE();
+                    //AI_RANDOM( collect_nxt() );
                 }
                 else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
                 {
@@ -75,8 +78,11 @@ public class BoardController implements Initializable
                 }
             }
         }
-        catch(FileNotFoundException | InterruptedException fex )
+        catch(FileNotFoundException d)
         { System.out.println("File not found"); }
+        catch (IOException e)
+        { System.out.println("IOException"); }
+        catch (InterruptedException e) { System.out.println("Interrupted Exception"); }
     }
 
     private void move_player( Button btn, boolean mark ) throws FileNotFoundException
@@ -139,40 +145,193 @@ public class BoardController implements Initializable
         }
     }
 
-    private void AI_MOVE() throws FileNotFoundException, InterruptedException
-    {
-        AI_MOVES ai_moves[] = collect_ai_moves();
-        int cnt =0, GO=0;
+    private AI_MOVES[] collect_nxt() throws FileNotFoundException {
+        AI_MOVES ai_moves[] = collect_ai_moves( true );
 
         if( isCheck() )// check if its check
             ai_moves = CRITICAL_AI_MOVE( ai_moves );    // limit possible ai-moves to protect king
 
         // limit possible moves to keep protecting the king
         ai_moves = protect_king_ai( ai_moves );
-
-        for(int i=0;i<ai_moves.length;i++)
-        {
-            if( ai_moves[i] == null )
-                break;
-            cnt++;
-        }
-        if( isCheck() )
-            System.out.println();
-        GO = cnt/2;
-
+        return ai_moves;
+    }
+    private void AI_MOVE() throws IOException, InterruptedException
+    {
+        AI_MOVES ai_moves[] = collect_nxt();
         if( ai_moves != null )
-            AI_RANDOM( ai_moves[GO] );
+        {
+            MINIMAX(ai_moves, 1, true, 0);
+
+            if( MAXMOVE != null ) {
+                activePlayer = MAXMOVE.getFig();
+                move_player(MAXMOVE.getMove(), false);
+                MAXMOVE = MINMOVE = null;
+            }
+            else {
+                AI_RANDOM( collect_nxt() );
+                System.out.println("MAYDAY");
+            }
+        }
         else
             dialog.GAMEOVER( false );
+
+    }
+    static AI_MOVES MINMOVE, MAXMOVE;
+    public Abstract_Figure copy_fig( Abstract_Figure x )
+    {
+        if( x instanceof  Pawn )
+            return new Pawn( (Pawn)x );
+        if( x instanceof  Bishop )
+            return new Bishop( (Bishop)x );
+        if( x instanceof  Horse )
+            return new Horse( (Horse)x );
+        if( x instanceof  Rook )
+            return new Rook( (Rook)x );
+        if( x instanceof  Queen )
+            return new Queen( (Queen)x );
+        if( x instanceof  King )
+            return new King( (King)x );
+        return null;    // never reached
+    }
+    private int MINIMAX( AI_MOVES moves[], int depth, boolean maximze, int kill ) throws FileNotFoundException
+    {
+        if( depth == 0 )
+            return evaluate( !maximze, kill );
+
+        if( maximze )
+        {
+            int maxEval = -1;
+            int eval =-1;
+            for(int i=0;i<moves.length;i++)
+            {
+                if( moves[i] == null )
+                    break;
+
+                Abstract_Figure COPY    = copy_fig( moves[i].getFig() );
+                Abstract_Figure keep    = board.get_figure( moves[i].getMove() );
+
+                int KILLL = moves[i].getScore()*10;
+                board.move_player(moves[i].getFig(), moves[i].getMove() );
+                eval = MINIMAX( collect_nxt(), depth-1, false, KILLL);
+
+                // UNDO PREVIOUS MOVE
+                board.remove_player( moves[i].getFig() );
+                board.move_player( moves[i].getFig(), COPY.getBtn() );
+                board.add_player( keep );
+
+                if( eval > maxEval )
+                    MAXMOVE = moves[i];
+                maxEval = max( maxEval, eval );
+            }
+            return maxEval;
+        }
+        else
+        {
+            int minEval = 9999;
+            int eval = 0;
+            for(int i=0;i<moves.length;i++)
+            {
+                if( moves[i] == null )
+                    break;
+
+                Abstract_Figure COPY    = copy_fig( moves[i].getFig() );
+                Abstract_Figure keep    = board.get_figure( moves[i].getMove() );
+
+                int KILLL = moves[i].getScore();
+                board.move_player(moves[i].getFig(), moves[i].getMove() );
+                eval = MINIMAX( collect_nxt(), depth-1, false, KILLL );
+
+                // UNDO PREVIOUS MOVE
+                moves[i].setFig(COPY);
+                board.move_player( moves[i].getFig(), moves[i].getFig().getBtn() );
+                board.add_player( keep );
+
+                if( eval < minEval )
+                    MINMOVE = moves[i];
+                minEval = min( minEval, eval );
+            }
+            return minEval;
+        }
     }
 
-    private void AI_RANDOM( AI_MOVES ai_moves ) throws FileNotFoundException {
-        if( ai_moves == null )
+    private int evaluate( boolean maximize, int kill ) throws FileNotFoundException
+    {
+        int score =kill;
+        AI_MOVES moves[] = collect_ai_moves( maximize );
+        moves = extract_best( moves );
+        if( moves == null )
+            return 0;
+        for(int i=0;i<moves.length;i++)
+        {
+            if( moves[i] == null )
+                break;
+            score += moves[i].getScore();
+        }
+
+        int score2 =0;
+        AI_MOVES opposite[] = collect_ai_moves( !maximize );
+        opposite = extract_best( opposite );
+        if( opposite == null )
+            return 0;
+        for(int i=0;i<opposite.length;i++)
+        {
+            if( opposite[i] == null )
+                break;
+            score2 += opposite[i].getScore();
+        }
+
+        return score -score2;
+    }
+    private int max( int max, int val )
+    {
+        if( max > val )
+            return max;
+        return val;
+    }
+    private int min( int min, int val)
+    {
+        if( min < val)
+            return min;
+        return val;
+    }
+
+    private void AI_RANDOM( AI_MOVES ai_moves[] ) throws FileNotFoundException
+    {
+        AI_MOVES[] tmp = extract_best( ai_moves );
+        AI_MOVES move;
+        if( tmp[0] == null )
+            move = ai_moves[0];
+        else {
+            int best = 0;
+            for(int i=0;i<tmp.length;i++)
+            {
+                if( tmp[i] == null)
+                    break;
+                if( best < tmp[i].getScore() )
+                    best = i;
+            }
+            move = tmp[best];
+        }
+
+        if( move == null )
             return;
-        activePlayer = ai_moves.getFig();
-        Button btn = ai_moves.getMove();
+        activePlayer = move.getFig();
+        Button btn = move.getMove();
 
         move_player( btn, false );
+    }
+    private AI_MOVES[] extract_best( AI_MOVES moves[] )
+    {
+        AI_MOVES tmp[] = new AI_MOVES[1024];
+        int cnt =0;
+        for(int i=0;i<moves.length;i++)
+        {
+            if( moves[i] == null )
+                break;
+            if( moves[i].getScore() > 0 )
+                tmp[cnt++] = moves[i];
+        }
+        return tmp;
     }
 
     public AI_MOVES[] protect_king_ai(  AI_MOVES ai_moves[] ) throws FileNotFoundException
@@ -424,10 +583,10 @@ public class BoardController implements Initializable
         return nextMoves;
     }
 
-    public AI_MOVES[] collect_ai_moves() throws FileNotFoundException
+    public AI_MOVES[] collect_ai_moves( boolean isBlack ) throws FileNotFoundException
     {
         AI_MOVES ai_moves[]     = new AI_MOVES[1024];
-        Abstract_Figure team[]  = board.get_team( true );
+        Abstract_Figure team[]  = board.get_team( isBlack );
 
         int a =0;
         for(int i=0;i<team.length;i++)
@@ -444,6 +603,8 @@ public class BoardController implements Initializable
                     ai_moves[a] = new AI_MOVES();
                     ai_moves[a].setFig(team[i]);
                     ai_moves[a].setMove(possibleMoves[j]);
+                    Abstract_Figure enemy = board.get_figure( possibleMoves[j] );
+                    ai_moves[a].setScore( set_kill_score( team[i], enemy ) );
                     a++;
                 }
                 else
@@ -454,6 +615,16 @@ public class BoardController implements Initializable
         return ai_moves;
     }
 
+    private int set_kill_score( Abstract_Figure killer, Abstract_Figure target )
+    {
+        if( target == null )
+            return 0;
+
+        int KILLER  = board.get_type( killer ) +1;
+        int TARGET  = ( board.get_type( target ) +1 ) *10;
+
+        return TARGET - KILLER;
+    }
     // for ONE Figure
     private void set_moves( boolean collecting_next ) throws FileNotFoundException
     {

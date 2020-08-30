@@ -19,15 +19,11 @@ import javafx.stage.Stage;
 public class Board extends Stage
 {
     private Main main;
-    static private  Abstract_Figure figures[][], snapFigs[][];
-    static private BoardController controller;
-    static private  GridPane chessBoard;
-    static private  Button buttons[][];
-    static private boolean isWhitesMove = true;
-
-    public GridPane getGridPane() {
-        return chessBoard;
-    }
+    private  Abstract_Figure figures[][];
+    private BoardController controller;
+    private  GridPane chessBoard;
+    private  Button buttons[][];
+    private boolean isWhitesMove = true;
 
     public Board(  ) throws IOException
     {
@@ -42,6 +38,15 @@ public class Board extends Stage
         define_start_positions();
     };
 
+    public Board( Board another )
+    {
+        this.main = another.main;
+        this.buttons = another.buttons;
+        this.controller = another.controller;
+        this.figures = another.figures;
+        this.chessBoard = another.chessBoard;
+
+    }
     public void reset_board() throws Exception {
         Abstract_Figure old[] = get_all_figures();
         for(int i=0;i<old.length;i++) {
@@ -115,6 +120,11 @@ public class Board extends Stage
             bishop[i] = new Bishop();
         }
 
+/*
+        set_figure( rook[0], 7, 0, true );
+        set_figure( bishop[1], 6, 0, false );
+        set_figure( new Queen(), 7, 2, false );
+        */
         // black Team
         king[0]     = new King();
         queen[0]    = new Queen();
@@ -160,6 +170,7 @@ public class Board extends Stage
             }
             set_figure( pawn, x, y, isBlack );
         }
+
     }
 
     public Abstract_Figure move_player( Abstract_Figure player, Button dest ) throws FileNotFoundException
@@ -290,12 +301,12 @@ public class Board extends Stage
         return chessBoard;
     }
 
-    public static boolean isWhitesMove() {
+    public  boolean isWhitesMove() {
         return isWhitesMove;
     }
 
-    public static void setIsWhitesMove(boolean isWhitesMove) {
-        Board.isWhitesMove = isWhitesMove;
+    public  void setIsWhitesMove(boolean isWhitesMove) {
+      this.isWhitesMove = isWhitesMove;
     }
 
     public BoardController getController() {

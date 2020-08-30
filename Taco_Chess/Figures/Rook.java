@@ -7,8 +7,9 @@ public class Rook extends Abstract_Figure
         return false;
     }
 
-    public void draw()
+    public Rook(){};
+    public Rook( Rook X )
     {
-
+        super(X);
     }
 }

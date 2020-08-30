@@ -6,4 +6,9 @@ public class Queen extends Abstract_Figure
      boolean move() {
         return false;
     }
+    public Queen(){};
+    public Queen( Queen X )
+    {
+        super(X);
+    }
 }
