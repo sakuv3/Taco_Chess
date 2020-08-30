@@ -119,12 +119,12 @@ public class Board extends Stage
             horse[i] = new Horse();
             bishop[i] = new Bishop();
         }
-
 /*
-        set_figure( rook[0], 7, 0, true );
-        set_figure( bishop[1], 6, 0, false );
-        set_figure( new Queen(), 7, 2, false );
-        */
+        set_figure( new Rook(), 0, 4, false );
+        set_figure( new King(), 7, 0, false );
+        set_figure( new Queen(), 6, 6, true );
+        set_figure( new King(), 7, 7, true );
+       */
         // black Team
         king[0]     = new King();
         queen[0]    = new Queen();

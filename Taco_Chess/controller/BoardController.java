@@ -145,8 +145,9 @@ public class BoardController implements Initializable
         }
     }
 
-    private AI_MOVES[] collect_nxt() throws FileNotFoundException {
-        AI_MOVES ai_moves[] = collect_ai_moves( true );
+    private AI_MOVES[] collect_nxt( boolean isBlack) throws FileNotFoundException {
+        nextMoves =null;
+        AI_MOVES ai_moves[] = collect_ai_moves( isBlack );
 
         if( isCheck() )// check if its check
             ai_moves = CRITICAL_AI_MOVE( ai_moves );    // limit possible ai-moves to protect king
@@ -157,19 +158,19 @@ public class BoardController implements Initializable
     }
     private void AI_MOVE() throws IOException, InterruptedException
     {
-        AI_MOVES ai_moves[] = collect_nxt();
+        AI_MOVES ai_moves[] = collect_nxt( true );
         if( ai_moves != null )
         {
-            MINIMAX(ai_moves, 1, true, 0);
-
+            MINIMAX(ai_moves, 2, true );
+            System.out.println("minimax-calls: "+CNT);
+            CNT=0;
             if( MAXMOVE != null ) {
                 activePlayer = MAXMOVE.getFig();
                 move_player(MAXMOVE.getMove(), false);
                 MAXMOVE = MINMOVE = null;
             }
             else {
-                AI_RANDOM( collect_nxt() );
-                System.out.println("MAYDAY");
+                AI_RANDOM( collect_nxt( true ) );
             }
         }
         else
@@ -193,13 +194,14 @@ public class BoardController implements Initializable
             return new King( (King)x );
         return null;    // never reached
     }
-    private int MINIMAX( AI_MOVES moves[], int depth, boolean maximze, int kill ) throws FileNotFoundException
+    private int MINIMAX( AI_MOVES moves[], int depth, boolean maximze ) throws FileNotFoundException
     {
+        CNT++;
         if( depth == 0 )
-            return evaluate( !maximze, kill );
+            return evaluate();
 
         if( maximze )
-        {
+        {   // AI PLAYER
             int maxEval = -1;
             int eval =-1;
             for(int i=0;i<moves.length;i++)
@@ -210,9 +212,9 @@ public class BoardController implements Initializable
                 Abstract_Figure COPY    = copy_fig( moves[i].getFig() );
                 Abstract_Figure keep    = board.get_figure( moves[i].getMove() );
 
-                int KILLL = moves[i].getScore()*10;
                 board.move_player(moves[i].getFig(), moves[i].getMove() );
-                eval = MINIMAX( collect_nxt(), depth-1, false, KILLL);
+                setIsCheck(false);
+                eval = MINIMAX( collect_nxt( false), depth-1, false);
 
                 // UNDO PREVIOUS MOVE
                 board.remove_player( moves[i].getFig() );
@@ -226,7 +228,7 @@ public class BoardController implements Initializable
             return maxEval;
         }
         else
-        {
+        {   // HUMAN PLAYER
             int minEval = 9999;
             int eval = 0;
             for(int i=0;i<moves.length;i++)
@@ -237,13 +239,13 @@ public class BoardController implements Initializable
                 Abstract_Figure COPY    = copy_fig( moves[i].getFig() );
                 Abstract_Figure keep    = board.get_figure( moves[i].getMove() );
 
-                int KILLL = moves[i].getScore();
                 board.move_player(moves[i].getFig(), moves[i].getMove() );
-                eval = MINIMAX( collect_nxt(), depth-1, false, KILLL );
+                setIsCheck(false);
+                eval = MINIMAX( collect_nxt( true ), depth-1, true);
 
                 // UNDO PREVIOUS MOVE
-                moves[i].setFig(COPY);
-                board.move_player( moves[i].getFig(), moves[i].getFig().getBtn() );
+                board.remove_player( moves[i].getFig() );
+                board.move_player( moves[i].getFig(), COPY.getBtn() );
                 board.add_player( keep );
 
                 if( eval < minEval )
@@ -254,7 +256,19 @@ public class BoardController implements Initializable
         }
     }
 
-    private int evaluate( boolean maximize, int kill ) throws FileNotFoundException
+    private int evaluate( )
+    {
+        Abstract_Figure black[] = board.get_team(true);
+        Abstract_Figure white[] = board.get_team(false);
+        int score=0, score2=0;
+        for(int i=0;i<black.length;i++)
+            score += view.get_credits( black[i] )*100;
+        for(int i=0;i<white.length;i++)
+            score2 += view.get_credits( white[i] )*100;
+
+        return score -score2;
+    }
+    private int evaluate_moves( boolean maximize, int kill ) throws FileNotFoundException
     {
         int score =kill;
         AI_MOVES moves[] = collect_ai_moves( maximize );
@@ -295,12 +309,27 @@ public class BoardController implements Initializable
         return val;
     }
 
+    private int rand( int min, int max )
+    {
+        double rand = Math.random();
+        return (int) (rand * ((max-min)+1)) +min;
+    }
     private void AI_RANDOM( AI_MOVES ai_moves[] ) throws FileNotFoundException
     {
         AI_MOVES[] tmp = extract_best( ai_moves );
         AI_MOVES move;
-        if( tmp[0] == null )
-            move = ai_moves[0];
+        if( tmp[0] == null ) {
+            int cnt =0;
+            for(int i=0;i<1024;i++)
+            {
+                if( ai_moves[i] == null )
+                    break;
+                cnt++;
+            }
+            int rand = rand(0,cnt);
+            System.out.println("RANDOM  " +rand);
+            move = ai_moves[rand];
+        }
         else {
             int best = 0;
             for(int i=0;i<tmp.length;i++)
@@ -343,6 +372,9 @@ public class BoardController implements Initializable
         Abstract_Figure activeFIG;
         Button btn_before;
         int CNT =0;
+        if( ai_moves[0] == null )
+            return null;
+        boolean isBlack = ai_moves[0].getFig().isBlack();
         for( int i=0;i<ai_moves.length; i++ )
         {
             if( copy[i] == null )
@@ -353,7 +385,7 @@ public class BoardController implements Initializable
             Abstract_Figure keep    = board.get_figure( copy[i].getMove() );
 
             board.move_player( activeFIG, copy[i].getMove() );
-            collect_next_moves( false, true, true );
+            collect_next_moves( !isBlack, true, true );
 
             board.move_player( activeFIG, btn_before );
 
@@ -454,7 +486,6 @@ public class BoardController implements Initializable
                     }
                 }
             }
-            System.out.println("");
         }
         return tmp;
     }
@@ -588,6 +619,7 @@ public class BoardController implements Initializable
         AI_MOVES ai_moves[]     = new AI_MOVES[1024];
         Abstract_Figure team[]  = board.get_team( isBlack );
 
+        collect_next_moves( !isBlack, true, true);
         int a =0;
         for(int i=0;i<team.length;i++)
         {
