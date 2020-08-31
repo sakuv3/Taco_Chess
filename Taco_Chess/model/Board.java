@@ -119,12 +119,13 @@ public class Board extends Stage
             horse[i] = new Horse();
             bishop[i] = new Bishop();
         }
-/*
-        set_figure( new Rook(), 0, 4, false );
+
+        set_figure( new Horse(), 5, 4, false );
+        set_figure( new Queen(), 0, 6, false );
         set_figure( new King(), 7, 0, false );
         set_figure( new Queen(), 6, 6, true );
         set_figure( new King(), 7, 7, true );
-       */
+       /*
         // black Team
         king[0]     = new King();
         queen[0]    = new Queen();
@@ -170,7 +171,7 @@ public class Board extends Stage
             }
             set_figure( pawn, x, y, isBlack );
         }
-
+    */
     }
 
     public Abstract_Figure move_player( Abstract_Figure player, Button dest ) throws FileNotFoundException

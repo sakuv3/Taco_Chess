@@ -146,7 +146,6 @@ public class BoardController implements Initializable
     }
 
     private AI_MOVES[] collect_nxt( boolean isBlack) throws FileNotFoundException {
-        nextMoves =null;
         AI_MOVES ai_moves[] = collect_ai_moves( isBlack );
 
         if( isCheck() )// check if its check
@@ -169,9 +168,8 @@ public class BoardController implements Initializable
                 move_player(MAXMOVE.getMove(), false);
                 MAXMOVE = MINMOVE = null;
             }
-            else {
+            else
                 AI_RANDOM( collect_nxt( true ) );
-            }
         }
         else
             dialog.GAMEOVER( false );
@@ -326,9 +324,7 @@ public class BoardController implements Initializable
                     break;
                 cnt++;
             }
-            int rand = rand(0,cnt);
-            System.out.println("RANDOM  " +rand);
-            move = ai_moves[rand];
+            move = ai_moves[ rand(0,cnt) ];
         }
         else {
             int best = 0;
@@ -619,13 +615,16 @@ public class BoardController implements Initializable
         AI_MOVES ai_moves[]     = new AI_MOVES[1024];
         Abstract_Figure team[]  = board.get_team( isBlack );
 
-        collect_next_moves( !isBlack, true, true);
+        collect_next_moves( !isBlack, true, false);
         int a =0;
         for(int i=0;i<team.length;i++)
         {
             possibleMoves   = null;
             activePlayer    = team[i];
             set_moves( false );
+
+            if( isCheck() )// check if its check-mate
+                CRITICAL_MOVE();    // limit possible moves to protect king
 
             for(int j=0;j<64;j++)
             {
