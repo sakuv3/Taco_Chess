@@ -104,6 +104,20 @@ public class Board extends Stage
 
     private void define_start_positions() throws FileNotFoundException
     {
+        set_team();
+        experimental();
+    }
+
+    private void experimental()
+    {
+        set_figure( new Horse(), 5, 4, false );
+        set_figure( new Queen(), 0, 6, false );
+        set_figure( new King(), 7, 0, false );
+        set_figure( new Queen(), 6, 6, true );
+        set_figure( new King(), 7, 7, true );
+    }
+    private void set_team()
+    {
         Queen queen[]     = new Queen[2];
         King king[]       = new King[2];
         Rook rook[]       = new Rook[4];
@@ -119,13 +133,6 @@ public class Board extends Stage
             horse[i] = new Horse();
             bishop[i] = new Bishop();
         }
-
-        set_figure( new Horse(), 5, 4, false );
-        set_figure( new Queen(), 0, 6, false );
-        set_figure( new King(), 7, 0, false );
-        set_figure( new Queen(), 6, 6, true );
-        set_figure( new King(), 7, 7, true );
-       /*
         // black Team
         king[0]     = new King();
         queen[0]    = new Queen();
@@ -171,9 +178,7 @@ public class Board extends Stage
             }
             set_figure( pawn, x, y, isBlack );
         }
-    */
     }
-
     public Abstract_Figure move_player( Abstract_Figure player, Button dest ) throws FileNotFoundException
     {
         int xOld = player.getXCoord();

@@ -468,9 +468,10 @@ public class MoveInfo
                 }
             }
 
+
             enemy = board.get_figure( board.get_button(xCord, yCord) );
             if( enemy != null )
-                if ( enemy.isBlack() == playerIsBlack )
+                if ( enemy.isBlack() == playerIsBlack && !COLLECTING_NEXT_MOVES )
                     continue;   // no team-kill
 
             controller.add_possible_move( board.get_button(xCord, yCord) );

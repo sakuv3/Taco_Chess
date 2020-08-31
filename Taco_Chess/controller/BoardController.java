@@ -67,9 +67,8 @@ public class BoardController implements Initializable
                 {
                     if (!turn_is_valid(btn))
                         return; // its not your turn mate
-                    move_player( btn, true);
-                    AI_MOVE();
-                    //AI_RANDOM( collect_nxt() );
+                    if( move_player( btn, true) == false )
+                        AI_MOVE();  //AI_RANDOM( collect_nxt() );
                 }
                 else  // DIFFERENT FIGURE ON THE SAME TEAM HAS BEEN CLICKED
                 {
@@ -85,7 +84,8 @@ public class BoardController implements Initializable
         catch (InterruptedException e) { System.out.println("Interrupted Exception"); }
     }
 
-    private void move_player( Button btn, boolean mark ) throws FileNotFoundException
+    // returns false upon checkmate-situation otherwise true
+    private boolean move_player( Button btn, boolean mark ) throws FileNotFoundException
     {
 
             // if a pawn has crossed enemy lines
@@ -112,13 +112,14 @@ public class BoardController implements Initializable
                     activePlayer =null;
                     possibleMoves=null;
                     criticalKINGMove=null;
-                    return;
+                    return true;
                 }
             }
 
             // player took valid moved, reset possible moves
             activePlayer  = null;
             possibleMoves = null;
+            return false;
     }
     private void init_moves( Button btn ) throws FileNotFoundException
     {
@@ -160,7 +161,9 @@ public class BoardController implements Initializable
         AI_MOVES ai_moves[] = collect_nxt( true );
         if( ai_moves != null )
         {
-            MINIMAX(ai_moves, 2, true );
+            AI_RANDOM( ai_moves );
+            /*
+            MINIMAX(ai_moves, 1, true );
             System.out.println("minimax-calls: "+CNT);
             CNT=0;
             if( MAXMOVE != null ) {
@@ -169,29 +172,15 @@ public class BoardController implements Initializable
                 MAXMOVE = MINMOVE = null;
             }
             else
-                AI_RANDOM( collect_nxt( true ) );
+                AI_RANDOM( ai_moves );
+
+            */
         }
         else
             dialog.GAMEOVER( false );
 
     }
     static AI_MOVES MINMOVE, MAXMOVE;
-    public Abstract_Figure copy_fig( Abstract_Figure x )
-    {
-        if( x instanceof  Pawn )
-            return new Pawn( (Pawn)x );
-        if( x instanceof  Bishop )
-            return new Bishop( (Bishop)x );
-        if( x instanceof  Horse )
-            return new Horse( (Horse)x );
-        if( x instanceof  Rook )
-            return new Rook( (Rook)x );
-        if( x instanceof  Queen )
-            return new Queen( (Queen)x );
-        if( x instanceof  King )
-            return new King( (King)x );
-        return null;    // never reached
-    }
     private int MINIMAX( AI_MOVES moves[], int depth, boolean maximze ) throws FileNotFoundException
     {
         CNT++;
@@ -310,7 +299,7 @@ public class BoardController implements Initializable
     private int rand( int min, int max )
     {
         double rand = Math.random();
-        return (int) (rand * ((max-min)+1)) +min;
+        return (int) (rand * ((max-min))) +min;
     }
     private void AI_RANDOM( AI_MOVES ai_moves[] ) throws FileNotFoundException
     {
@@ -324,7 +313,8 @@ public class BoardController implements Initializable
                     break;
                 cnt++;
             }
-            move = ai_moves[ rand(0,cnt) ];
+            int rand = rand(0,cnt);
+            move = ai_moves[ rand ];
         }
         else {
             int best = 0;
@@ -384,8 +374,8 @@ public class BoardController implements Initializable
             collect_next_moves( !isBlack, true, true );
 
             board.move_player( activeFIG, btn_before );
-
             board.add_player( keep );
+
             if( isCheck() ) {
                 setIsCheck(false);
                 continue;
@@ -547,6 +537,12 @@ public class BoardController implements Initializable
             set_moves(false);
             CRITICAL_MOVE();
 
+            for(int q=0;q<possibleMoves.length;q++)
+            {
+                if(possibleMoves[q] ==null)
+                    break;
+                protect_king(possibleMoves[q]);
+            }
             // possible moves needs to be added in tmp
             for(int j=0;j<64;j++)
             {
@@ -785,6 +781,23 @@ public class BoardController implements Initializable
             }
         }
         return false;
+    }
+
+    public Abstract_Figure copy_fig( Abstract_Figure x )
+    {
+        if( x instanceof  Pawn )
+            return new Pawn( (Pawn)x );
+        if( x instanceof  Bishop )
+            return new Bishop( (Bishop)x );
+        if( x instanceof  Horse )
+            return new Horse( (Horse)x );
+        if( x instanceof  Rook )
+            return new Rook( (Rook)x );
+        if( x instanceof  Queen )
+            return new Queen( (Queen)x );
+        if( x instanceof  King )
+            return new King( (King)x );
+        return null;    // never reached
     }
 
     private void switch_turn()
