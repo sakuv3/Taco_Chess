@@ -10,6 +10,15 @@ public class AI_MOVES
     private int score, evaluation;
 
 
+    public AI_MOVES(){};
+    public AI_MOVES ( AI_MOVES x, Abstract_Figure y  )
+    {
+        BoardController c = new BoardController();
+        this.fig = c.copy_fig( y );
+        this.move = x.move;
+        this.score = x.score;
+        this.evaluation = x.evaluation;
+    }
     public void setEvaluation(int evaluation) {
         this.evaluation = evaluation;
     }

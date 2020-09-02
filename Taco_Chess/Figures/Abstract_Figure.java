@@ -6,19 +6,19 @@ import javafx.scene.image.ImageView;
 
 public abstract class Abstract_Figure
 {
-    protected Button btn;
-    protected int xCoord;
-    protected int yCoord;
-    protected boolean isBlack;
+    protected Button    btn;
+    protected int       xCoord;
+    protected int       yCoord;
+    protected boolean   isBlack;
     protected ImageView imageView;
 
     public Abstract_Figure(){}
     public Abstract_Figure( Abstract_Figure x ){
-        this.btn = x.btn;
-        this.xCoord = x.xCoord;
-        this.yCoord = x.yCoord;
-        this.isBlack = x.isBlack;
-        this.imageView = x.imageView;
+        this.btn        = x.btn;
+        this.xCoord     = x.xCoord;
+        this.yCoord     = x.yCoord;
+        this.isBlack    = x.isBlack;
+        this.imageView  = x.imageView;
     }
     public int getXCoord() {
         return this.xCoord; }

@@ -105,16 +105,14 @@ public class Board extends Stage
     private void define_start_positions() throws FileNotFoundException
     {
         set_team();
-        experimental();
+        //experimental();
     }
 
     private void experimental()
     {
-        set_figure( new Horse(), 5, 4, false );
-        set_figure( new Queen(), 0, 6, false );
-        set_figure( new King(), 7, 0, false );
-        set_figure( new Queen(), 6, 6, true );
-        set_figure( new King(), 7, 7, true );
+        set_figure( new Queen(), 5, 0, false );
+        set_figure( new King(), 2, 6, false );
+        set_figure( new King(), 0, 1, true );
     }
     private void set_team()
     {

@@ -44,7 +44,7 @@ public class Dialog
         this.view = view;
     }
 
-    public void GAMEOVER( boolean isBlack ) throws FileNotFoundException {
+    public void GAMEOVER( boolean isBlack, boolean isCheckmate ) throws FileNotFoundException {
         Stage window    = new Stage();
         GridPane grid   = new GridPane();
         StackPane stack = new StackPane();
@@ -98,7 +98,9 @@ public class Dialog
         grid.setPadding( new Insets(130,0,0,0));
         VBox v = new VBox();
         String x;
-        if( isBlack )
+        if( !isCheckmate )
+            x = "S T A L E M A T E";
+        else if( isBlack )
             x = "B L A C K  is the Winner";
         else
             x = "W H I T E   is the Winner";
